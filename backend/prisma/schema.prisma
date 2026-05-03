@@ -1,0 +1,520 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+/**
+ * ENUMS
+ */
+
+enum PerfilUsuario {
+  ADMIN
+  GESTOR
+  SUPERVISOR
+  TECNICO
+  CONSULTA
+}
+
+enum TipoAtivo {
+  MAQUINA
+  CAMINHAO
+  EQUIPAMENTO
+  COMPONENTE
+  OUTRO
+}
+
+enum StatusAtivo {
+  DISPONIVEL
+  EM_USO
+  PARADO
+  EM_MANUTENCAO
+  AGUARDANDO_PECA
+  DESATIVADO
+}
+
+enum Criticidade {
+  BAIXA
+  MEDIA
+  ALTA
+  CRITICA
+}
+
+enum TipoOS {
+  CORRETIVA
+  PREVENTIVA
+  INSPECAO
+  OUTRA
+}
+
+enum StatusOS {
+  ABERTA
+  EM_EXECUCAO
+  AGUARDANDO_PECA
+  ENCERRADA
+  CANCELADA
+}
+
+enum Prioridade {
+  BAIXA
+  MEDIA
+  ALTA
+  CRITICA
+}
+
+enum StatusParada {
+  ABERTA
+  ENCERRADA
+  CANCELADA
+}
+
+enum StatusMaterialOS {
+  SOLICITADO
+  CONSUMIDO
+  DEVOLVIDO
+  CANCELADO
+}
+
+enum TipoAlerta {
+  ATIVO_PARADO
+  OS_ATRASADA
+  AGUARDANDO_PECA
+  ESTOQUE_BAIXO
+  CUSTO_ALTO
+  OUTRO
+}
+
+enum Severidade {
+  INFO
+  BAIXA
+  MEDIA
+  ALTA
+  CRITICA
+}
+
+enum StatusAlerta {
+  ABERTO
+  LIDO
+  RESOLVIDO
+  IGNORADO
+}
+
+enum TipoAcaoAuditoria {
+  CRIACAO
+  ALTERACAO
+  EXCLUSAO
+  LOGIN
+  LOGOUT
+  ENCERRAMENTO_OS
+  CANCELAMENTO_OS
+}
+
+/**
+ * 1. EMPRESA
+ *
+ * Representa matriz, filial ou qualquer unidade empresarial principal.
+ * No projeto de vocês, isso resolve a regra: primeiro escolhe empresa,
+ * depois escolhe equipamento.
+ */
+
+model Empresa {
+  id        String   @id @default(cuid())
+  codigo    String?  @unique
+  nome      String
+  ativa     Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  localizacoes  Localizacao[]
+  usuarios      Usuario[]
+  ativos        Ativo[]
+  ordensServico OrdemServico[]
+  materiais     Material[]
+  paradas       ParadaAtivo[]
+  alertas       Alerta[]
+  logs          LogAuditoria[]
+
+  @@index([nome])
+}
+
+/**
+ * 2. LOCALIZACAO
+ *
+ * Lugar onde o ativo está.
+ * Exemplo: Oficina, Pátio, Galpão A, Linha 1, Setor de Manutenção.
+ */
+
+model Localizacao {
+  id        String  @id @default(cuid())
+  empresaId String
+
+  codigo    String?
+  nome      String
+  tipo      String?
+  ativa     Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  empresa Empresa @relation(fields: [empresaId], references: [id])
+
+  ativos        Ativo[]
+  ordensServico OrdemServico[]
+
+  @@unique([empresaId, codigo])
+  @@index([empresaId, nome])
+}
+
+/**
+ * 3. USUARIO
+ *
+ * Usuário do sistema.
+ * Para simplificar, o perfil fica direto aqui.
+ * Não criamos tabelas separadas de perfis e permissões agora.
+ */
+
+model Usuario {
+  id        String  @id @default(cuid())
+  empresaId String?
+
+  nome      String
+  email     String  @unique
+  senhaHash String
+  perfil    PerfilUsuario
+  ativo     Boolean @default(true)
+
+  ultimoLoginEm DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  empresa Empresa? @relation(fields: [empresaId], references: [id])
+
+  ordensSolicitadas OrdemServico[] @relation("SolicitanteOS")
+  ordensResponsavel OrdemServico[] @relation("ResponsavelOS")
+  apontamentos      ApontamentoOS[]
+  alertas           Alerta[]
+  logs              LogAuditoria[]
+
+  @@index([empresaId])
+  @@index([perfil])
+}
+
+/**
+ * 4. ATIVO
+ *
+ * Máquina, caminhão, equipamento ou componente.
+ * Essa é uma das tabelas centrais do projeto.
+ */
+
+model Ativo {
+  id            String  @id @default(cuid())
+  empresaId     String
+  localizacaoId String?
+
+  codigo        String
+  nome          String
+  descricao     String?
+
+  tipo          TipoAtivo
+  status        StatusAtivo @default(DISPONIVEL)
+  criticidade   Criticidade @default(MEDIA)
+
+  marca         String?
+  modelo        String?
+  numeroSerie   String?
+  placa         String?
+
+  horimetroAtual Decimal?
+  odometroAtual  Decimal?
+
+  ativo         Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  empresa     Empresa      @relation(fields: [empresaId], references: [id])
+  localizacao Localizacao? @relation(fields: [localizacaoId], references: [id])
+
+  ordensServico OrdemServico[]
+  paradas       ParadaAtivo[]
+  alertas       Alerta[]
+
+  @@unique([empresaId, codigo])
+  @@index([empresaId, status])
+  @@index([empresaId, tipo])
+  @@index([localizacaoId])
+  @@index([criticidade])
+}
+
+/**
+ * 5. ORDEM DE SERVICO
+ *
+ * Representa a manutenção em si.
+ * Aqui ficam O.S. aberta, em execução, aguardando peça, encerrada etc.
+ */
+
+model OrdemServico {
+  id            String  @id @default(cuid())
+  empresaId     String
+  localizacaoId String?
+  ativoId       String
+
+  solicitanteId String?
+  responsavelId String?
+
+  numero        String
+  titulo        String
+  descricao     String
+
+  tipo          TipoOS      @default(CORRETIVA)
+  status        StatusOS    @default(ABERTA)
+  prioridade    Prioridade  @default(MEDIA)
+
+  impactaDisponibilidade Boolean @default(true)
+
+  abertaEm      DateTime  @default(now())
+  iniciadaEm    DateTime?
+  encerradaEm   DateTime?
+  canceladaEm   DateTime?
+  prazoEm       DateTime?
+
+  aguardandoPecaDesde        DateTime?
+  tempoAguardandoPecaMinutos Int?
+  tempoParadoMinutos         Int?
+  tempoExecucaoMinutos       Int?
+
+  custoMateriais Decimal @default(0)
+  custoMaoObra   Decimal @default(0)
+  custoTotal     Decimal @default(0)
+
+  diagnostico    String?
+  solucao        String?
+  observacao     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  empresa     Empresa      @relation(fields: [empresaId], references: [id])
+  localizacao Localizacao? @relation(fields: [localizacaoId], references: [id])
+  ativo       Ativo        @relation(fields: [ativoId], references: [id])
+
+  solicitante Usuario? @relation("SolicitanteOS", fields: [solicitanteId], references: [id])
+  responsavel Usuario? @relation("ResponsavelOS", fields: [responsavelId], references: [id])
+
+  paradas      ParadaAtivo[]
+  materiais    OrdemServicoMaterial[]
+  apontamentos ApontamentoOS[]
+  alertas      Alerta[]
+
+  @@unique([empresaId, numero])
+  @@index([empresaId, status])
+  @@index([ativoId, abertaEm])
+  @@index([status, prioridade])
+  @@index([prazoEm])
+}
+
+/**
+ * 6. PARADA DO ATIVO
+ *
+ * Mede o tempo real em que a máquina ficou parada.
+ * Essa tabela é essencial para dashboard de disponibilidade.
+ */
+
+model ParadaAtivo {
+  id             String @id @default(cuid())
+  empresaId      String
+  ativoId        String
+  ordemServicoId String?
+
+  status         StatusParada @default(ABERTA)
+
+  inicioEm       DateTime @default(now())
+  fimEm          DateTime?
+  duracaoMinutos Int?
+
+  motivo         String?
+  programada     Boolean @default(false)
+  impactaDisponibilidade Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  empresa      Empresa       @relation(fields: [empresaId], references: [id])
+  ativo        Ativo         @relation(fields: [ativoId], references: [id])
+  ordemServico OrdemServico? @relation(fields: [ordemServicoId], references: [id])
+
+  @@index([empresaId, inicioEm])
+  @@index([ativoId, status])
+  @@index([ordemServicoId])
+}
+
+/**
+ * 7. MATERIAL
+ *
+ * Peças e materiais usados nas O.S.
+ * Para simplificar, o estoque fica direto nesta tabela.
+ */
+
+model Material {
+  id        String @id @default(cuid())
+  empresaId String
+
+  codigo    String
+  nome      String
+  descricao String?
+
+  unidade      String  @default("UN")
+  estoqueAtual Decimal @default(0)
+  estoqueMinimo Decimal @default(0)
+
+  custoMedio Decimal @default(0)
+
+  ativo     Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  empresa Empresa @relation(fields: [empresaId], references: [id])
+
+  ordensServico OrdemServicoMaterial[]
+
+  @@unique([empresaId, codigo])
+  @@index([empresaId, nome])
+}
+
+/**
+ * 8. MATERIAL USADO NA O.S.
+ *
+ * Liga uma O.S. aos materiais usados ou solicitados.
+ */
+
+model OrdemServicoMaterial {
+  id             String @id @default(cuid())
+  ordemServicoId String
+  materialId     String
+
+  quantidade     Decimal @default(1)
+  custoUnitario  Decimal @default(0)
+  custoTotal     Decimal @default(0)
+
+  status         StatusMaterialOS @default(SOLICITADO)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ordemServico OrdemServico @relation(fields: [ordemServicoId], references: [id])
+  material     Material     @relation(fields: [materialId], references: [id])
+
+  @@index([ordemServicoId])
+  @@index([materialId])
+}
+
+/**
+ * 9. APONTAMENTO DA O.S.
+ *
+ * Registra tempo trabalhado pelo técnico.
+ * Isso permite calcular mão de obra e tempo de execução.
+ */
+
+model ApontamentoOS {
+  id             String @id @default(cuid())
+  ordemServicoId String
+  usuarioId      String
+
+  inicioEm       DateTime
+  fimEm          DateTime?
+  duracaoMinutos Int?
+
+  descricao      String?
+
+  custoHora      Decimal?
+  custoTotal     Decimal?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ordemServico OrdemServico @relation(fields: [ordemServicoId], references: [id])
+  usuario      Usuario      @relation(fields: [usuarioId], references: [id])
+
+  @@index([ordemServicoId])
+  @@index([usuarioId])
+}
+
+/**
+ * 10. ALERTA
+ *
+ * Alertas do sistema: máquina parada, O.S. atrasada,
+ * aguardando peça, estoque baixo etc.
+ */
+
+model Alerta {
+  id             String @id @default(cuid())
+  empresaId      String
+  ativoId        String?
+  ordemServicoId String?
+  usuarioId      String?
+
+  tipo           TipoAlerta
+  severidade     Severidade   @default(MEDIA)
+  status         StatusAlerta @default(ABERTO)
+
+  titulo         String
+  mensagem       String
+
+  geradoEm       DateTime @default(now())
+  lidoEm         DateTime?
+  resolvidoEm    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  empresa      Empresa       @relation(fields: [empresaId], references: [id])
+  ativo        Ativo?        @relation(fields: [ativoId], references: [id])
+  ordemServico OrdemServico? @relation(fields: [ordemServicoId], references: [id])
+  usuario      Usuario?      @relation(fields: [usuarioId], references: [id])
+
+  @@index([empresaId, status])
+  @@index([tipo, severidade])
+  @@index([ativoId])
+  @@index([ordemServicoId])
+}
+
+/**
+ * 11. LOG DE AUDITORIA
+ *
+ * Guarda alterações importantes.
+ * Isso atende ao requisito de saber quem alterou informações.
+ */
+
+model LogAuditoria {
+  id        String @id @default(cuid())
+  empresaId String?
+  usuarioId String?
+
+  entidade   String
+  entidadeId String
+  acao       TipoAcaoAuditoria
+
+  antes      Json?
+  depois     Json?
+
+  createdAt DateTime @default(now())
+
+  empresa Empresa? @relation(fields: [empresaId], references: [id])
+  usuario Usuario? @relation(fields: [usuarioId], references: [id])
+
+  @@index([empresaId])
+  @@index([usuarioId])
+  @@index([entidade, entidadeId])
+}
