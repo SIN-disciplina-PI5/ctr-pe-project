@@ -11,13 +11,13 @@ import Animated from 'react-native-reanimated';
  * </NativeOnlyAnimatedView>
  */
 function NativeOnlyAnimatedView(
-  props: React.ComponentProps<typeof Animated.View> & React.RefAttributes<typeof Animated.View>
+  props: React.ComponentProps<typeof Animated.View>,
 ) {
-  if (Platform.OS === 'web') {
+  if (Platform.OS === "web") {
     return <>{props.children as React.ReactNode}</>;
-  } else {
-    return <Animated.View {...props} />;
   }
+
+  return <Animated.View {...props} />;
 }
 
 export { NativeOnlyAnimatedView };
