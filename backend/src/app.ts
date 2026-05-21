@@ -5,7 +5,11 @@ import morgan from "morgan";
 import { AppError } from "./common/errors/AppError.js";
 import { ErrorCode } from "./common/errors/error-code.js";
 import { errorHandlerMiddleware } from "./common/middlewares/error-handler.middleware.js";
-import { requestContextMiddleware } from "./common/middlewares/request-context.middleware.js";
+import { requestContextMiddleware } from "./common/middlewares/request-context.middleware.js"
+import { authRouter } from "./auth/auth.routes.js";
+import { usuariosRouter } from "./modules/usuarios/usuarios.routes.js";
+
+
 
 export const app = express();
 
@@ -14,6 +18,11 @@ app.use(cors());
 app.use(morgan("dev"));
 app.use(requestContextMiddleware);
 app.use(express.json());
+
+
+app.use("/api/auth", authRouter);
+app.use("/api/usuarios", usuariosRouter);
+
 
 app.get("/health", (_req, res) => {
   return res.status(200).json({
