@@ -4,7 +4,7 @@ import type { PerfilUsuario } from "@prisma/client";
 
 export interface JwtPayload {
   userId: string;
-  empresaId: string | null;
+  empresaId: string;
   perfil: PerfilUsuario;
 }
 
@@ -19,25 +19,41 @@ declare global {
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers["authorization"];
 
-  if (!authHeader?.startsWith("Bearer ")) {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: "Token não fornecido." });
   }
 
-  const token = authHeader.split(" ")[1];
-  
+  const [, token] = authHeader.split(" ");
+
   if (!token) {
     return res.status(401).json({ message: "Token não fornecido." });
-    }
-    
+  }
+
   const secret = process.env["JWT_SECRET"];
 
-  if (!secret) throw new Error("JWT_SECRET não definido");
+  if (!secret) {
+    throw new Error("JWT_SECRET não definido");
+  }
 
   try {
-    const payload = jwt.verify(token, secret) as unknown as JwtPayload;
-    req.user = payload;
+    const payload = jwt.verify(token, secret);
+
+    if (
+      typeof payload !== "object" ||
+      payload === null ||
+      !("userId" in payload) ||
+      !("empresaId" in payload) ||
+      !("perfil" in payload)
+    ) {
+      return res.status(401).json({ message: "Token inválido." });
+    }
+
+    req.user = payload as JwtPayload;
+
     next();
-  } catch {
-    return res.status(401).json({ message: "Token inválido ou expirado." });
+  } catch (error) {
+    return res.status(401).json({
+      message: "Token inválido ou expirado.",
+    });
   }
 }

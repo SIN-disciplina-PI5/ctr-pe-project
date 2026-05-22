@@ -8,6 +8,7 @@ import { errorHandlerMiddleware } from "./common/middlewares/error-handler.middl
 import { requestContextMiddleware } from "./common/middlewares/request-context.middleware.js"
 import { authRouter } from "./auth/auth.routes.js";
 import { usuariosRouter } from "./modules/usuarios/usuarios.routes.js";
+import { empresasRouter } from "./modules/empresas/empresas.routes.js";
 
 
 
@@ -22,6 +23,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRouter);
 app.use("/api/usuarios", usuariosRouter);
+app.use("/api/empresas", empresasRouter);
 
 
 app.get("/health", (_req, res) => {

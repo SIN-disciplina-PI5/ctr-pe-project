@@ -20,7 +20,7 @@ export class UsuariosService {
   private usuariosRepository = new UsuariosRepository();
 
   async findAll(empresaId: string) {
-    return this.usuariosRepository.findAll(empresaId);
+    return this.usuariosRepository.findAll({ empresaId });
   }
 
   async findById(id: string, empresaId: string) {
@@ -36,7 +36,7 @@ export class UsuariosService {
 
     if (emailEmUso) throw new Error("Email já está em uso");
 
-    const saltRounds = Number(process.env["BCRYPT_SALT_ROUNDS"]) || 10;
+    const saltRounds = parseInt(process.env["BCRYPT_SALT_ROUNDS"] ?? "10", 10);
     const senhaHash = await bcrypt.hash(data.password, saltRounds);
 
     return this.usuariosRepository.create({
@@ -49,7 +49,13 @@ export class UsuariosService {
   }
 
   async update(id: string, empresaId: string, data: UpdateUsuarioInput) {
-    await this.findById(id, empresaId);
+    const user = await this.findById(id, empresaId);
+
+    if (data.email && data.email !== user.email) {
+      const emailEmUso = await this.usuariosRepository.findByEmail(data.email);
+
+      if (emailEmUso) throw new Error("Email já está em uso");
+    }
 
     return this.usuariosRepository.update(id, empresaId, data);
   }
@@ -57,6 +63,6 @@ export class UsuariosService {
   async delete(id: string, empresaId: string) {
     await this.findById(id, empresaId);
 
-    return this.usuariosRepository.delete(id);
+    return this.usuariosRepository.delete(id, empresaId);
   }
 }
