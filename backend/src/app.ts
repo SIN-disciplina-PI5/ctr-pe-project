@@ -9,6 +9,7 @@ import { requestContextMiddleware } from "./common/middlewares/request-context.m
 import { authRouter } from "./auth/auth.routes.js";
 import { usuariosRouter } from "./modules/usuarios/usuarios.routes.js";
 import { empresasRouter } from "./modules/empresas/empresas.routes.js";
+import { ativosRouter } from "./modules/ativos/ativos.routes.js";
 
 
 
@@ -21,9 +22,11 @@ app.use(requestContextMiddleware);
 app.use(express.json());
 
 
+
 app.use("/api/auth", authRouter);
 app.use("/api/usuarios", usuariosRouter);
 app.use("/api/empresas", empresasRouter);
+app.use("/api/ativos", ativosRouter);
 
 
 app.get("/health", (_req, res) => {

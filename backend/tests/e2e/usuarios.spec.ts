@@ -5,6 +5,8 @@ async function getToken(email: string, password: string): Promise<string> {
   return response.body.accessToken as string;
 }
 
+const uniqueEmail = `novo.tecnico.${Date.now()}@teste.com`;
+
 describe("Usuarios routes", () => {
   describe("POST /api/usuarios — ADMIN criando usuário", () => {
     it("should create a user as ADMIN", async () => {
@@ -15,13 +17,13 @@ describe("Usuarios routes", () => {
         .set("Authorization", `Bearer ${token}`)
         .send({
           nome: "Novo Tecnico",
-          email: "novo.tecnico@teste.com",
+          email: uniqueEmail,
           password: "123456",
           perfil: "TECNICO",
         });
 
       expect(response.status).toBe(201);
-      expect(response.body.email).toBe("novo.tecnico@teste.com");
+      expect(response.body.email).toBe(uniqueEmail);
       expect(response.body.perfil).toBe("TECNICO");
     });
 
@@ -33,7 +35,7 @@ describe("Usuarios routes", () => {
         .set("Authorization", `Bearer ${token}`)
         .send({
           nome: "Duplicado",
-          email: "novo.tecnico@teste.com",
+          email: uniqueEmail,
           password: "123456",
           perfil: "TECNICO",
         });
@@ -43,7 +45,7 @@ describe("Usuarios routes", () => {
         .set("Authorization", `Bearer ${token}`)
         .send({
           nome: "Duplicado",
-          email: "novo.tecnico@teste.com",
+          email: uniqueEmail,
           password: "123456",
           perfil: "TECNICO",
         });
