@@ -1,15 +1,29 @@
 import type { Request, Response, NextFunction } from "express";
 import { UsuariosService } from "./usuarios.service.js";
+import type { PerfilUsuario } from "@prisma/client";
+import { canReadUsuario } from "./usuarios.policy.js";
+import { AppError } from "../../common/errors/AppError.js";
+import { ErrorCode } from "../../common/errors/error-code.js";
 
 const usuariosService = new UsuariosService();
 
 export async function findAll(req: Request, res: Response, next: NextFunction) {
   try {
-    const empresaId = req.user?.empresaId;
-    if (!empresaId) throw new Error("Usuário não autenticado");
+    const { empresaId, perfil, ativo, search } = req.query as {
+      empresaId?: string;
+      perfil?: PerfilUsuario;
+      ativo?: string;
+      search?: string;
+    };
 
-    const result = await usuariosService.findAll(empresaId);
+    const filters = {
+      ...(empresaId !== undefined && { empresaId }),
+      ...(perfil !== undefined && { perfil }),
+      ...(ativo !== undefined && { ativo: ativo === "true" }),
+      ...(search !== undefined && { search }),
+    };
 
+    const result = await usuariosService.findAll(filters);
     return res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -18,13 +32,14 @@ export async function findAll(req: Request, res: Response, next: NextFunction) {
 
 export async function findById(req: Request, res: Response, next: NextFunction) {
   try {
-    const empresaId = req.user?.empresaId;
-    if (!empresaId) throw new Error("Usuário não autenticado");
+    const actor = req.user!;
+    const { id } = req.params as { id: string };
 
-    const id = req.params.id as string;
+    if (!canReadUsuario(actor, id)) {
+      throw new AppError({ message: "Sem permissão para esta ação", statusCode: 403, errorCode: ErrorCode.FORBIDDEN });
+    }
 
-    const result = await usuariosService.findById(id, empresaId);
-
+    const result = await usuariosService.findById(id);
     return res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -33,11 +48,7 @@ export async function findById(req: Request, res: Response, next: NextFunction) 
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    const empresaId = req.user?.empresaId;
-    if (!empresaId) throw new Error("Usuário não autenticado");
-
-    const result = await usuariosService.create(empresaId, req.body);
-
+    const result = await usuariosService.create(req.body);
     return res.status(201).json(result);
   } catch (error) {
     next(error);
@@ -46,13 +57,19 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function update(req: Request, res: Response, next: NextFunction) {
   try {
-    const empresaId = req.user?.empresaId;
-    if (!empresaId) throw new Error("Usuário não autenticado");
+    const { id } = req.params as { id: string };
+    const result = await usuariosService.update(id, req.body);
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
 
-    const id = req.params.id as string;
-
-    const result = await usuariosService.update(id, empresaId, req.body);
-
+export async function resetPassword(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { id } = req.params as { id: string };
+    const { novaSenha } = req.body as { novaSenha: string };
+    const result = await usuariosService.resetPassword(id, novaSenha);
     return res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -61,15 +78,11 @@ export async function update(req: Request, res: Response, next: NextFunction) {
 
 export async function remove(req: Request, res: Response, next: NextFunction) {
   try {
-    const empresaId = req.user?.empresaId;
-    if (!empresaId) throw new Error("Usuário não autenticado");
-
-    const id = req.params.id as string;
-
-    await usuariosService.delete(id, empresaId);
-
+    const { id } = req.params as { id: string };
+    await usuariosService.delete(id);
     return res.status(204).send();
   } catch (error) {
     next(error);
   }
 }
+
