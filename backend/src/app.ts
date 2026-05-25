@@ -16,6 +16,7 @@ import { ordensServicoRouter } from "./modules/ordens-servico/ordens-servico.rou
 
 
 
+
 export const app = express();
 
 app.use(helmet());
@@ -33,6 +34,7 @@ app.use("/api/ativos", ativosRouter);
 app.use("/api/materiais", materiaisRouter);
 app.use("/api/alertas", alertasRouter);
 app.use("/api/ordens-servico", ordensServicoRouter);
+
 
 
 app.get("/health", (_req, res) => {

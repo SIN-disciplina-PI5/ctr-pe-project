@@ -130,6 +130,37 @@ export class OrdensServicoService {
     });
   }
 
+
+  async iniciar(id: string, iniciadaEm?: string) {
+  const os = await this.findById(id);
+
+  if (os.status !== "ABERTA") {
+    throw new AppError({
+      message: "Apenas O.S. com status ABERTA pode ser iniciada",
+      statusCode: 400,
+      errorCode: ErrorCode.VALIDATION_ERROR,
+    });
+  }
+
+  const dataInicio = iniciadaEm ? new Date(iniciadaEm) : (os.iniciadaEm ?? new Date());
+
+  return this.ordensServicoRepository.iniciar(id, dataInicio);
+}
+
+async aguardarPeca(id: string, observacao?: string) {
+  const os = await this.findById(id);
+
+  if (os.status !== "EM_EXECUCAO") {
+    throw new AppError({
+      message: "Apenas O.S. com status EM_EXECUCAO pode aguardar peça",
+      statusCode: 400,
+      errorCode: ErrorCode.VALIDATION_ERROR,
+    });
+  }
+
+  return this.ordensServicoRepository.aguardarPeca(id, observacao);
+}
+
   async update(id: string, data: UpdateOrdemServicoInput) {
     await this.findById(id);
 
@@ -172,7 +203,8 @@ export class OrdensServicoService {
     throw new AppError({
       message: "Não foi possível gerar número para a O.S.",
       statusCode: 500,
-      errorCode: ErrorCode.INTERNAL_ERROR,
+      errorCode: ErrorCode.INTERNAL_SERVER_ERROR,
     });
   }
 }
+

@@ -65,3 +65,29 @@ export async function update(req: Request, res: Response, next: NextFunction) {
     next(error);
   }
 }
+
+export async function iniciar(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { id } = req.params as { id: string };
+    const { iniciadaEm } = req.body as { iniciadaEm?: string };
+
+    const result = await ordensServicoService.iniciar(id, iniciadaEm);
+
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function aguardarPeca(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { id } = req.params as { id: string };
+    const { observacao } = req.body as { observacao?: string };
+
+    const result = await ordensServicoService.aguardarPeca(id, observacao);
+
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}

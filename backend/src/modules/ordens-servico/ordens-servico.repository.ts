@@ -228,6 +228,47 @@ export class OrdensServicoRepository {
     });
   }
 
+  async iniciar(id: string, iniciadaEm: Date) {
+    return prisma.$transaction(async (tx) => {
+      const os = await tx.ordemServico.update({
+        where: { id },
+        data: {
+          status: "EM_EXECUCAO",
+          iniciadaEm,
+        },
+        select: ordemServicoSelect,
+      });
+  
+      await tx.ativo.update({
+        where: { id: os.ativo.id },
+        data: { status: "EM_MANUTENCAO" },
+      });
+  
+      return os;
+    });
+  }
+
+  async aguardarPeca(id: string, observacao?: string) {
+  return prisma.$transaction(async (tx) => {
+    const os = await tx.ordemServico.update({
+      where: { id },
+      data: {
+        status: "AGUARDANDO_PECA",
+        aguardandoPecaDesde: new Date(),
+        ...(observacao !== undefined && { observacao }),
+      },
+      select: ordemServicoSelect,
+    });
+
+    await tx.ativo.update({
+      where: { id: os.ativo.id },
+      data: { status: "AGUARDANDO_PECA" },
+    });
+
+    return os;
+  });
+}
+
   async update(id: string, data: UpdateOrdemServicoData) {
     return prisma.ordemServico.update({
       where: { id },

@@ -5,7 +5,9 @@ import { validate } from "../../common/middlewares/validate.middleware.js";
 import { createOrdemServicoDto } from "./dto/create-ordem-servico.dto.js";
 import { listOrdensServicoDto } from "./dto/list-ordens-servico.dto.js";
 import { updateOrdemServicoDto } from "./dto/update-ordem-servico.dto.js";
-import { create, findAll, findById, update } from "./ordens-servico.controller.js";
+import { create, findAll, findById, update, iniciar, aguardarPeca  } from "./ordens-servico.controller.js";
+
+
 
 export const ordensServicoRouter = Router();
 
@@ -24,4 +26,16 @@ ordensServicoRouter.patch(
   requireRole(["ADMIN", "SUPERVISOR", "TECNICO"]),
   validate(updateOrdemServicoDto),
   update
+);
+
+ordensServicoRouter.patch(
+  "/:id/iniciar",
+  requireRole(["ADMIN", "SUPERVISOR", "TECNICO"]),
+  iniciar
+);
+
+ordensServicoRouter.patch(
+  "/:id/aguardar-peca",
+  requireRole(["ADMIN", "SUPERVISOR", "TECNICO"]),
+  aguardarPeca
 );
