@@ -11,6 +11,7 @@ import { usuariosRouter } from "./modules/usuarios/usuarios.routes.js";
 import { empresasRouter } from "./modules/empresas/empresas.routes.js";
 import { ativosRouter } from "./modules/ativos/ativos.routes.js";
 import { materiaisRouter } from "./modules/materiais/materiais.routes.js";
+import { alertasRouter } from "./modules/alertas/alertas.routes.js";
 
 
 
@@ -29,6 +30,7 @@ app.use("/api/usuarios", usuariosRouter);
 app.use("/api/empresas", empresasRouter);
 app.use("/api/ativos", ativosRouter);
 app.use("/api/materiais", materiaisRouter);
+app.use("/api/alertas", alertasRouter);
 
 
 app.get("/health", (_req, res) => {

@@ -1,7 +1,8 @@
-import { MateriaisRepository } from "./materiais.repository.js";
+import { Prisma } from "@prisma/client";
 import { AppError } from "../../common/errors/AppError.js";
 import { ErrorCode } from "../../common/errors/error-code.js";
-import { Prisma } from "@prisma/client";
+import { AlertasRepository } from "../alertas/alertas.repository.js";
+import { MateriaisRepository } from "./materiais.repository.js";
 
 interface CreateMaterialInput {
   empresaId: string;
@@ -41,6 +42,7 @@ interface UpdateEstoqueInput {
 
 export class MateriaisService {
   private materiaisRepository = new MateriaisRepository();
+  private alertasRepository = new AlertasRepository();
 
   async findAll(filters: FindAllFilters) {
     return this.materiaisRepository.findAll(filters);
@@ -74,7 +76,23 @@ export class MateriaisService {
       });
     }
 
-    return this.materiaisRepository.create(data);
+    const material = await this.materiaisRepository.create(data);
+
+    const estoqueAtual = new Prisma.Decimal(material.estoqueAtual ?? 0);
+    const estoqueMinimo = new Prisma.Decimal(material.estoqueMinimo ?? 0);
+
+    if (estoqueAtual.lte(estoqueMinimo)) {
+      await this.alertasRepository.createEstoqueBaixo({
+        empresaId: material.empresaId,
+        materialId: material.id,
+        materialCodigo: material.codigo,
+        materialNome: material.nome,
+        estoqueAtual: estoqueAtual.toString(),
+        estoqueMinimo: estoqueMinimo.toString(),
+      });
+    }
+
+    return material;
   }
 
   async update(id: string, data: UpdateMaterialInput) {
@@ -95,7 +113,23 @@ export class MateriaisService {
       }
     }
 
-    return this.materiaisRepository.update(id, data);
+    const materialAtualizado = await this.materiaisRepository.update(id, data);
+
+    const estoqueAtual = new Prisma.Decimal(materialAtualizado.estoqueAtual ?? 0);
+    const estoqueMinimo = new Prisma.Decimal(materialAtualizado.estoqueMinimo ?? 0);
+
+    if (estoqueAtual.lte(estoqueMinimo)) {
+      await this.alertasRepository.createEstoqueBaixo({
+        empresaId: materialAtualizado.empresaId,
+        materialId: materialAtualizado.id,
+        materialCodigo: materialAtualizado.codigo,
+        materialNome: materialAtualizado.nome,
+        estoqueAtual: estoqueAtual.toString(),
+        estoqueMinimo: estoqueMinimo.toString(),
+      });
+    }
+
+    return materialAtualizado;
   }
 
   async updateEstoque(id: string, input: UpdateEstoqueInput) {
@@ -147,7 +181,26 @@ export class MateriaisService {
       novoEstoque = new Prisma.Decimal(input.novoEstoque);
     }
 
-    return this.materiaisRepository.updateEstoque(id, novoEstoque);
+    const materialAtualizado = await this.materiaisRepository.updateEstoque(
+      id,
+      novoEstoque
+    );
+
+    const estoqueAtualizado = new Prisma.Decimal(materialAtualizado.estoqueAtual);
+    const estoqueMinimo = new Prisma.Decimal(materialAtualizado.estoqueMinimo);
+
+    if (estoqueAtualizado.lte(estoqueMinimo)) {
+      await this.alertasRepository.createEstoqueBaixo({
+        empresaId: material.empresaId,
+        materialId: material.id,
+        materialCodigo: material.codigo,
+        materialNome: material.nome,
+        estoqueAtual: estoqueAtualizado.toString(),
+        estoqueMinimo: estoqueMinimo.toString(),
+      });
+    }
+
+    return materialAtualizado;
   }
 
   async delete(id: string) {
