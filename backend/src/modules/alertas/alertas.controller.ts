@@ -15,11 +15,13 @@ export async function findAll(
       tipo?: string;
     };
 
-    const alertas = await alertasRepository.findAll({
-      empresaId,
-      status,
-      tipo,
-    });
+    const filters = {
+      ...(empresaId !== undefined && { empresaId }),
+      ...(status !== undefined && { status }),
+      ...(tipo !== undefined && { tipo }),
+    };
+
+    const alertas = await alertasRepository.findAll(filters);
 
     return res.status(200).json(alertas);
   } catch (error) {

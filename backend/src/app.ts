@@ -12,6 +12,7 @@ import { empresasRouter } from "./modules/empresas/empresas.routes.js";
 import { ativosRouter } from "./modules/ativos/ativos.routes.js";
 import { materiaisRouter } from "./modules/materiais/materiais.routes.js";
 import { alertasRouter } from "./modules/alertas/alertas.routes.js";
+import { ordensServicoRouter } from "./modules/ordens-servico/ordens-servico.routes.js";
 
 
 
@@ -31,6 +32,7 @@ app.use("/api/empresas", empresasRouter);
 app.use("/api/ativos", ativosRouter);
 app.use("/api/materiais", materiaisRouter);
 app.use("/api/alertas", alertasRouter);
+app.use("/api/ordens-servico", ordensServicoRouter);
 
 
 app.get("/health", (_req, res) => {
