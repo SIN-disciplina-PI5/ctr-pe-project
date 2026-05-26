@@ -15,6 +15,8 @@ import { alertasRouter } from "./modules/alertas/alertas.routes.js";
 import { ordensServicoRouter } from "./modules/ordens-servico/ordens-servico.routes.js";
 import { paradasAtivosRouter } from "./modules/paradas-ativos/paradas-ativos.routes.js";
 import { ordensServicoMateriaisRouter } from "./modules/ordens-servico-materiais/ordens-servico-materiais.routes.js";
+import { apontamentosOSRouter } from "./modules/apontamentos-os/apontamentos-os.routes.js";
+
 
 
 export const app = express();
@@ -36,6 +38,8 @@ app.use("/api/alertas", alertasRouter);
 app.use("/api/ordens-servico", ordensServicoRouter);
 app.use("/api/paradas-ativos", paradasAtivosRouter);
 app.use("/api/ordens-servico-materiais", ordensServicoMateriaisRouter);
+app.use("/api/apontamentos-os", apontamentosOSRouter);
+
 
 
 

@@ -5,18 +5,19 @@ import { validate } from "../../common/middlewares/validate.middleware.js";
 import { createOrdemServicoDto } from "./dto/create-ordem-servico.dto.js";
 import { listOrdensServicoDto } from "./dto/list-ordens-servico.dto.js";
 import { updateOrdemServicoDto } from "./dto/update-ordem-servico.dto.js";
-import { create, findAll, findById, update, iniciar, aguardarPeca, retomar, encerrar, cancelar  } from "./ordens-servico.controller.js";
-import { findByOrdemServico, create as createMaterial } from "../ordens-servico-materiais/ordens-servico-materiais.controller.js";
-
-
+import { create, findAll, findById, update, iniciar, aguardarPeca, retomar, encerrar, cancelar } from "./ordens-servico.controller.js";
+import { findByOrdemServico as findMateriaisByOrdemServico, create as createMaterial } from "../ordens-servico-materiais/ordens-servico-materiais.controller.js";
+import { findByOrdemServico as findApontamentosByOrdemServico, create as createApontamento } from "../apontamentos-os/apontamentos-os.controller.js";
 
 export const ordensServicoRouter = Router();
 
 ordensServicoRouter.use(authMiddleware);
 
-ordensServicoRouter.get("/:ordemServicoId/materiais", findByOrdemServico);
+ordensServicoRouter.get("/:ordemServicoId/materiais", findMateriaisByOrdemServico);
+ordensServicoRouter.get("/:ordemServicoId/apontamentos", findApontamentosByOrdemServico);
 ordensServicoRouter.get("/", validate(listOrdensServicoDto, "query"), findAll);
 ordensServicoRouter.get("/:id", findById);
+
 ordensServicoRouter.post(
   "/",
   requireRole(["ADMIN", "SUPERVISOR", "TECNICO"]),
@@ -28,6 +29,12 @@ ordensServicoRouter.post(
   "/:ordemServicoId/materiais",
   requireRole(["ADMIN", "SUPERVISOR", "TECNICO"]),
   createMaterial
+);
+
+ordensServicoRouter.post(
+  "/:ordemServicoId/apontamentos",
+  requireRole(["ADMIN", "SUPERVISOR", "TECNICO"]),
+  createApontamento
 );
 
 ordensServicoRouter.patch(
