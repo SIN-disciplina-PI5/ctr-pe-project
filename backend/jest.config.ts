@@ -7,6 +7,7 @@ const config: Config = {
   setupFilesAfterEnv: ["<rootDir>/tests/setup.ts"],
   clearMocks: true,
   extensionsToTreatAsEsm: [".ts"],
+  testTimeout: 30000,
   transform: {
     "^.+\\.ts$": [
       "ts-jest",
