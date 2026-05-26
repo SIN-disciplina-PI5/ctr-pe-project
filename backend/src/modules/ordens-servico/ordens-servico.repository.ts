@@ -79,6 +79,9 @@ const ordemServicoSelect = {
   observacao: true,
   createdAt: true,
   updatedAt: true,
+  custoMateriais: true,
+  custoMaoObra: true,
+  custoTotal: true,
   ativo: {
     select: {
       id: true,
