@@ -19,7 +19,7 @@ beforeAll(async () => {
   const meResponse = await api.get("/api/auth/me").set("Authorization", `Bearer ${tecnicoToken}`);
   tecnicoId = meResponse.body.id as string;
 });
-
+ 
 
 async function criarOS(token: string, extra = {}) {
   const response = await api
