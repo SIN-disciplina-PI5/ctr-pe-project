@@ -54,6 +54,7 @@ export default function LoginScreen() {
             </CardHeader>
 
             <CardContent className="gap-5">
+              {/* Campo de E-mail */}
               <View className="gap-2">
                 <Label nativeID="email">E-mail</Label>
                 <Controller
@@ -78,8 +79,16 @@ export default function LoginScreen() {
                 )}
               </View>
 
+              {/* Campo de Senha */}
               <View className="gap-2">
-                <Label nativeID="senha">Senha</Label>
+                <div className="flex items-center justify-between">
+                  <Label nativeID="senha">Senha</Label>
+                  <Link href="/(auth)/forgot-password" asChild>
+                    <Text className="text-xs text-primary underline font-medium">
+                      Esqueceu a senha?
+                    </Text>
+                  </Link>
+                </div>
                 <Controller
                   control={control}
                   name="senha"
