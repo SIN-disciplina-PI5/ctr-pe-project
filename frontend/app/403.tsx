@@ -19,7 +19,7 @@ export default function ForbiddenScreen() {
             </CardHeader>
             <CardContent className="items-center gap-4">
               <Text className="text-center text-muted-foreground">
-                Voce nao tem permissao para acessar esta tela
+                Você não tem permissão para acessar esta tela. Entre em contato com o administrador para obter acesso.
               </Text>
 
               <Link href="/(protected)/(tabs)/dashboard" asChild>
