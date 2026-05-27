@@ -1,6 +1,9 @@
+import React from "react";
 import { Link } from "expo-router";
-import { View } from "react-native";
+import { View, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +17,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/text";
 
+import { loginSchema } from "@/features/auth/auth.schemas";
+import { useLoginMutation } from "@/features/auth/auth.hooks";
+
 export default function LoginScreen() {
+  const { mutate: login, isPending, error: mutationError } = useLoginMutation();
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      senha: "",
+    },
+  });
+
+  const onSubmit = (data: any) => {
+    login(data);
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-1 items-center justify-center px-6">
@@ -32,31 +56,70 @@ export default function LoginScreen() {
             <CardContent className="gap-5">
               <View className="gap-2">
                 <Label nativeID="email">E-mail</Label>
-                <Input
-                  aria-labelledby="email"
-                  placeholder="seuemail@empresa.com"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
+                <Controller
+                  control={control}
+                  name="email"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <Input
+                      aria-labelledby="email"
+                      placeholder="seuemail@empresa.com"
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                    />
+                  )}
                 />
+                {errors.email && (
+                  <Text className="text-xs text-destructive font-medium mt-1">
+                    {String(errors.email.message)}
+                  </Text>
+                )}
               </View>
 
               <View className="gap-2">
                 <Label nativeID="senha">Senha</Label>
-                <Input
-                  aria-labelledby="senha"
-                  placeholder="Digite sua senha"
-                  secureTextEntry
+                <Controller
+                  control={control}
+                  name="senha"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <Input
+                      aria-labelledby="senha"
+                      placeholder="Digite sua senha"
+                      secureTextEntry
+                      autoCapitalize="none"
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                    />
+                  )}
                 />
+                {errors.senha && (
+                  <Text className="text-xs text-destructive font-medium mt-1">
+                    {String(errors.senha.message)}
+                  </Text>
+                )}
               </View>
 
-              <View className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2">
-                <Text className="text-sm text-destructive">
-                  E-mail ou senha invalidos
-                </Text>
-              </View>
+              {mutationError && (
+                <View className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2">
+                  <Text className="text-sm text-destructive">
+                    E-mail ou senha inválidos ou erro de conexão.
+                  </Text>
+                </View>
+              )}
 
-              <Button className="w-full">
-                <Text>Entrar</Text>
+              <Button 
+                className="w-full" 
+                onPress={handleSubmit(onSubmit)}
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text>Entrar</Text>
+                )}
               </Button>
 
               <View className="flex-row justify-center gap-1">

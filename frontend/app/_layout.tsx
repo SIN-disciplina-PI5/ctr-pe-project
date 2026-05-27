@@ -7,7 +7,7 @@ import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 
 import { queryClient } from "@/infrastructure/api/query-client";
-import { useAuth } from "@/hooks/use-auth"; 
+import { useAuth } from "../src/hooks/use-auth";
 import { NAV_THEME } from "@/lib/theme";
 
 export default function RootLayout() {
