@@ -110,6 +110,30 @@ Exemplo local:
 EXPO_PUBLIC_API_URL=http://localhost:3333/api
 ```
 
+### Variáveis de desenvolvimento
+
+Enquanto a tela de login não está implementada, o frontend autentica as requisições com um token de desenvolvimento. Para exercitar as telas que dependem de autenticação (ex.: Ordens de Serviço), preencha no `.env`:
+
+```env
+# token de acesso válido, obtido em POST /api/auth/sign-in
+EXPO_PUBLIC_DEV_TOKEN=
+# empresa usada por padrão nas telas
+EXPO_PUBLIC_DEV_EMPRESA_ID=
+# perfil simulado para exibir ações conforme permissão
+# (ADMIN, GESTOR, SUPERVISOR, TECNICO ou CONSULTA)
+EXPO_PUBLIC_DEV_PERFIL=ADMIN
+```
+
+Para obter um token, faça login na API e copie o `accessToken` da resposta:
+
+```bash
+curl -X POST http://localhost:3333/api/auth/sign-in \
+  -H "Content-Type: application/json" \
+  -d '{"email":"<email>","password":"<senha>"}'
+```
+
+Essas variáveis são embutidas no bundle no momento do start do Expo; após alterá-las, reinicie o `npm run web`.
+
 ## Execução do frontend
 
 Iniciar o projeto:
