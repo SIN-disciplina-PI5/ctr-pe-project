@@ -1,40 +1,18 @@
 import { router } from "expo-router";
-import { ActivityIndicator, FlatList, Pressable, View } from "react-native";
+import { ActivityIndicator, FlatList, View } from "react-native";
 
+import { AtivoCard } from "@/components/domain/ativo-card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useAtivos } from "@/features/ativos/ativos.hooks";
-import type { Ativo } from "@/features/ativos/ativos.types";
-
-function AtivoItem({ ativo }: { ativo: Ativo }) {
-  return (
-    <Pressable
-      className="rounded-xl border border-border bg-card p-4"
-      onPress={() => router.push(`/ativos/${ativo.id}`)}
-    >
-      <View className="flex-row items-start justify-between gap-3">
-        <View className="flex-1">
-          <Text className="text-lg font-semibold">{ativo.nome}</Text>
-          <Text className="text-sm text-muted-foreground">Código: {ativo.codigo}</Text>
-        </View>
-
-        <Text className="rounded-full bg-muted px-3 py-1 text-xs font-medium">
-          {ativo.status}
-        </Text>
-      </View>
-
-      <View className="mt-3 gap-1">
-        <Text className="text-sm text-muted-foreground">Tipo: {ativo.tipo}</Text>
-        <Text className="text-sm text-muted-foreground">
-          Criticidade: {ativo.criticidade}
-        </Text>
-      </View>
-    </Pressable>
-  );
-}
+import { useState } from "react";
 
 export default function AtivosScreen() {
-  const { data: ativos, isLoading, isError, refetch } = useAtivos();
+  const [search, setSearch] = useState("");
+  const { data: ativos, isLoading, isError, refetch } = useAtivos({
+    search: search || undefined,
+  });
 
   if (isLoading) {
     return (
@@ -61,7 +39,7 @@ export default function AtivosScreen() {
 
   return (
     <View className="flex-1 bg-background px-4 py-6">
-      <View className="mb-6 flex-row items-center justify-between gap-4">
+      <View className="mb-4 flex-row items-center justify-between gap-4">
         <View className="flex-1">
           <Text className="text-2xl font-bold">Ativos</Text>
           <Text className="text-sm text-muted-foreground">
@@ -74,11 +52,21 @@ export default function AtivosScreen() {
         </Button>
       </View>
 
+      <View className="mb-4">
+        <Input
+          value={search}
+          onChangeText={setSearch}
+          placeholder="Buscar por nome ou código..."
+        />
+      </View>
+
       <FlatList
         data={ativos ?? []}
         keyExtractor={(item) => item.id}
         contentContainerClassName="gap-3 pb-8"
-        renderItem={({ item }) => <AtivoItem ativo={item} />}
+        renderItem={({ item }) => (
+          <AtivoCard ativo={item} onPress={() => router.push(`/ativos/${item.id}`)} />
+        )}
         ListEmptyComponent={
           <View className="items-center justify-center rounded-xl border border-dashed border-border p-8">
             <Text className="text-lg font-semibold">Nenhum ativo encontrado</Text>
