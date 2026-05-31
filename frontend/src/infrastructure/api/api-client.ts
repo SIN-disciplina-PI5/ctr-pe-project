@@ -5,9 +5,6 @@ import { getToken } from "@/infrastructure/storage/token-storage";
 
 export const apiClient = axios.create({
   baseURL: env.apiUrl,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 apiClient.interceptors.request.use(async (config) => {

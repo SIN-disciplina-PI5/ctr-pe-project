@@ -10,6 +10,11 @@ export type SignInResponse = {
 };
 
 export async function signIn(payload: SignInInput): Promise<SignInResponse> {
-  const { data } = await apiClient.post<SignInResponse>("/auth/sign-in", payload);
+  const body = new URLSearchParams();
+
+  body.append("email", payload.email);
+  body.append("password", payload.password);
+
+  const { data } = await apiClient.post<SignInResponse>("/auth/sign-in", body);
   return data;
 }
