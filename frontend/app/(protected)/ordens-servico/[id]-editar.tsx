@@ -1,10 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Controller, useForm } from "react-hook-form";
-import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
+import { useForm } from "react-hook-form";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 
+import { ChipsField } from "@/components/forms/chips-field";
+import { ControlledInput } from "@/components/forms/form-field";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { PRIORIDADE_OS_LABEL, TIPO_OS_LABEL } from "@/constants/status";
 import {
@@ -19,41 +20,6 @@ import type { PrioridadeOS, TipoOS } from "@/types/ordem-servico";
 
 const PRIORIDADES: PrioridadeOS[] = ["BAIXA", "MEDIA", "ALTA", "CRITICA"];
 const TIPOS: TipoOS[] = ["CORRETIVA", "PREVENTIVA", "INSPECAO", "OUTRA"];
-
-function Chips<T extends string>({
-  options,
-  labels,
-  value,
-  onChange,
-}: {
-  options: T[];
-  labels: Record<T, string>;
-  value?: T;
-  onChange: (value: T) => void;
-}) {
-  return (
-    <View className="flex-row flex-wrap gap-2">
-      {options.map((option) => (
-        <Pressable
-          key={option}
-          onPress={() => onChange(option)}
-          className={
-            value === option
-              ? "rounded-full bg-primary px-3 py-1"
-              : "rounded-full border border-border bg-background px-3 py-1"
-          }
-        >
-          <Text
-            variant="small"
-            className={value === option ? "text-primary-foreground" : "text-foreground"}
-          >
-            {labels[option]}
-          </Text>
-        </Pressable>
-      ))}
-    </View>
-  );
-}
 
 export default function EditarOrdemServicoScreen() {
   const router = useRouter();
@@ -73,11 +39,7 @@ export default function EditarOrdemServicoScreen() {
   });
 
   function onSubmit(values: UpdateOrdemServicoInput) {
-    updateMutation.mutate(values, {
-      onSuccess: () => {
-        router.back();
-      },
-    });
+    updateMutation.mutate(values, { onSuccess: () => router.back() });
   }
 
   if (isLoading) {
@@ -95,86 +57,23 @@ export default function EditarOrdemServicoScreen() {
     >
       <Text variant="h4">Editar Ordem de Serviço</Text>
 
-      <View className="gap-2">
-        <Text variant="small">Título</Text>
-        <Controller
-          control={control}
-          name="titulo"
-          render={({ field }) => (
-            <Input
-              value={field.value}
-              onChangeText={field.onChange}
-              onBlur={field.onBlur}
-            />
-          )}
-        />
-      </View>
-
-      <View className="gap-2">
-        <Text variant="small">Descrição</Text>
-        <Controller
-          control={control}
-          name="descricao"
-          render={({ field }) => (
-            <Input
-              multiline
-              className="h-24"
-              value={field.value}
-              onChangeText={field.onChange}
-              onBlur={field.onBlur}
-            />
-          )}
-        />
-      </View>
-
-      <View className="gap-2">
-        <Text variant="small">Prioridade</Text>
-        <Controller
-          control={control}
-          name="prioridade"
-          render={({ field }) => (
-            <Chips
-              options={PRIORIDADES}
-              labels={PRIORIDADE_OS_LABEL}
-              value={field.value}
-              onChange={field.onChange}
-            />
-          )}
-        />
-      </View>
-
-      <View className="gap-2">
-        <Text variant="small">Tipo</Text>
-        <Controller
-          control={control}
-          name="tipo"
-          render={({ field }) => (
-            <Chips
-              options={TIPOS}
-              labels={TIPO_OS_LABEL}
-              value={field.value}
-              onChange={field.onChange}
-            />
-          )}
-        />
-      </View>
-
-      <View className="gap-2">
-        <Text variant="small">Observação</Text>
-        <Controller
-          control={control}
-          name="observacao"
-          render={({ field }) => (
-            <Input
-              multiline
-              className="h-20"
-              value={field.value}
-              onChangeText={field.onChange}
-              onBlur={field.onBlur}
-            />
-          )}
-        />
-      </View>
+      <ControlledInput control={control} name="titulo" label="Título" />
+      <ControlledInput control={control} name="descricao" label="Descrição" multiline />
+      <ChipsField
+        control={control}
+        name="prioridade"
+        label="Prioridade"
+        options={PRIORIDADES}
+        labels={PRIORIDADE_OS_LABEL}
+      />
+      <ChipsField
+        control={control}
+        name="tipo"
+        label="Tipo"
+        options={TIPOS}
+        labels={TIPO_OS_LABEL}
+      />
+      <ControlledInput control={control} name="observacao" label="Observação" multiline />
 
       {updateMutation.isError ? (
         <Text variant="small" className="text-destructive">
