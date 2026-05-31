@@ -1,4 +1,5 @@
 import { ParadasAtivosRepository } from "./paradas-ativos.repository.js";
+import { AlertasRepository } from "../alertas/alertas.repository.js";
 import { AppError } from "../../common/errors/AppError.js";
 import { ErrorCode } from "../../common/errors/error-code.js";
 
@@ -28,6 +29,7 @@ interface FindAllFilters {
 
 export class ParadasAtivosService {
   private paradasAtivosRepository = new ParadasAtivosRepository();
+  private alertasRepository = new AlertasRepository();
 
   async findAll(filters: FindAllFilters) {
     return this.paradasAtivosRepository.findAll({
@@ -52,7 +54,7 @@ export class ParadasAtivosService {
 
     if (paradaAberta) throw new AppError({ message: "Ativo já possui uma parada aberta", statusCode: 409, errorCode: ErrorCode.CONFLICT });
 
-    return this.paradasAtivosRepository.create({
+    const parada = await this.paradasAtivosRepository.create({
       empresaId: data.empresaId,
       ativoId: data.ativoId,
       ...(data.ordemServicoId !== undefined && { ordemServicoId: data.ordemServicoId }),
@@ -61,6 +63,14 @@ export class ParadasAtivosService {
       ...(data.programada !== undefined && { programada: data.programada }),
       ...(data.impactaDisponibilidade !== undefined && { impactaDisponibilidade: data.impactaDisponibilidade }),
     });
+
+    await this.alertasRepository.createAtivoParado({
+      empresaId: data.empresaId,
+      ativoId: data.ativoId,
+      ...(data.motivo !== undefined && { motivo: data.motivo }),
+    });
+
+    return parada;
   }
 
   async update(id: string, data: UpdateParadaAtivoInput) {
