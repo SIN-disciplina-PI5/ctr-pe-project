@@ -2,10 +2,10 @@ import { z } from "zod";
 
 export const loginSchema = z.object({
   email: z
-    .string({ required_error: "O e-mail é obrigatório" })
+    .string({ error: "O e-mail é obrigatório" })
     .email("Insira um e-mail válido"),
   senha: z
-    .string({ required_error: "A senha é obrigatória" })
+    .string({ error: "A senha é obrigatória" })
     .min(6, "A senha deve conter pelo menos 6 caracteres"),
 });
 
@@ -21,16 +21,16 @@ export const changePasswordSchema = z.object({
 
 export const signupSchema = z.object({
   nome: z
-    .string({ required_error: "O nome é obrigatório" })
+    .string({ error: "O nome é obrigatório" })
     .min(3, "O nome deve conter pelo menos 3 caracteres"),
   email: z
-    .string({ required_error: "O e-mail é obrigatório" })
+    .string({ error: "O e-mail é obrigatório" })
     .email("Insira um e-mail válido"),
   senha: z
-    .string({ required_error: "A senha é obrigatória" })
+    .string({ error: "A senha é obrigatória" })
     .min(6, "A senha deve conter pelo menos 6 caracteres"),
   confirmarSenha: z
-    .string({ required_error: "A confirmação de senha é obrigatória" })
+    .string({ error: "A confirmação de senha é obrigatória" })
     .min(6, "A confirmação deve conter pelo menos 6 caracteres"),
 }).refine((data) => data.senha === data.confirmarSenha, {
   message: "As senhas não coincidem",

@@ -21,10 +21,10 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import type { OrdemServico } from "@/types/ordem-servico";
 
 export function OrdemServicoActions({ ordemServico }: { ordemServico: OrdemServico }) {
-  const { perfil } = useCurrentUser();
+  const { data: user } = useCurrentUser();
   const [openKey, setOpenKey] = useState<OrdemServicoActionKey | null>(null);
 
-  const actions = getOrdemServicoActions(ordemServico.status, perfil);
+  const actions = user ? getOrdemServicoActions(ordemServico.status, user.perfil) : [];
   if (actions.length === 0) return null;
 
   const id = ordemServico.id;

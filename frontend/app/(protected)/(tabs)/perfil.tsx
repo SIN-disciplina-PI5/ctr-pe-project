@@ -12,11 +12,11 @@ import {
 } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 
-import { useAuth } from "@/hooks/use-auth";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { useLogoutMutation } from "@/features/auth/auth.hooks";
 
 export default function PerfilScreen() {
-  const { usuario } = useAuth();
+  const { data: usuario } = useCurrentUser();
   const { mutate: logout, isPending } = useLogoutMutation();
 
   return (
@@ -54,7 +54,7 @@ export default function PerfilScreen() {
 
                 <View>
                   <Text className="text-xs text-muted-foreground uppercase font-semibold">Nível de Acesso</Text>
-                  <Text className="text-base text-foreground font-medium">{usuario?.role || "USER"}</Text>
+                  <Text className="text-base text-foreground font-medium">{usuario?.perfil || "USER"}</Text>
                 </View>
               </View>
 
