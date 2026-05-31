@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 
+import { OrdemServicoActions } from "@/components/domain/ordem-servico-actions";
 import { PrioridadeBadge } from "@/components/domain/prioridade-badge";
 import { StatusBadge } from "@/components/domain/status-badge";
 import { Button } from "@/components/ui/button";
@@ -99,6 +100,8 @@ export default function OrdemServicoDetalheScreen() {
           </CardContent>
         </Card>
       ) : null}
+
+      <OrdemServicoActions ordemServico={os} />
 
       <Button
         variant="outline"
