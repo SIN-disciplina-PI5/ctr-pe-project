@@ -9,7 +9,9 @@ export function validate(schema: z.ZodType, target: ValidateTarget = "body") {
   return (req: Request, _res: Response, next: NextFunction) => {
     try {
       const result = schema.parse(req[target]);
-      req[target] = result;
+      if (target === "body") {
+        req.body = result;
+      }
       next();
     } catch (error) {
       if (error instanceof ZodError) {
@@ -22,7 +24,6 @@ export function validate(schema: z.ZodType, target: ValidateTarget = "body") {
           }),
         );
       }
-
       next(error);
     }
   };

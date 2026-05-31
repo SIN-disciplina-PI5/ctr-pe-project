@@ -9,6 +9,13 @@ import { requestContextMiddleware } from "./common/middlewares/request-context.m
 import { authRouter } from "./auth/auth.routes.js";
 import { usuariosRouter } from "./modules/usuarios/usuarios.routes.js";
 import { empresasRouter } from "./modules/empresas/empresas.routes.js";
+import { ativosRouter } from "./modules/ativos/ativos.routes.js";
+import { materiaisRouter } from "./modules/materiais/materiais.routes.js";
+import { alertasRouter } from "./modules/alertas/alertas.routes.js";
+import { ordensServicoRouter } from "./modules/ordens-servico/ordens-servico.routes.js";
+import { paradasAtivosRouter } from "./modules/paradas-ativos/paradas-ativos.routes.js";
+import { ordensServicoMateriaisRouter } from "./modules/ordens-servico-materiais/ordens-servico-materiais.routes.js";
+import { apontamentosOSRouter } from "./modules/apontamentos-os/apontamentos-os.routes.js";
 
 
 
@@ -21,9 +28,19 @@ app.use(requestContextMiddleware);
 app.use(express.json());
 
 
+
 app.use("/api/auth", authRouter);
 app.use("/api/usuarios", usuariosRouter);
 app.use("/api/empresas", empresasRouter);
+app.use("/api/ativos", ativosRouter);
+app.use("/api/materiais", materiaisRouter);
+app.use("/api/alertas", alertasRouter);
+app.use("/api/ordens-servico", ordensServicoRouter);
+app.use("/api/paradas-ativos", paradasAtivosRouter);
+app.use("/api/ordens-servico-materiais", ordensServicoMateriaisRouter);
+app.use("/api/apontamentos-os", apontamentosOSRouter);
+
+
 
 
 app.get("/health", (_req, res) => {

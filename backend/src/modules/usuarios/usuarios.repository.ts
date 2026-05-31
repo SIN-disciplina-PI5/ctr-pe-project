@@ -6,7 +6,7 @@ interface CreateUsuarioData {
   email: string;
   senhaHash: string;
   perfil: PerfilUsuario;
-  empresaId?: string;
+  empresaId?: string | undefined;
 }
 
 interface UpdateUsuarioData {
@@ -14,6 +14,7 @@ interface UpdateUsuarioData {
   email?: string;
   perfil?: PerfilUsuario;
   ativo?: boolean;
+  empresaId?: string;
 }
 
 interface FindAllFilters {
@@ -25,7 +26,6 @@ interface FindAllFilters {
 
 export class UsuariosRepository {
 
-  // queries
   async findAll(filters: FindAllFilters) {
     return prisma.usuario.findMany({
       where: {
@@ -51,9 +51,9 @@ export class UsuariosRepository {
     });
   }
 
-  async findById(id: string, empresaId: string) {
-    return prisma.usuario.findFirst({
-      where: { id, empresaId },
+  async findById(id: string) {
+    return prisma.usuario.findUnique({
+      where: { id },
       select: {
         id: true,
         nome: true,
@@ -80,9 +80,30 @@ export class UsuariosRepository {
     });
   }
 
-  // commands
   async create(data: CreateUsuarioData) {
-    return prisma.usuario.create({
+  return prisma.usuario.create({
+    data: {
+      nome: data.nome,
+      email: data.email,
+      senhaHash: data.senhaHash,
+      perfil: data.perfil,
+      ...(data.empresaId !== undefined && { empresaId: data.empresaId }),
+    },
+    select: {
+      id: true,
+      nome: true,
+      email: true,
+      perfil: true,
+      empresaId: true,
+      ativo: true,
+      createdAt: true,
+    },
+  });
+}
+
+  async update(id: string, data: UpdateUsuarioData) {
+    return prisma.usuario.update({
+      where: { id },
       data,
       select: {
         id: true,
@@ -96,48 +117,19 @@ export class UsuariosRepository {
     });
   }
 
-  async update(id: string, empresaId: string, data: UpdateUsuarioData) {
+  async updatePassword(id: string, senhaHash: string) {
     return prisma.usuario.update({
-      where: {
-        id,
-        empresaId,
-      },
-      data,
-      select: {
-        id: true,
-        nome: true,
-        email: true,
-        perfil: true,
-        empresaId: true,
-        ativo: true,
-        createdAt: true,
-      },
-    });
-  }
-
-  async updatePassword(id: string, empresaId: string, senhaHash: string) {
-    return prisma.usuario.update({
-      where: {
-        id,
-        empresaId,
-      },
+      where: { id },
       data: { senhaHash },
-      select: {
-        id: true,
-      },
+      select: { id: true },
     });
   }
 
-  async delete(id: string, empresaId: string) {
+  async delete(id: string) {
     return prisma.usuario.update({
-      where: {
-        id,
-        empresaId,
-      },
+      where: { id },
       data: { ativo: false },
-      select: {
-        id: true,
-      },
+      select: { id: true },
     });
   }
 }
