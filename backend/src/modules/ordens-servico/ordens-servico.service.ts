@@ -1,6 +1,7 @@
 import { AppError } from "../../common/errors/AppError.js";
 import { ErrorCode } from "../../common/errors/error-code.js";
 import { OrdensServicoRepository } from "./ordens-servico.repository.js";
+import { AlertasRepository } from "../alertas/alertas.repository.js";
 
 interface CreateOrdemServicoInput {
   empresaId: string;
@@ -58,6 +59,7 @@ interface FindAllFilters {
 
 export class OrdensServicoService {
   private ordensServicoRepository = new OrdensServicoRepository();
+  private alertasRepository = new AlertasRepository();
 
   async findAll(filters: FindAllFilters) {
     return this.ordensServicoRepository.findAll(filters);
@@ -111,7 +113,7 @@ export class OrdensServicoService {
       });
     }
 
-    return this.ordensServicoRepository.create({
+    const ordemServico = await this.ordensServicoRepository.create({
       empresaId: data.empresaId,
       ativoId: data.ativoId,
       numero,
@@ -128,6 +130,16 @@ export class OrdensServicoService {
       ...(data.solucao !== undefined && { solucao: data.solucao }),
       ...(data.observacao !== undefined && { observacao: data.observacao }),
     });
+
+    if (ordemServico.impactaDisponibilidade) {
+      await this.alertasRepository.createAtivoParado({
+        empresaId: ordemServico.empresaId,
+        ativoId: ordemServico.ativoId,
+        motivo: `O.S. ${ordemServico.numero}`,
+      });
+    }
+
+    return ordemServico;
   }
 
 
@@ -158,7 +170,14 @@ async aguardarPeca(id: string, observacao?: string) {
     });
   }
 
-  return this.ordensServicoRepository.aguardarPeca(id, observacao);
+  const atualizada = await this.ordensServicoRepository.aguardarPeca(id, observacao);
+
+  await this.alertasRepository.createOSAguardandoPeca({
+    ordemServicoId: id,
+    ...(observacao !== undefined && { observacao }),
+  });
+
+  return atualizada;
 }
 
   async retomar(id: string, observacao?: string) {

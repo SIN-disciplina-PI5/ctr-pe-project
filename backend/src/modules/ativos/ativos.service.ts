@@ -1,4 +1,5 @@
 import { AtivosRepository } from "./ativos.repository.js";
+import { AlertasRepository } from "../alertas/alertas.repository.js";
 import { AppError } from "../../common/errors/AppError.js";
 import { ErrorCode } from "../../common/errors/error-code.js";
 import type { TipoAtivo, StatusAtivo, Criticidade } from "@prisma/client";
@@ -48,6 +49,7 @@ interface FindAllFilters {
 
 export class AtivosService {
   private ativosRepository = new AtivosRepository();
+  private alertasRepository = new AlertasRepository();
 
   async findAll(filters: FindAllFilters) {
     return this.ativosRepository.findAll(filters);
@@ -81,8 +83,18 @@ export class AtivosService {
   }
 
   async updateStatus(id: string, status: StatusAtivo) {
-    await this.findById(id);
-    return this.ativosRepository.updateStatus(id, status);
+    const ativo = await this.findById(id);
+
+    const atualizado = await this.ativosRepository.updateStatus(id, status);
+
+    if (status === "PARADO") {
+      await this.alertasRepository.createAtivoParado({
+        empresaId: ativo.empresaId,
+        ativoId: ativo.id,
+      });
+    }
+
+    return atualizado;
   }
 
   async delete(id: string) {
