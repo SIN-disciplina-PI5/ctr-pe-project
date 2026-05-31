@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 
@@ -9,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { TIPO_OS_LABEL } from "@/constants/status";
 import { useOrdemServico } from "@/features/ordens-servico/ordens-servico.hooks";
+import { OSMateriaisLista } from "@/features/ordens-servico/os-materiais-lista";
+import { ModalAdicionarMaterial } from "@/features/ordens-servico/modal-adicionar-material";
 import { formatDateTime } from "@/lib/dates";
 
 function Linha({ label, value }: { label: string; value?: string | null }) {
@@ -24,6 +27,7 @@ export default function OrdemServicoDetalheScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: os, isLoading, isError, refetch } = useOrdemServico(id);
+  const [addMaterialOSId, setAddMaterialOSId] = useState<string | null>(null);
 
   if (isLoading) {
     return (
@@ -80,12 +84,17 @@ export default function OrdemServicoDetalheScreen() {
           <Linha
             label="Ativo"
             value={os.ativo ? `${os.ativo.codigo} · ${os.ativo.nome}` : null}
+            
           />
           <Linha label="Responsável" value={os.responsavel?.nome} />
           <Linha label="Aberta em" value={formatDateTime(os.abertaEm)} />
           <Linha label="Iniciada em" value={formatDateTime(os.iniciadaEm)} />
           <Linha label="Prazo" value={formatDateTime(os.prazoEm)} />
           <Linha label="Encerrada em" value={formatDateTime(os.encerradaEm)} />
+          <Linha
+            label="Custo total (materiais)"
+            value={os.custoTotal != null ? `R$ ${Number(os.custoTotal).toFixed(2)}` : null}
+          />
         </CardContent>
       </Card>
 
@@ -101,6 +110,18 @@ export default function OrdemServicoDetalheScreen() {
         </Card>
       ) : null}
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Materiais</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <OSMateriaisLista
+            ordemServicoId={os.id}
+            onAddPress={() => setAddMaterialOSId(os.id)}
+          />
+        </CardContent>
+      </Card>
+
       <OrdemServicoActions ordemServico={os} />
 
       <Button
@@ -114,6 +135,11 @@ export default function OrdemServicoDetalheScreen() {
       >
         <Text>Editar</Text>
       </Button>
+
+      <ModalAdicionarMaterial
+        ordemServicoId={addMaterialOSId}
+        onClose={() => setAddMaterialOSId(null)}
+      />
     </ScrollView>
   );
 }
