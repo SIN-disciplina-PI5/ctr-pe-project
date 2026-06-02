@@ -1,145 +1,133 @@
-import React from "react";
-import { Link } from "expo-router";
-import { View, ActivityIndicator } from "react-native";
+import React, { useState } from "react";
+import { useRouter } from "expo-router";
+import { View, TextInput, Pressable, ActivityIndicator, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 
-import { loginSchema } from "@/features/auth/auth.schemas";
-import { useLoginMutation } from "@/features/auth/auth.hooks";
+import { setToken } from "../../src/infrastructure/storage/token-storage";
 
 export default function LoginScreen() {
-  const { mutate: login, isPending, error: mutationError } = useLoginMutation();
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [carregando, setCarregando] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      senha: "",
-    },
-  });
-
-  const onSubmit = (data: any) => {
-    login(data);
-  };
+  async function handleLogin() {
+    if (!email || !senha) {
+      Alert.alert("Atenção", "Por favor, preencha todos os campos.");
+      return;
+    }
+    try {
+      setCarregando(true);
+      const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password: senha }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Erro ao realizar login.");
+      if (data.accessToken) {
+        await setToken(data.accessToken);
+        router.replace("/(protected)/(tabs)/home");
+      } else {
+        throw new Error("Token não recebido do servidor.");
+      }
+    } catch (error: any) {
+      Alert.alert("Falha no Login", error.message || "Não foi possível conectar ao servidor.");
+    } finally {
+      setCarregando(false);
+    }
+  }
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <View className="flex-1 items-center justify-center px-6">
-        <View className="w-full max-w-sm">
-          <Card className="border-border bg-card">
-            <CardHeader className="gap-2">
-              <CardTitle className="text-center text-2xl text-foreground">
-                Entrar
-              </CardTitle>
-              <CardDescription className="text-center">
-                Acesse o sistema de manutencao
-              </CardDescription>
-            </CardHeader>
+    <SafeAreaView className="flex-1 bg-slate-950 md:bg-slate-50/80 flex-row justify-center items-center">
+      {/* Container Principal Híbrido (Desktop / Mobile) */}
+      <View className="w-full h-full md:h-[600px] max-w-4xl bg-white md:rounded-3xl shadow-2xl flex-row overflow-hidden">
+        
+        {/* BANNER ESQUERDO: Só aparece em telas grandes (Computador) */}
+        <View className="hidden md:flex flex-1 bg-blue-950 p-12 justify-between relative">
+          <View className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-transparent to-black/50" />
+          
+          <View className="z-10 gap-1">
+            <Text className="text-blue-400 font-black tracking-widest text-xs uppercase">Plataforma Operacional</Text>
+            <Text className="text-white text-4xl font-black tracking-tight mt-1">CTR-PE</Text>
+          </View>
 
-            <CardContent className="gap-5">
-              {/* Campo de E-mail */}
-              <View className="gap-2">
-                <Label nativeID="email">E-mail</Label>
-                <Controller
-                  control={control}
-                  name="email"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <Input
-                      aria-labelledby="email"
-                      placeholder="seuemail@empresa.com"
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                    />
-                  )}
-                />
-                {errors.email && (
-                  <Text className="text-xs text-destructive font-medium mt-1">
-                    {String(errors.email.message)}
-                  </Text>
-                )}
+          <View className="z-10 gap-2">
+            <Text className="text-white text-lg font-bold">Controle Total de Manutenção</Text>
+            <Text className="text-blue-200/70 text-sm leading-relaxed">
+              Gerencie ordens de serviço, monitore a saúde dos ativos e minimize o tempo de máquina parada em uma única interface técnica robusta.
+            </Text>
+          </View>
+
+          <Text className="z-10 text-xs text-blue-300/40 font-mono">v2.0.26 // Unidade Recife</Text>
+        </View>
+
+        {/* COLUNA DIREITA: O Formulário que se adapta e justifica no Smartphone */}
+        <View className="w-full md:w-[420px] bg-white justify-center px-6 md:px-10 py-8">
+          <View className="w-full min-h-[440px] flex-col justify-between">
+            
+            <View className="gap-6">
+              <View className="gap-1 md:items-start items-center">
+                <Text className="text-2xl font-black tracking-tight text-slate-800">Acessar Sistema</Text>
+                <Text className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Insira suas credenciais técnicas</Text>
               </View>
 
-              {/* Campo de Senha */}
-              <View className="gap-2">
-                <div className="flex items-center justify-between">
-                  <Label nativeID="senha">Senha</Label>
-                  <Link href="/(auth)/forgot-password" asChild>
-                    <Text className="text-xs text-primary underline font-medium">
-                      Esqueceu a senha?
-                    </Text>
-                  </Link>
-                </div>
-                <Controller
-                  control={control}
-                  name="senha"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <Input
-                      aria-labelledby="senha"
-                      placeholder="Digite sua senha"
-                      secureTextEntry
-                      autoCapitalize="none"
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                    />
-                  )}
-                />
-                {errors.senha && (
-                  <Text className="text-xs text-destructive font-medium mt-1">
-                    {String(errors.senha.message)}
-                  </Text>
-                )}
-              </View>
-
-              {mutationError && (
-                <View className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2">
-                  <Text className="text-sm text-destructive">
-                    E-mail ou senha inválidos ou erro de conexão.
-                  </Text>
+              <View className="gap-4">
+                <View className="gap-1.5">
+                  <Text className="text-xs font-bold text-slate-500 uppercase tracking-wider">E-mail</Text>
+                  <TextInput 
+                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-sm text-slate-800 focus:border-blue-900"
+                    placeholder="seuemail@empresa.com"
+                    placeholderTextColor="#94a3b8"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={email}
+                    onChangeText={setEmail}
+                    editable={!carregando}
+                  />
                 </View>
-              )}
 
-              <Button 
-                className="w-full" 
-                onPress={handleSubmit(onSubmit)}
-                disabled={isPending}
-              >
-                {isPending ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text>Entrar</Text>
-                )}
+                <View className="gap-1.5">
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-xs font-bold text-slate-500 uppercase tracking-wider">Senha</Text>
+                    <Pressable onPress={() => router.push("/forgot-password")}>
+                      <Text className="text-xs text-blue-900 font-semibold hover:underline">Esqueceu?</Text>
+                    </Pressable>
+                  </View>
+                  <TextInput 
+                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-sm text-slate-800 focus:border-blue-900"
+                    secureTextEntry
+                    placeholder="Digite sua senha"
+                    placeholderTextColor="#94a3b8"
+                    value={senha}
+                    onChangeText={setSenha}
+                    editable={!carregando}
+                  />
+                </View>
+              </View>
+            </View>
+
+            <View className="gap-3 mt-6">
+              <Button className="w-full bg-blue-900 active:bg-blue-950 h-12 rounded-xl shadow-md shadow-blue-900/10" onPress={handleLogin} disabled={carregando}>
+                {carregando ? <ActivityIndicator color="#ffffff" size="small" /> : <Text className="text-white font-bold text-sm tracking-wide">Entrar no Sistema</Text>}
               </Button>
 
               <View className="flex-row justify-center gap-1">
-                <Text className="text-muted-foreground">Nao tem conta?</Text>
-                <Link href="/(auth)/signup" asChild>
-                  <Text className="text-primary underline">Criar conta</Text>
-                </Link>
+                <Text className="text-xs font-medium text-slate-500">Não tem uma conta?</Text>
+                <Pressable onPress={() => router.push("/signup")}>
+                  <Text className="text-xs text-blue-900 font-bold underline">Criar conta</Text>
+                </Pressable>
               </View>
-            </CardContent>
-          </Card>
+            </View>
+
+          </View>
         </View>
+
       </View>
     </SafeAreaView>
   );
