@@ -1,80 +1,82 @@
 import React from "react";
-import { View, ActivityIndicator } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View } from "react-native";
+import { useRouter } from "expo-router";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 
-import { useCurrentUser } from "@/hooks/use-current-user";
-import { useLogoutMutation } from "@/features/auth/auth.hooks";
+import { removeToken } from "../../../src/infrastructure/storage/token-storage";
 
 export default function PerfilScreen() {
-  const { data: usuario } = useCurrentUser();
-  const { mutate: logout, isPending } = useLogoutMutation();
+  const router = useRouter();
+
+  async function handleLogout() {
+    await removeToken();
+    router.replace("/(auth)/login");
+  }
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <View className="flex-1 items-center justify-center px-6">
-        <View className="w-full max-w-sm">
-          <Card className="border-border bg-card">
-            <CardHeader className="gap-1 items-center">
-              {/* Avatar com as iniciais do usuário logado */}
-              <View className="w-16 h-16 bg-primary/10 rounded-full items-center justify-center mb-2">
-                <Text className="text-xl font-bold text-primary">
-                  {usuario?.nome?.substring(0, 2).toUpperCase() || "US"}
+    <View className="flex-1 bg-background px-6 justify-center items-center">
+      <View className="w-full max-w-sm">
+        <Card className="border border-border/40 bg-card shadow-lg shadow-black/5 rounded-2xl">
+          <CardHeader className="pt-6 pb-2">
+            <CardTitle className="text-center text-lg font-semibold tracking-tight text-foreground">
+              Meu Perfil
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent className="gap-6 p-6">
+            {/* Seção do Avatar e Cabeçalho do Perfil */}
+            <View className="items-center pb-5 border-b border-border/60 gap-2">
+              <View className="h-20 w-20 rounded-full bg-muted/80 justify-center items-center mb-1 border border-border/20 shadow-sm">
+                <Text className="text-2xl font-bold tracking-wider text-muted-foreground">AA</Text>
+              </View>
+              <Text className="text-xl font-bold tracking-tight text-foreground">
+                Arthur Azevedo
+              </Text>
+              <Text className="text-xs font-medium text-muted-foreground/80 uppercase tracking-widest bg-muted/50 px-2.5 py-1 rounded-full overflow-hidden">
+                Analista de Sistemas
+              </Text>
+            </View>
+
+            {/* Grid de Informações */}
+            <View className="gap-3.5 px-1">
+              <View className="flex-row justify-between items-center">
+                <Text className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">E-mail</Text>
+                <Text className="text-sm font-medium text-foreground/90 selection:bg-primary/10">
+                  arthur.costa@empresa.com
                 </Text>
               </View>
-              <CardTitle className="text-center text-2xl text-foreground">
-                Meu Perfil
-              </CardTitle>
-              <CardDescription className="text-center">
-                Gerencie suas informações de sessão
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent className="gap-6">
-              {/* Informações dinâmicas vindas do useAuth */}
-              <View className="gap-3 bg-muted/30 p-4 rounded-lg border border-border/50">
-                <View>
-                  <Text className="text-xs text-muted-foreground uppercase font-semibold">Nome</Text>
-                  <Text className="text-base text-foreground font-medium">{usuario?.nome || "Não informado"}</Text>
-                </View>
-                
-                <View>
-                  <Text className="text-xs text-muted-foreground uppercase font-semibold">E-mail</Text>
-                  <Text className="text-base text-foreground font-medium">{usuario?.email || "Não informado"}</Text>
-                </View>
-
-                <View>
-                  <Text className="text-xs text-muted-foreground uppercase font-semibold">Nível de Acesso</Text>
-                  <Text className="text-base text-foreground font-medium">{usuario?.perfil || "USER"}</Text>
-                </View>
+              
+              <View className="flex-row justify-between items-center">
+                <Text className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Setor</Text>
+                <Text className="text-sm font-medium text-foreground/90">
+                  Operações Técnicas
+                </Text>
               </View>
+              
+              <View className="flex-row justify-between items-center">
+                <Text className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Unidade</Text>
+                <Text className="text-sm font-medium text-foreground/90">
+                  Recife - PE
+                </Text>
+              </View>
+            </View>
 
-              {/* Botão de Logout conectado ao useLogoutMutation */}
-              <Button 
-                variant="destructive"
-                className="w-full" 
-                onPress={() => logout()}
-                disabled={isPending}
-              >
-                {isPending ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text className="font-semibold">Sair da Conta</Text>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        </View>
+            {/* Ação Principal */}
+            <Button 
+              variant="destructive" 
+              className="w-full mt-2 h-12 rounded-xl active:opacity-90 shadow-sm" 
+              onPress={handleLogout}
+            >
+              <Text className="text-destructive-foreground font-semibold text-sm tracking-wide">
+                Sair do Sistema
+              </Text>
+            </Button>
+          </CardContent>
+        </Card>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }

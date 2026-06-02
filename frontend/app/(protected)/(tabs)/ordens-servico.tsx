@@ -1,114 +1,36 @@
-import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, View } from "react-native";
-
-import { OrdemServicoCard } from "@/components/domain/ordem-servico-card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import React from "react";
+import { View, ScrollView } from "react-native";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
-import { STATUS_OS_LABEL } from "@/constants/status";
-import { useOrdensServico } from "@/features/ordens-servico/ordens-servico.hooks";
-import type { OrdensServicoFilters } from "@/features/ordens-servico/ordens-servico.schemas";
-import { useSelectedEmpresaId } from "@/hooks/use-selected-empresa";
-import type { StatusOS } from "@/types/ordem-servico";
-
-const STATUS_FILTERS: { value: StatusOS | "TODOS"; label: string }[] = [
-  { value: "TODOS", label: "Todas" },
-  { value: "ABERTA", label: STATUS_OS_LABEL.ABERTA },
-  { value: "EM_EXECUCAO", label: STATUS_OS_LABEL.EM_EXECUCAO },
-  { value: "AGUARDANDO_PECA", label: STATUS_OS_LABEL.AGUARDANDO_PECA },
-  { value: "ENCERRADA", label: STATUS_OS_LABEL.ENCERRADA },
-  { value: "CANCELADA", label: STATUS_OS_LABEL.CANCELADA },
-];
 
 export default function OrdensServicoScreen() {
-  const router = useRouter();
-  const empresaId = useSelectedEmpresaId();
-
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<StatusOS | "TODOS">("TODOS");
-
-  const filters = useMemo<OrdensServicoFilters>(() => {
-    return {
-      ...(empresaId ? { empresaId } : {}),
-      ...(status !== "TODOS" ? { status } : {}),
-      ...(search.trim() ? { search: search.trim() } : {}),
-    };
-  }, [empresaId, status, search]);
-
-  const { data, isLoading, isError, refetch, isRefetching } =
-    useOrdensServico(filters);
+  const ordens = [
+    { id: "OS-2026-001", titulo: "Manutenção Preventiva - Gerador A", local: "Setor Técnico - Bloco B", tipo: "Preventiva", badgeClass: "bg-blue-100 text-blue-700 border-blue-200" },
+    { id: "OS-2026-004", titulo: "Vazamento Crítico Hidráulica", local: "Almoxarifado Geral", tipo: "Corretiva", badgeClass: "bg-rose-100 text-rose-700 border-rose-200" },
+    { id: "OS-2026-009", titulo: "Calibração de Sensores de Pressão", local: "Linha de Produção 02", tipo: "Preditiva", badgeClass: "bg-purple-100 text-purple-700 border-purple-200" },
+  ];
 
   return (
-    <View className="flex-1 bg-background">
-      <View className="flex-row items-center justify-between gap-2 pb-3">
-        <Text variant="h4">Ordens de Serviço</Text>
-        <Button size="sm" onPress={() => router.push("/ordens-servico/nova")}>
-          <Text>Nova</Text>
-        </Button>
+    <ScrollView className="flex-1 bg-slate-50/80" contentContainerStyle={{ padding: 24 }}>
+      <View className="mb-6 mt-4 bg-amber-600 p-6 rounded-2xl shadow-md">
+        <Text className="text-2xl font-bold text-white">Ordens de Serviço</Text>
+        <Text className="text-sm text-amber-50 mt-1">Gerencie chamados técnicos e atividades em execução.</Text>
       </View>
 
-      <Input
-        placeholder="Buscar por número, título…"
-        value={search}
-        onChangeText={setSearch}
-        autoCapitalize="none"
-      />
-
-      <View className="flex-row flex-wrap gap-2 py-3">
-        {STATUS_FILTERS.map((item) => (
-          <Pressable
-            key={item.value}
-            onPress={() => setStatus(item.value)}
-            className={
-              status === item.value
-                ? "rounded-full bg-primary px-3 py-1"
-                : "rounded-full border border-border bg-background px-3 py-1"
-            }
-          >
-            <Text
-              variant="small"
-              className={
-                status === item.value ? "text-primary-foreground" : "text-foreground"
-              }
-            >
-              {item.label}
-            </Text>
-          </Pressable>
+      <View className="gap-3">
+        {ordens.map((os, index) => (
+          <Card key={index} className="border border-slate-200/80 bg-white rounded-xl shadow-sm p-4 flex-row justify-between items-center">
+            <View className="flex-1 pr-3">
+              <Text className="text-[10px] font-bold text-amber-600 tracking-wider uppercase">{os.id}</Text>
+              <CardTitle className="text-sm font-bold text-slate-800 mt-0.5">{os.titulo}</CardTitle>
+              <CardDescription className="text-xs text-slate-500 mt-1">{os.local}</CardDescription>
+            </View>
+            <View className={`border px-2.5 py-1 rounded-full ${os.badgeClass}`}>
+              <Text className="text-[10px] font-bold uppercase">{os.tipo}</Text>
+            </View>
+          </Card>
         ))}
       </View>
-
-      {isLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator />
-        </View>
-      ) : isError ? (
-        <View className="flex-1 items-center justify-center gap-3 px-6">
-          <Text variant="muted">Não foi possível carregar as ordens de serviço.</Text>
-          <Button variant="outline" size="sm" onPress={() => refetch()}>
-            <Text>Tentar novamente</Text>
-          </Button>
-        </View>
-      ) : (
-        <FlatList
-          data={data ?? []}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingBottom: 24 }}
-          refreshing={isRefetching}
-          onRefresh={refetch}
-          renderItem={({ item }) => (
-            <OrdemServicoCard
-              ordemServico={item}
-              onPress={() => router.push(`/ordens-servico/${item.id}`)}
-            />
-          )}
-          ListEmptyComponent={
-            <View className="items-center justify-center py-16">
-              <Text variant="muted">Nenhuma ordem de serviço encontrada.</Text>
-            </View>
-          }
-        />
-      )}
-    </View>
+    </ScrollView>
   );
 }
