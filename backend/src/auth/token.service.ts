@@ -1,19 +1,31 @@
-import jwt from "jsonwebtoken";
-import type { PerfilUsuario } from "@prisma/client";
+import jwt, { type SignOptions } from "jsonwebtoken";
 
-interface TokenPayload {
-  userId: string;
-  empresaId: string | null;
-  perfil: PerfilUsuario;
-}
+import type { AuthUser } from "../common/types/auth-user.js";
 
 export class TokenService {
-  generateToken(payload: TokenPayload): string {
+  generateToken(user: AuthUser): string {
     const secret = process.env["JWT_SECRET"];
-    const expiresIn = process.env["JWT_EXPIRES_IN"] ?? "1d";
+    const expiresIn = (process.env["JWT_EXPIRES_IN"] ?? "1d") as NonNullable<
+      SignOptions["expiresIn"]
+    >;
 
-    if (!secret) throw new Error("JWT_SECRET não definido");
+    if (!secret) {
+      throw new Error("JWT_SECRET nao definido");
+    }
 
-    return jwt.sign(payload, secret, { expiresIn } as jwt.SignOptions);
+    return jwt.sign(
+      {
+        id: user.id,
+        empresaId: user.empresaId,
+        nome: user.nome,
+        email: user.email,
+        perfil: user.perfil,
+      },
+      secret,
+      {
+        subject: user.id,
+        expiresIn,
+      },
+    );
   }
 }

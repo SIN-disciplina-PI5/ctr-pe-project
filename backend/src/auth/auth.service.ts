@@ -1,8 +1,9 @@
-import { AuthRepository } from "./auth.repository.js";
-import { TokenService } from "./token.service.js";
+import bcrypt from "bcrypt";
+
 import { AppError } from "../common/errors/AppError.js";
 import { ErrorCode } from "../common/errors/error-code.js";
-import bcrypt from "bcrypt";
+import { AuthRepository } from "./auth.repository.js";
+import { TokenService } from "./token.service.js";
 
 export class AuthService {
   private authRepository = new AuthRepository();
@@ -11,7 +12,13 @@ export class AuthService {
   async me(userId: string) {
     const user = await this.authRepository.findById(userId);
 
-    if (!user) throw new AppError({ message: "Usuário não encontrado", statusCode: 404, errorCode: ErrorCode.NOT_FOUND });
+    if (!user) {
+      throw new AppError({
+        message: "Usuario nao encontrado",
+        statusCode: 404,
+        errorCode: ErrorCode.NOT_FOUND,
+      });
+    }
 
     return user;
   }
@@ -23,16 +30,32 @@ export class AuthService {
     confirmNewPassword: string,
   ) {
     if (newPassword !== confirmNewPassword) {
-      throw new AppError({ message: "As senhas não coincidem", statusCode: 400, errorCode: ErrorCode.VALIDATION_ERROR });
+      throw new AppError({
+        message: "As senhas nao coincidem",
+        statusCode: 400,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      });
     }
 
     const user = await this.authRepository.findByIdWithPassword(userId);
 
-    if (!user) throw new AppError({ message: "Usuário não encontrado", statusCode: 404, errorCode: ErrorCode.NOT_FOUND });
+    if (!user) {
+      throw new AppError({
+        message: "Usuario nao encontrado",
+        statusCode: 404,
+        errorCode: ErrorCode.NOT_FOUND,
+      });
+    }
 
     const passwordMatch = await bcrypt.compare(currentPassword, user.senhaHash);
 
-    if (!passwordMatch) throw new AppError({ message: "Senha atual incorreta", statusCode: 400, errorCode: ErrorCode.VALIDATION_ERROR });
+    if (!passwordMatch) {
+      throw new AppError({
+        message: "Senha atual incorreta",
+        statusCode: 400,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      });
+    }
 
     const saltRounds = Number(process.env["BCRYPT_SALT_ROUNDS"]) || 10;
     const newHash = await bcrypt.hash(newPassword, saltRounds);
@@ -45,18 +68,38 @@ export class AuthService {
   async signIn(email: string, password: string) {
     const user = await this.authRepository.findByEmail(email);
 
-    if (!user) throw new AppError({ message: "Usuário não encontrado", statusCode: 404, errorCode: ErrorCode.NOT_FOUND });
+    if (!user) {
+      throw new AppError({
+        message: "Usuario nao encontrado",
+        statusCode: 404,
+        errorCode: ErrorCode.NOT_FOUND,
+      });
+    }
 
-    if (!user.ativo) throw new AppError({ message: "Usuário inativo", statusCode: 403, errorCode: ErrorCode.FORBIDDEN });
+    if (!user.ativo) {
+      throw new AppError({
+        message: "Usuario inativo",
+        statusCode: 403,
+        errorCode: ErrorCode.FORBIDDEN,
+      });
+    }
 
     const passwordMatch = await bcrypt.compare(password, user.senhaHash);
 
-    if (!passwordMatch) throw new AppError({ message: "Senha inválida", statusCode: 401, errorCode: ErrorCode.UNAUTHORIZED });
+    if (!passwordMatch) {
+      throw new AppError({
+        message: "Senha invalida",
+        statusCode: 401,
+        errorCode: ErrorCode.UNAUTHORIZED,
+      });
+    }
 
     const token = this.tokenService.generateToken({
-      userId: user.id,
-      perfil: user.perfil,
+      id: user.id,
       empresaId: user.empresaId,
+      nome: user.nome,
+      email: user.email,
+      perfil: user.perfil,
     });
 
     return { accessToken: token };
