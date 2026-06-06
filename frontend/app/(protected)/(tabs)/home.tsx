@@ -1,8 +1,8 @@
 import { useRouter } from "expo-router";
 import { View } from "react-native";
 
-import { RoleGate } from "@/components/domain/role-gate";
 import { EmpresaSelector } from "@/components/domain/empresa-selector";
+import { RoleGate } from "@/components/domain/role-gate";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
@@ -54,6 +54,13 @@ export default function HomeScreen() {
               <Text>Ver usuarios</Text>
             </Button>
           </RoleGate>
+
+          <Button
+            variant="outline"
+            onPress={() => router.push("/(protected)/materiais")}
+          >
+            <Text>Ver materiais</Text>
+          </Button>
         </CardContent>
       </Card>
     </View>
