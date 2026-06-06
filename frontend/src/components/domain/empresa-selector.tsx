@@ -1,29 +1,10 @@
-import { useEffect } from "react";
 import { View, Text, Pressable } from "react-native";
 import { useEmpresas } from "@/features/empresas/empresas.hooks";
 import { useEmpresaStore } from "@/store/empresa-store";
-import { useAuthStore } from "@/store/auth-store";
 
 export function EmpresaSelector() {
   const { data: empresas } = useEmpresas({ ativa: true });
   const { empresaId, setEmpresaId } = useEmpresaStore();
-  const user = useAuthStore((state) => state.user);
-
-  useEffect(() => {
-    if (!empresas?.length || empresaId) {
-      return;
-    }
-
-    if (user?.empresaId) {
-      const empresaDoUsuario = empresas.find((empresa) => empresa.id === user.empresaId);
-      if (empresaDoUsuario) {
-        setEmpresaId(empresaDoUsuario.id);
-        return;
-      }
-    }
-
-    setEmpresaId(empresas[0].id);
-  }, [empresas, empresaId, user?.empresaId, setEmpresaId]);
 
   const selecionada = empresas?.find((empresa) => empresa.id === empresaId);
 
@@ -34,6 +15,25 @@ export function EmpresaSelector() {
       </Text>
 
       <View className="flex-row flex-wrap items-center gap-2">
+        <Pressable
+          onPress={() => setEmpresaId(null)}
+          className={`px-3 py-2 rounded-md border ${
+            empresaId === null
+              ? "bg-primary border-primary"
+              : "border-border bg-card"
+          }`}
+        >
+          <Text
+            className={
+              empresaId === null
+                ? "text-primary-foreground text-sm"
+                : "text-foreground text-sm"
+            }
+          >
+            Sem filtro
+          </Text>
+        </Pressable>
+
         {empresas?.map((empresa) => (
           <Pressable
             key={empresa.id}
@@ -60,7 +60,7 @@ export function EmpresaSelector() {
       <Text className="text-xs text-muted-foreground">
         {selecionada
           ? `Atual: ${selecionada.nome}`
-          : "Selecione uma empresa para filtrar os cadastros."}
+          : "Sem filtro de empresa."}
       </Text>
     </View>
   );
