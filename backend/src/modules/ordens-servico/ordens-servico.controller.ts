@@ -67,7 +67,7 @@ export async function iniciar(req: Request, res: Response, next: NextFunction) {
   try {
     const actor = req.user!;
     const { id } = req.params as { id: string };
-    const { iniciadaEm } = req.body as { iniciadaEm?: string };
+    const { iniciadaEm } = (req.body ?? {}) as { iniciadaEm?: string };
 
     const os = await ordensServicoService.findById(id);
 
