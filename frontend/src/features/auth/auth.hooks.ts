@@ -4,7 +4,7 @@ import { authService } from '../../infrastructure/auth/auth.service';
 
 export const useLoginMutation = () => {
   return useMutation({
-    mutationFn: async (credentials: { email: string; senha?: string }) => {
+    mutationFn: async (credentials: { email: string; password: string }) => {
       return authService.login(credentials);
     },
     onSuccess: (data) => {
