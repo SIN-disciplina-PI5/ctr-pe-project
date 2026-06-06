@@ -1,59 +1,96 @@
-import type { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import type { PerfilUsuario } from "@prisma/client";
+import type { NextFunction, Request, Response } from "express";
+import jwt, { type JwtPayload } from "jsonwebtoken";
 
-export interface JwtPayload {
-  userId: string;
-  empresaId: string;
-  perfil: PerfilUsuario;
+import { AppError } from "../errors/AppError.js";
+import { ErrorCode } from "../errors/error-code.js";
+import { isPerfilUsuario, type AuthUser } from "../types/auth-user.js";
+
+function getStringClaim(payload: JwtPayload, key: string) {
+  const value = payload[key];
+
+  return typeof value === "string" ? value : null;
 }
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: JwtPayload;
-    }
+function getNullableStringClaim(payload: JwtPayload, key: string) {
+  const value = payload[key];
+
+  if (value === null || value === undefined) {
+    return null;
   }
+
+  return typeof value === "string" ? value : null;
 }
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction) {
-  const authHeader = req.headers["authorization"];
+function parseAuthUser(payload: JwtPayload): AuthUser | null {
+  const id = getStringClaim(payload, "id") ?? getStringClaim(payload, "sub");
+  const nome = getStringClaim(payload, "nome");
+  const email = getStringClaim(payload, "email");
+  const perfil = getStringClaim(payload, "perfil");
+  const empresaId = getNullableStringClaim(payload, "empresaId");
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Token não fornecido." });
+  if (!id || !nome || !email || !isPerfilUsuario(perfil)) {
+    return null;
   }
 
-  const [, token] = authHeader.split(" ");
+  return {
+    id,
+    empresaId,
+    nome,
+    email,
+    perfil,
+  };
+}
 
-  if (!token) {
-    return res.status(401).json({ message: "Token não fornecido." });
+export function authMiddleware(req: Request, _res: Response, next: NextFunction) {
+  const authorization = req.headers.authorization;
+
+  if (!authorization?.startsWith("Bearer ")) {
+    return next(
+      new AppError({
+        message: "Token de autenticacao nao informado.",
+        statusCode: 401,
+        errorCode: ErrorCode.UNAUTHORIZED,
+      }),
+    );
   }
 
-  const secret = process.env["JWT_SECRET"];
+  const jwtSecret = process.env.JWT_SECRET;
 
-  if (!secret) {
-    throw new Error("JWT_SECRET não definido");
+  if (!jwtSecret) {
+    return next(
+      new AppError({
+        message: "JWT_SECRET nao configurado.",
+        statusCode: 500,
+        errorCode: ErrorCode.INTERNAL_SERVER_ERROR,
+      }),
+    );
   }
+
+  const token = authorization.replace("Bearer ", "").trim();
 
   try {
-    const payload = jwt.verify(token, secret);
+    const decoded = jwt.verify(token, jwtSecret);
 
-    if (
-      typeof payload !== "object" ||
-      payload === null ||
-      !("userId" in payload) ||
-      !("empresaId" in payload) ||
-      !("perfil" in payload)
-    ) {
-      return res.status(401).json({ message: "Token inválido." });
+    if (typeof decoded === "string") {
+      throw new Error("Invalid token payload");
     }
 
-    req.user = payload as JwtPayload;
+    const user = parseAuthUser(decoded);
 
-    next();
-  } catch (error) {
-    return res.status(401).json({
-      message: "Token inválido ou expirado.",
-    });
+    if (!user) {
+      throw new Error("Invalid token payload");
+    }
+
+    req.user = user;
+
+    return next();
+  } catch {
+    return next(
+      new AppError({
+        message: "Token de autenticacao invalido.",
+        statusCode: 401,
+        errorCode: ErrorCode.UNAUTHORIZED,
+      }),
+    );
   }
 }
