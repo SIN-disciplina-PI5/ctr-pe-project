@@ -19,6 +19,7 @@ import { ordensServicoMateriaisRouter } from "./modules/ordens-servico-materiais
 import { apontamentosOSRouter } from "./modules/apontamentos-os/apontamentos-os.routes.js";
 import { dashboardRoutes } from "./modules/dashboard/dashboard.routes.js";
 import { auditoriaRouter } from "./modules/auditoria/auditoria.routes.js";
+import { localizacoesRouter } from "./modules/localizacoes/localizacoes.routes.js";
 
 export const app = express();
 
@@ -41,6 +42,7 @@ app.use("/api/ordens-servico-materiais", ordensServicoMateriaisRouter);
 app.use("/api/apontamentos-os", apontamentosOSRouter);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/auditoria", auditoriaRouter);
+app.use("/api/localizacoes", localizacoesRouter);
 
 app.get("/health", (_req, res) => {
   return res.status(200).json({
