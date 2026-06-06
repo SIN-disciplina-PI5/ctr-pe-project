@@ -12,12 +12,12 @@ export type CreateUsuarioDto = {
   empresaId: string;
   nome: string;
   email: string;
-  senha: string;
+  password: string;
   perfil: PerfilUsuario;
   ativo?: boolean;
 };
 
-export type UpdateUsuarioDto = Partial<Omit<CreateUsuarioDto, "senha">>;
+export type UpdateUsuarioDto = Partial<Omit<CreateUsuarioDto, "password">>;
 
 export type ResetSenhaDto = {
   novaSenha: string;

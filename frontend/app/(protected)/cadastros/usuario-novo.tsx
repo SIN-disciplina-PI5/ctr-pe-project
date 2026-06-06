@@ -34,18 +34,17 @@ export default function UsuarioNovoScreen() {
   function onSubmit(data: CreateUsuarioFormData) {
     createUsuario(data, {
       onSuccess: () => {
-        Alert.alert("Sucesso", "Usuário criado com sucesso.");
+        Alert.alert("Sucesso", "Usuario criado com sucesso.");
         router.back();
       },
-      onError: () => Alert.alert("Erro", "Não foi possível criar o usuário."),
+      onError: () => Alert.alert("Erro", "Nao foi possivel criar o usuario."),
     });
   }
 
   return (
     <View className="flex-1 bg-background p-4">
-      <Text className="text-foreground text-xl font-bold mb-6">Novo usuário</Text>
+      <Text className="text-foreground text-xl font-bold mb-6">Novo usuario</Text>
 
-      {/* Empresa */}
       <Text className="text-foreground text-sm mb-1">Empresa *</Text>
       <Controller
         control={control}
@@ -60,7 +59,13 @@ export default function UsuarioNovoScreen() {
                   field.value === e.id ? "bg-primary border-primary" : "border-border bg-card"
                 }`}
               >
-                <Text className={field.value === e.id ? "text-primary-foreground text-sm" : "text-foreground text-sm"}>
+                <Text
+                  className={
+                    field.value === e.id
+                      ? "text-primary-foreground text-sm"
+                      : "text-foreground text-sm"
+                  }
+                >
                   {e.nome}
                 </Text>
               </Pressable>
@@ -68,16 +73,17 @@ export default function UsuarioNovoScreen() {
           </View>
         )}
       />
-      {errors.empresaId && <Text className="text-destructive text-xs mb-3">{errors.empresaId.message}</Text>}
+      {errors.empresaId && (
+        <Text className="text-destructive text-xs mb-3">{errors.empresaId.message}</Text>
+      )}
 
-      {/* Nome */}
       <Text className="text-foreground text-sm mb-1 mt-2">Nome *</Text>
       <Controller
         control={control}
         name="nome"
         render={({ field }) => (
           <TextInput
-            placeholder="Ex: João Silva"
+            placeholder="Ex: Joao Silva"
             placeholderTextColor="#888"
             value={field.value}
             onChangeText={field.onChange}
@@ -87,7 +93,6 @@ export default function UsuarioNovoScreen() {
       />
       {errors.nome && <Text className="text-destructive text-xs mb-3">{errors.nome.message}</Text>}
 
-      {/* E-mail */}
       <Text className="text-foreground text-sm mb-1">E-mail *</Text>
       <Controller
         control={control}
@@ -104,17 +109,18 @@ export default function UsuarioNovoScreen() {
           />
         )}
       />
-      {errors.email && <Text className="text-destructive text-xs mb-3">{errors.email.message}</Text>}
+      {errors.email && (
+        <Text className="text-destructive text-xs mb-3">{errors.email.message}</Text>
+      )}
 
-      {/* Senha */}
       <Text className="text-foreground text-sm mb-1">Senha inicial *</Text>
       <Controller
         control={control}
-        name="senha"
+        name="password"
         render={({ field }) => (
           <TextInput
             secureTextEntry
-            placeholder="Mínimo 6 caracteres"
+            placeholder="Minimo 6 caracteres"
             placeholderTextColor="#888"
             value={field.value}
             onChangeText={field.onChange}
@@ -122,9 +128,10 @@ export default function UsuarioNovoScreen() {
           />
         )}
       />
-      {errors.senha && <Text className="text-destructive text-xs mb-3">{errors.senha.message}</Text>}
+      {errors.password && (
+        <Text className="text-destructive text-xs mb-3">{errors.password.message}</Text>
+      )}
 
-      {/* Perfil */}
       <Text className="text-foreground text-sm mb-1">Perfil *</Text>
       <Controller
         control={control}
@@ -139,7 +146,13 @@ export default function UsuarioNovoScreen() {
                   field.value === p ? "bg-primary border-primary" : "border-border bg-card"
                 }`}
               >
-                <Text className={field.value === p ? "text-primary-foreground text-sm" : "text-foreground text-sm"}>
+                <Text
+                  className={
+                    field.value === p
+                      ? "text-primary-foreground text-sm"
+                      : "text-foreground text-sm"
+                  }
+                >
                   {p}
                 </Text>
               </Pressable>
@@ -147,9 +160,10 @@ export default function UsuarioNovoScreen() {
           </View>
         )}
       />
-      {errors.perfil && <Text className="text-destructive text-xs mb-3">{errors.perfil.message}</Text>}
+      {errors.perfil && (
+        <Text className="text-destructive text-xs mb-3">{errors.perfil.message}</Text>
+      )}
 
-      {/* Ativo */}
       <View className="flex-row items-center justify-between mb-6 mt-2">
         <Text className="text-foreground text-sm">Ativo</Text>
         <Controller
