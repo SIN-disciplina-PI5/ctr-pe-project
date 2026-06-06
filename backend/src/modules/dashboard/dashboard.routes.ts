@@ -1,13 +1,20 @@
 import { Router } from "express";
-import { DashboardController } from "./dashboard.controller";
+import { authMiddleware } from "../../common/middlewares/auth.middleware.js";
+import { requireRole } from "../../common/middlewares/require-role.middleware.js";
+import {
+  getResumo,
+  getAtivos,
+  getOrdensServico,
+  getMateriais,
+  getCustos,
+} from "./dashboard.controller.js";
 
-const router = Router();
-const controller = new DashboardController();
+export const dashboardRoutes = Router();
 
-router.get("/resumo", controller.getResumo);
-router.get("/ativos", controller.getAtivos);
-router.get("/ordens-servico", controller.getOrdensServico);
-router.get("/materiais", controller.getMateriais);
-router.get("/custos", controller.getCustos);
+dashboardRoutes.use(authMiddleware);
 
-export const dashboardRoutes = router;
+dashboardRoutes.get("/resumo", requireRole(["ADMIN", "GESTOR", "SUPERVISOR"]), getResumo);
+dashboardRoutes.get("/ativos", requireRole(["ADMIN", "GESTOR", "SUPERVISOR"]), getAtivos);
+dashboardRoutes.get("/ordens-servico", requireRole(["ADMIN", "GESTOR", "SUPERVISOR"]), getOrdensServico);
+dashboardRoutes.get("/materiais", requireRole(["ADMIN", "GESTOR", "SUPERVISOR"]), getMateriais);
+dashboardRoutes.get("/custos", requireRole(["ADMIN", "GESTOR", "SUPERVISOR"]), getCustos);

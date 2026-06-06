@@ -19,7 +19,11 @@ export async function findAll(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export async function findById(req: Request, res: Response, next: NextFunction) {
+export async function findById(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const { id } = req.params as { id: string };
     const result = await empresasService.findById(id);
@@ -31,7 +35,8 @@ export async function findById(req: Request, res: Response, next: NextFunction) 
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await empresasService.create(req.body);
+    const actor = req.user!;
+    const result = await empresasService.create(req.body, actor);
     return res.status(201).json(result);
   } catch (error) {
     next(error);
@@ -41,7 +46,8 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 export async function update(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params as { id: string };
-    const result = await empresasService.update(id, req.body);
+    const actor = req.user!;
+    const result = await empresasService.update(id, req.body, actor);
     return res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -51,7 +57,8 @@ export async function update(req: Request, res: Response, next: NextFunction) {
 export async function remove(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params as { id: string };
-    await empresasService.delete(id);
+    const actor = req.user!;
+    await empresasService.delete(id, actor);
     return res.status(204).send();
   } catch (error) {
     next(error);

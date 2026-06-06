@@ -1,80 +1,60 @@
-import type { Request, Response } from "express";
-import { DashboardService } from "./dashboard.service";
+import type { Request, Response, NextFunction } from "express";
+import { DashboardService } from "./dashboard.service.js";
 
 const dashboardService = new DashboardService();
 
-export class DashboardController {
-  private getEmpresaId(req: Request): string {
+function getEmpresaId(req: Request): string {
+  const actor = req.user;
+  if (actor?.empresaId) return actor.empresaId;
+  return String(req.query["empresaId"] ?? "");
+}
 
-    const usuarioLogado = (req as any).user || (req as any).usuario;
-    if (usuarioLogado?.empresaId) {
-      return usuarioLogado.empresaId;
-    }
-    return String(req.query.empresaId || "empresa-padrao");
+export async function getResumo(req: Request, res: Response, next: NextFunction) {
+  try {
+    const empresaId = getEmpresaId(req);
+    const dados = await dashboardService.getResumo(empresaId);
+    return res.status(200).json(dados);
+  } catch (error) {
+    next(error);
   }
+}
 
-  getResumo = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const empresaId = this.getEmpresaId(req);
-      const dados = await dashboardService.getResumo(empresaId);
-      res.status(200).json(dados);
-    } catch (error: any) {
-      res.status(500).json({ 
-        error: "Erro ao buscar resumo do dashboard", 
-        message: error.message 
-      });
-    }
-  };
+export async function getAtivos(req: Request, res: Response, next: NextFunction) {
+  try {
+    const empresaId = getEmpresaId(req);
+    const dados = await dashboardService.getAtivos(empresaId);
+    return res.status(200).json(dados);
+  } catch (error) {
+    next(error);
+  }
+}
 
-  getAtivos = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const empresaId = this.getEmpresaId(req);
-      const dados = await dashboardService.getAtivos(empresaId);
-      res.status(200).json(dados);
-    } catch (error: any) {
-      res.status(500).json({ 
-        error: "Erro ao buscar dados de ativos para o dashboard", 
-        message: error.message 
-      });
-    }
-  };
+export async function getOrdensServico(req: Request, res: Response, next: NextFunction) {
+  try {
+    const empresaId = getEmpresaId(req);
+    const dados = await dashboardService.getOrdensServico(empresaId);
+    return res.status(200).json(dados);
+  } catch (error) {
+    next(error);
+  }
+}
 
-  getOrdensServico = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const empresaId = this.getEmpresaId(req);
-      const dados = await dashboardService.getOrdensServico(empresaId);
-      res.status(200).json(dados);
-    } catch (error: any) {
-      res.status(500).json({ 
-        error: "Erro ao buscar ordens de serviço para o dashboard", 
-        message: error.message 
-      });
-    }
-  };
+export async function getMateriais(req: Request, res: Response, next: NextFunction) {
+  try {
+    const empresaId = getEmpresaId(req);
+    const dados = await dashboardService.getMateriais(empresaId);
+    return res.status(200).json(dados);
+  } catch (error) {
+    next(error);
+  }
+}
 
-  getMateriais = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const empresaId = this.getEmpresaId(req);
-      const dados = await dashboardService.getMateriais(empresaId);
-      res.status(200).json(dados);
-    } catch (error: any) {
-      res.status(500).json({ 
-        error: "Erro ao buscar materiais para o dashboard", 
-        message: error.message 
-      });
-    }
-  };
-
-  getCustos = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const empresaId = this.getEmpresaId(req);
-      const dados = await dashboardService.getCustos(empresaId);
-      res.status(200).json(dados);
-    } catch (error: any) {
-      res.status(500).json({ 
-        error: "Erro ao buscar custos para o dashboard", 
-        message: error.message 
-      });
-    }
-  };
+export async function getCustos(req: Request, res: Response, next: NextFunction) {
+  try {
+    const empresaId = getEmpresaId(req);
+    const dados = await dashboardService.getCustos(empresaId);
+    return res.status(200).json(dados);
+  } catch (error) {
+    next(error);
+  }
 }

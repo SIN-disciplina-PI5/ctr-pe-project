@@ -1,16 +1,10 @@
 import { prisma } from "../../prisma/prisma.client.js";
 
-interface FindAllFilters {
-  empresaId?: string;
-  search?: string;
-  ativa?: boolean;
-}
-
 interface CreateLocalizacaoData {
   empresaId: string;
-  codigo: string;
+  codigo?: string;
   nome: string;
-  tipo: string;
+  tipo?: string;
   ativa?: boolean;
 }
 
@@ -21,6 +15,12 @@ interface UpdateLocalizacaoData {
   ativa?: boolean;
 }
 
+interface FindAllFilters {
+  empresaId?: string;
+  search?: string;
+  ativa?: boolean;
+}
+
 export class LocalizacoesRepository {
   async findAll(filters: FindAllFilters) {
     return prisma.localizacao.findMany({
@@ -28,11 +28,7 @@ export class LocalizacoesRepository {
         ...(filters.empresaId !== undefined && { empresaId: filters.empresaId }),
         ...(filters.ativa !== undefined && { ativa: filters.ativa }),
         ...(filters.search && {
-          OR: [
-            { nome: { contains: filters.search, mode: "insensitive" } },
-            { codigo: { contains: filters.search, mode: "insensitive" } },
-            { tipo: { contains: filters.search, mode: "insensitive" } },
-          ],
+          nome: { contains: filters.search, mode: "insensitive" },
         }),
       },
       select: {
@@ -43,9 +39,8 @@ export class LocalizacoesRepository {
         tipo: true,
         ativa: true,
         createdAt: true,
-        updatedAt: true,
+        empresa: { select: { id: true, nome: true } },
       },
-      orderBy: [{ nome: "asc" }],
     });
   }
 
@@ -60,32 +55,15 @@ export class LocalizacoesRepository {
         tipo: true,
         ativa: true,
         createdAt: true,
-        updatedAt: true,
+        empresa: { select: { id: true, nome: true } },
       },
     });
   }
 
   async findByCodigo(empresaId: string, codigo: string) {
-    return prisma.localizacao.findUnique({
-      where: {
-        empresaId_codigo: {
-          empresaId,
-          codigo,
-        },
-      },
-      select: {
-        id: true,
-      },
-    });
-  }
-
-  async findEmpresaById(id: string) {
-    return prisma.empresa.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        ativa: true,
-      },
+    return prisma.localizacao.findFirst({
+      where: { empresaId, codigo },
+      select: { id: true },
     });
   }
 
@@ -100,7 +78,7 @@ export class LocalizacoesRepository {
         tipo: true,
         ativa: true,
         createdAt: true,
-        updatedAt: true,
+        empresa: { select: { id: true, nome: true } },
       },
     });
   }
@@ -117,7 +95,7 @@ export class LocalizacoesRepository {
         tipo: true,
         ativa: true,
         createdAt: true,
-        updatedAt: true,
+        empresa: { select: { id: true, nome: true } },
       },
     });
   }

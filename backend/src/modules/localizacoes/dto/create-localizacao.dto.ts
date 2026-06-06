@@ -1,11 +1,10 @@
 import { z } from "zod";
 
 export const createLocalizacaoDto = z.object({
-  empresaId: z.string().cuid(),
-  codigo: z.string().min(1),
-  nome: z.string().min(1),
-  tipo: z.string().min(1),
-  ativa: z.boolean().optional(),
+  codigo: z.string().min(1).optional(),
+  nome: z.string().min(1, "Nome é obrigatório"),
+  tipo: z.string().min(1).optional(),
+  ativa: z.boolean().optional().default(true),
 });
 
 export type CreateLocalizacaoDto = z.infer<typeof createLocalizacaoDto>;

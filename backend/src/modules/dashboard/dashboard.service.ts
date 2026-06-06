@@ -1,4 +1,4 @@
-import { DashboardRepository } from "./dashboard.repository";
+import { DashboardRepository } from "./dashboard.repository.js";
 
 const dashboardRepository = new DashboardRepository();
 
@@ -6,7 +6,6 @@ export class DashboardService {
   async getResumo(empresaId: string) {
     const agora = new Date();
 
-    // Executa as queries em paralelo para melhorar a performance da API
     const [
       osAbertas,
       osAguardandoPeca,
@@ -36,9 +35,9 @@ export class DashboardService {
   }
 
   async getAtivos(empresaId: string) {
-    const { porStatus, porCriticidade } = await dashboardRepository.getAtivosAgrupados(empresaId);
+    const { porStatus, porCriticidade } =
+      await dashboardRepository.getAtivosAgrupados(empresaId);
 
-    // Formata o retorno para o padrão que os gráficos do front costumam pedir (rótulo e valor)
     const ativosPorStatus = porStatus.map((item) => ({
       status: item.status,
       quantidade: item._count,
@@ -53,7 +52,8 @@ export class DashboardService {
   }
 
   async getOrdensServico(empresaId: string) {
-    const { porTipo, porPrioridade } = await dashboardRepository.getOsAgrupadas(empresaId);
+    const { porTipo, porPrioridade } =
+      await dashboardRepository.getOsAgrupadas(empresaId);
 
     const osPorTipo = porTipo.map((item) => ({
       tipo: item.tipo,
@@ -69,9 +69,9 @@ export class DashboardService {
   }
 
   async getMateriais(empresaId: string) {
-    const materiaisCriticos = await dashboardRepository.getMateriaisCriticos(empresaId);
+    const materiaisCriticos =
+      await dashboardRepository.getMateriaisCriticos(empresaId);
 
-    // Converte os valores decimais do Prisma para números normais no JS
     return {
       materiaisCriticos: materiaisCriticos.map((mat) => ({
         id: mat.id,
@@ -84,7 +84,6 @@ export class DashboardService {
   }
 
   async getCustos(empresaId: string) {
-    const custos = await dashboardRepository.aggregateCustos(empresaId);
-    return custos;
+    return dashboardRepository.aggregateCustos(empresaId);
   }
 }
