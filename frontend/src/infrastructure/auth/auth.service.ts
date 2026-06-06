@@ -1,4 +1,5 @@
 import { apiClient } from "../api/api-client";
+import type { Usuario } from "@/features/usuarios/usuarios.types";
 
 type LoginCredentials = {
   email: string;
@@ -16,6 +17,15 @@ export const authService = {
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.error || "Erro ao realizar autenticacao");
+    }
+  },
+
+  async me(): Promise<Usuario> {
+    try {
+      const response = await apiClient.get("/auth/me");
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.error || "Erro ao carregar usuario autenticado");
     }
   },
 

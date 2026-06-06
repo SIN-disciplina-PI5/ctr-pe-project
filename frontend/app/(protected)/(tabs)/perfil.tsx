@@ -5,16 +5,28 @@ import { useRouter } from "expo-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
-
-import { removeToken } from "../../../src/infrastructure/storage/token-storage";
+import { removeToken } from "@/infrastructure/storage/token-storage";
+import { useAuthStore } from "@/store/auth-store";
 
 export default function PerfilScreen() {
   const router = useRouter();
+  const user = useAuthStore((state) => state.user);
+  const clearAuth = useAuthStore((state) => state.clearAuth);
 
   async function handleLogout() {
     await removeToken();
+    clearAuth();
     router.replace("/(auth)/login");
   }
+
+  const initials = user?.nome
+    ? user.nome
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() ?? "")
+        .join("")
+    : "??";
 
   return (
     <View className="flex-1 bg-background px-6 justify-center items-center">
@@ -27,47 +39,52 @@ export default function PerfilScreen() {
           </CardHeader>
 
           <CardContent className="gap-6 p-6">
-            {/* Seção do Avatar e Cabeçalho do Perfil */}
             <View className="items-center pb-5 border-b border-border/60 gap-2">
               <View className="h-20 w-20 rounded-full bg-muted/80 justify-center items-center mb-1 border border-border/20 shadow-sm">
-                <Text className="text-2xl font-bold tracking-wider text-muted-foreground">AA</Text>
+                <Text className="text-2xl font-bold tracking-wider text-muted-foreground">
+                  {initials}
+                </Text>
               </View>
               <Text className="text-xl font-bold tracking-tight text-foreground">
-                Arthur Azevedo
+                {user?.nome ?? "Usuario"}
               </Text>
               <Text className="text-xs font-medium text-muted-foreground/80 uppercase tracking-widest bg-muted/50 px-2.5 py-1 rounded-full overflow-hidden">
-                Analista de Sistemas
+                {user?.perfil ?? "SEM PERFIL"}
               </Text>
             </View>
 
-            {/* Grid de Informações */}
             <View className="gap-3.5 px-1">
               <View className="flex-row justify-between items-center">
-                <Text className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">E-mail</Text>
-                <Text className="text-sm font-medium text-foreground/90 selection:bg-primary/10">
-                  arthur.costa@empresa.com
+                <Text className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  E-mail
+                </Text>
+                <Text className="text-sm font-medium text-foreground/90">
+                  {user?.email ?? "-"}
                 </Text>
               </View>
-              
+
               <View className="flex-row justify-between items-center">
-                <Text className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Setor</Text>
+                <Text className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Empresa
+                </Text>
                 <Text className="text-sm font-medium text-foreground/90">
-                  Operações Técnicas
+                  {user?.empresaId ?? "ADMIN GLOBAL"}
                 </Text>
               </View>
-              
+
               <View className="flex-row justify-between items-center">
-                <Text className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Unidade</Text>
+                <Text className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Status
+                </Text>
                 <Text className="text-sm font-medium text-foreground/90">
-                  Recife - PE
+                  {user?.ativo ? "ATIVO" : "INATIVO"}
                 </Text>
               </View>
             </View>
 
-            {/* Ação Principal */}
-            <Button 
-              variant="destructive" 
-              className="w-full mt-2 h-12 rounded-xl active:opacity-90 shadow-sm" 
+            <Button
+              variant="destructive"
+              className="w-full mt-2 h-12 rounded-xl active:opacity-90 shadow-sm"
               onPress={handleLogout}
             >
               <Text className="text-destructive-foreground font-semibold text-sm tracking-wide">

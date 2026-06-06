@@ -6,10 +6,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { authService } from "@/infrastructure/auth/auth.service";
-import { setToken } from "@/infrastructure/storage/token-storage";
+import { removeToken, setToken } from "@/infrastructure/storage/token-storage";
+import { useAuthStore } from "@/store/auth-store";
 
 export default function LoginScreen() {
   const router = useRouter();
+  const setAuth = useAuthStore((state) => state.setAuth);
+
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [carregando, setCarregando] = useState(false);
@@ -33,6 +36,15 @@ export default function LoginScreen() {
       }
 
       await setToken(data.accessToken);
+
+      try {
+        const user = await authService.me();
+        setAuth(data.accessToken, user);
+      } catch (error) {
+        await removeToken();
+        throw error;
+      }
+
       router.replace("/(protected)/(tabs)/home");
     } catch (error: any) {
       Alert.alert(
