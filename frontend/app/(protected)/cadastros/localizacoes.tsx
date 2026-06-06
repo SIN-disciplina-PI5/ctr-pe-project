@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { View, Text, FlatList, Pressable, TextInput, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { useLocalizacoes, useDeleteLocalizacao } from "@/features/localizacoes/localizacoes.hooks";
@@ -12,6 +12,11 @@ export default function LocalizacoesScreen() {
   const [ativa, setAtiva] = useState<boolean | undefined>(undefined);
 
   const { data: empresas } = useEmpresas({ ativa: true });
+  const empresaSelecionada = useMemo(
+    () => empresas?.find((empresa) => empresa.id === empresaId) ?? null,
+    [empresas, empresaId],
+  );
+
   const { data: localizacoes, isLoading, isError } = useLocalizacoes({
     empresaId: empresaId ?? undefined,
     search,
@@ -20,7 +25,7 @@ export default function LocalizacoesScreen() {
   const { mutate: deleteLocalizacao } = useDeleteLocalizacao();
 
   function handleInativar(id: string) {
-    Alert.alert("Inativar localização", "Confirmar inativação?", [
+    Alert.alert("Inativar localizacao", "Confirmar inativacao?", [
       { text: "Cancelar", style: "cancel" },
       { text: "Inativar", style: "destructive", onPress: () => deleteLocalizacao(id) },
     ]);
@@ -29,14 +34,22 @@ export default function LocalizacoesScreen() {
   return (
     <View className="flex-1 bg-background p-4">
       <View className="flex-row items-center justify-between mb-4">
-        <Text className="text-foreground text-xl font-bold">Localizações</Text>
+        <Text className="text-foreground text-xl font-bold">Localizacoes</Text>
         <Pressable
           onPress={() => router.push("/(protected)/cadastros/localizacao-nova")}
           className="bg-primary px-4 py-2 rounded-md"
         >
-          <Text className="text-primary-foreground text-sm font-medium">Nova localização</Text>
+          <Text className="text-primary-foreground text-sm font-medium">
+            Nova localizacao
+          </Text>
         </Pressable>
       </View>
+
+      <Text className="text-muted-foreground text-sm mb-3">
+        {empresaSelecionada
+          ? `Filtrando por: ${empresaSelecionada.nome}`
+          : "Nenhuma empresa selecionada. As localizacoes serao listadas sem filtro de empresa."}
+      </Text>
 
       <TextInput
         placeholder="Buscar por nome..."
@@ -61,7 +74,9 @@ export default function LocalizacoesScreen() {
           >
             <Text
               className={
-                ativa === op.value ? "text-primary-foreground text-xs" : "text-foreground text-xs"
+                ativa === op.value
+                  ? "text-primary-foreground text-xs"
+                  : "text-foreground text-xs"
               }
             >
               {op.label}
@@ -71,7 +86,11 @@ export default function LocalizacoesScreen() {
       </View>
 
       {isLoading && <Text className="text-muted-foreground text-center">Carregando...</Text>}
-      {isError && <Text className="text-destructive text-center">Erro ao carregar localizações.</Text>}
+      {isError && (
+        <Text className="text-destructive text-center">
+          Erro ao carregar localizacoes.
+        </Text>
+      )}
 
       <FlatList
         data={localizacoes}
@@ -83,17 +102,15 @@ export default function LocalizacoesScreen() {
               <View
                 className={`px-2 py-0.5 rounded-full ${item.ativa ? "bg-green-100" : "bg-muted"}`}
               >
-                <Text className={`text-xs ${item.ativa ? "text-green-700" : "text-muted-foreground"}`}>
+                <Text
+                  className={`text-xs ${item.ativa ? "text-green-700" : "text-muted-foreground"}`}
+                >
                   {item.ativa ? "Ativa" : "Inativa"}
                 </Text>
               </View>
             </View>
-            {item.codigo && (
-              <Text className="text-muted-foreground text-sm">{item.codigo}</Text>
-            )}
-            {item.tipo && (
-              <Text className="text-muted-foreground text-xs mb-2">{item.tipo}</Text>
-            )}
+            {item.codigo && <Text className="text-muted-foreground text-sm">{item.codigo}</Text>}
+            {item.tipo && <Text className="text-muted-foreground text-xs mb-2">{item.tipo}</Text>}
             <View className="flex-row gap-3 mt-2">
               <Pressable
                 onPress={() =>
@@ -111,7 +128,7 @@ export default function LocalizacoesScreen() {
         ListEmptyComponent={
           !isLoading ? (
             <Text className="text-muted-foreground text-center mt-8">
-              Nenhuma localização encontrada.
+              Nenhuma localizacao encontrada.
             </Text>
           ) : null
         }
