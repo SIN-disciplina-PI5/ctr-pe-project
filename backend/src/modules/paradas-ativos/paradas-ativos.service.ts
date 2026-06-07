@@ -50,6 +50,54 @@ export class ParadasAtivosService {
   }
 
   async create(data: CreateParadaAtivoInput) {
+    const ativo = await this.paradasAtivosRepository.findAtivoById(data.ativoId);
+
+    if (!ativo || !ativo.ativo) {
+      throw new AppError({
+        message: "Ativo nao encontrado ou inativo",
+        statusCode: 404,
+        errorCode: ErrorCode.NOT_FOUND,
+      });
+    }
+
+    if (ativo.empresaId !== data.empresaId) {
+      throw new AppError({
+        message: "Ativo nao pertence a empresa informada",
+        statusCode: 400,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      });
+    }
+
+    if (data.ordemServicoId) {
+      const ordemServico = await this.paradasAtivosRepository.findOrdemServicoById(
+        data.ordemServicoId,
+      );
+
+      if (!ordemServico) {
+        throw new AppError({
+          message: "Ordem de servico nao encontrada",
+          statusCode: 404,
+          errorCode: ErrorCode.NOT_FOUND,
+        });
+      }
+
+      if (ordemServico.empresaId !== data.empresaId) {
+        throw new AppError({
+          message: "Ordem de servico nao pertence a empresa informada",
+          statusCode: 400,
+          errorCode: ErrorCode.VALIDATION_ERROR,
+        });
+      }
+
+      if (ordemServico.ativoId !== data.ativoId) {
+        throw new AppError({
+          message: "Ordem de servico nao pertence ao ativo informado",
+          statusCode: 400,
+          errorCode: ErrorCode.VALIDATION_ERROR,
+        });
+      }
+    }
+
     const paradaAberta = await this.paradasAtivosRepository.findParadaAbertaByAtivo(data.ativoId);
 
     if (paradaAberta) throw new AppError({ message: "Ativo já possui uma parada aberta", statusCode: 409, errorCode: ErrorCode.CONFLICT });

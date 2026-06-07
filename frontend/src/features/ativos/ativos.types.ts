@@ -37,6 +37,8 @@ export type Ativo = {
 };
 
 export type ListAtivosParams = {
+  empresaId?: string;
+  localizacaoId?: string;
   search?: string;
   status?: StatusAtivo;
   tipo?: TipoAtivo;

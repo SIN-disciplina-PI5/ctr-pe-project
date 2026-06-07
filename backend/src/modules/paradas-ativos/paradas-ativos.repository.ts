@@ -130,4 +130,26 @@ export class ParadasAtivosRepository {
       select: paradaSelect,
     });
   }
+
+  async findAtivoById(id: string) {
+  return prisma.ativo.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      empresaId: true,
+      ativo: true,
+    },
+  });
+}
+
+async findOrdemServicoById(id: string) {
+  return prisma.ordemServico.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      empresaId: true,
+      ativoId: true,
+    },
+  });
+}
 }
