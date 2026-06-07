@@ -120,7 +120,14 @@ export default function DashboardScreen() {
   const listaAlertasRecentes = alertasRecentes.data?.slice(0, 5) ?? [];
 
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-4 pb-6">
+    <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-4 px-4 py-6 pb-6">
+      <View className="gap-1">
+        <Text className="text-2xl font-bold text-foreground">Dashboard</Text>
+        <Text className="text-sm text-muted-foreground">
+          Visão geral da operação de manutenção.
+        </Text>
+      </View>
+
       <View className="flex-row flex-wrap gap-3">
         <IndicadorCard label="Ativos totais" value={String(ativosTotais)} />
         <IndicadorCard

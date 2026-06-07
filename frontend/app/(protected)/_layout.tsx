@@ -1,11 +1,11 @@
-import { Stack } from "expo-router";
-import React from "react";
+import { Slot } from "expo-router";
+
+import { ProtectedShell } from "@/components/layout/protected-shell";
 
 export default function ProtectedLayout() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="equipe/index" />
-    </Stack>
+    <ProtectedShell>
+      <Slot />
+    </ProtectedShell>
   );
 }

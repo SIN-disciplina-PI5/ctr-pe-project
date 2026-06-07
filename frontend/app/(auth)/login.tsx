@@ -45,7 +45,7 @@ export default function LoginScreen() {
         throw error;
       }
 
-      router.replace("/(protected)/(tabs)/home");
+      router.replace("/dashboard");
     } catch (error: any) {
       Alert.alert(
         "Falha no Login",
