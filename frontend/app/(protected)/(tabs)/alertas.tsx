@@ -1,35 +1,77 @@
-import React from "react";
-import { View, ScrollView } from "react-native";
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { router } from "expo-router";
+import { useMemo } from "react";
+import { ActivityIndicator, FlatList, View } from "react-native";
+
+import { AlertaCard } from "@/components/domain/alerta-card";
+import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { useAlertas } from "@/features/alertas/alertas.hooks";
+import { useSelectedEmpresaId } from "@/hooks/use-selected-empresa";
 
 export default function AlertasScreen() {
-  const alertas = [
-    { data: "Hoje às 14:22", msg: "Temperatura elevada detectada no Motor Principal do Chiller-01.", gravidade: "Crítico", lineClass: "bg-rose-500" },
-    { data: "Ontem às 08:05", msg: "Troca de filtros pendente na Unidade de Tratamento de Ar.", gravidade: "Aviso", lineClass: "bg-amber-500" },
-  ];
+  const empresaId = useSelectedEmpresaId();
+
+  const filters = useMemo(
+    () => ({
+      empresaId: empresaId ?? undefined,
+    }),
+    [empresaId],
+  );
+
+  const { data: alertas, isLoading, isError, refetch } = useAlertas(filters);
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-background px-6">
+        <ActivityIndicator />
+        <Text className="mt-3 text-muted-foreground">Carregando alertas...</Text>
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <View className="flex-1 items-center justify-center bg-background px-6">
+        <Text className="text-xl font-semibold">Erro ao carregar alertas</Text>
+        <Text className="mt-2 text-center text-muted-foreground">
+          Não foi possível buscar os alertas.
+        </Text>
+        <Button className="mt-4" onPress={() => refetch()}>
+          <Text>Tentar novamente</Text>
+        </Button>
+      </View>
+    );
+  }
 
   return (
-    <ScrollView className="flex-1 bg-slate-50/80" contentContainerStyle={{ padding: 24 }}>
-      <View className="mb-6 mt-4 bg-rose-700 p-6 rounded-2xl shadow-md">
-        <Text className="text-2xl font-bold text-white">Alertas do Sistema</Text>
-        <Text className="text-sm text-rose-100 mt-1">Ocorrências críticas e preventivas que demandam atenção.</Text>
+    <View className="flex-1 bg-background px-4 py-6">
+      <View className="mb-4 flex-row items-center justify-between gap-4">
+        <View className="flex-1">
+          <Text className="text-2xl font-bold">Alertas</Text>
+          <Text className="text-sm text-muted-foreground">
+            Alertas operacionais e preventivos do sistema.
+          </Text>
+        </View>
+
+        <Button variant="outline" onPress={() => router.push("/(protected)/alertas/me")}>
+          <Text>Meus alertas</Text>
+        </Button>
       </View>
 
-      <View className="gap-4">
-        {alertas.map((alerta, index) => (
-          <Card key={index} className="border border-slate-200 bg-white rounded-xl shadow-sm flex-row overflow-hidden">
-            <View className={`w-1.5 ${alerta.lineClass}`} />
-            <CardHeader className="p-4 flex-1">
-              <View className="flex-row justify-between items-center mb-1">
-                <Text className="text-[10px] font-bold text-slate-400 uppercase">{alerta.data}</Text>
-                <Text className={`text-[10px] font-extrabold uppercase ${alerta.gravidade === 'Crítico' ? 'text-rose-600' : 'text-amber-600'}`}>{alerta.gravidade}</Text>
-              </View>
-              <Text className="text-xs text-slate-700 font-medium leading-relaxed mt-1">{alerta.msg}</Text>
-            </CardHeader>
-          </Card>
-        ))}
-      </View>
-    </ScrollView>
+      <FlatList
+        data={alertas ?? []}
+        keyExtractor={(item) => item.id}
+        contentContainerClassName="gap-3 pb-8"
+        renderItem={({ item }) => <AlertaCard alerta={item} />}
+        ListEmptyComponent={
+          <View className="items-center justify-center rounded-xl border border-dashed border-border p-8">
+            <Text className="text-lg font-semibold">Nenhum alerta encontrado</Text>
+            <Text className="mt-2 text-center text-muted-foreground">
+              Quando houver ocorrências, elas aparecerão aqui.
+            </Text>
+          </View>
+        }
+      />
+    </View>
   );
 }

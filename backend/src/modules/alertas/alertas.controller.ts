@@ -29,7 +29,7 @@ export async function findAll(req: Request, res: Response, next: NextFunction) {
 
 export async function findMe(req: Request, res: Response, next: NextFunction) {
   try {
-    const usuarioId = req.user?.userId;
+    const usuarioId = req.user?.id;
 
     if (!usuarioId) {
       return res.status(200).json([]);
