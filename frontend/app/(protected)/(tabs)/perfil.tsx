@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
+import { useEmpresa } from "@/features/empresas/empresas.hooks";
 import { removeToken } from "@/infrastructure/storage/token-storage";
 import { useAuthStore } from "@/store/auth-store";
 
@@ -12,6 +13,8 @@ export default function PerfilScreen() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const clearAuth = useAuthStore((state) => state.clearAuth);
+
+  const { data: empresa } = useEmpresa(user?.empresaId ?? "");
 
   async function handleLogout() {
     await removeToken();
@@ -68,7 +71,7 @@ export default function PerfilScreen() {
                   Empresa
                 </Text>
                 <Text className="text-sm font-medium text-foreground/90">
-                  {user?.empresaId ?? "ADMIN GLOBAL"}
+                  {user?.empresaId ? (empresa?.nome ?? "Carregando...") : "ADMIN GLOBAL"}
                 </Text>
               </View>
 
