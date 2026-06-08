@@ -1,6 +1,6 @@
+import { createRequire } from "node:module";
 import cors from "cors";
 import express from "express";
-import * as helmetModule from "helmet";
 import morgan from "morgan";
 import { AppError } from "./common/errors/AppError.js";
 import { ErrorCode } from "./common/errors/error-code.js";
@@ -21,11 +21,12 @@ import { dashboardRoutes } from "./modules/dashboard/dashboard.routes.js";
 import { auditoriaRouter } from "./modules/auditoria/auditoria.routes.js";
 import { localizacoesRouter } from "./modules/localizacoes/localizacoes.routes.js";
 
+const require = createRequire(import.meta.url);
+const helmet: typeof import("helmet").default = require("helmet");
+
 const app = express();
 export { app };
 export default app;
-
-const helmet = helmetModule.default;
 
 app.use(helmet());
 app.use(cors());
