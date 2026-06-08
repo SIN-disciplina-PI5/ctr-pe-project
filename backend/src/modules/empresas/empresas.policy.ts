@@ -1,12 +1,8 @@
-import type { PerfilUsuario } from "@prisma/client";
+import type { AuthUser } from "../../common/types/auth-user.js";
 import { AppError } from "../../common/errors/AppError.js";
 import { ErrorCode } from "../../common/errors/error-code.js";
 
-type Actor = {
-  userId: string;
-  perfil: PerfilUsuario;
-  empresaId: string;
-};
+type Actor = AuthUser;
 
 export function canReadEmpresa(actor: Actor) {
   // Todos os perfis autenticados podem listar empresas

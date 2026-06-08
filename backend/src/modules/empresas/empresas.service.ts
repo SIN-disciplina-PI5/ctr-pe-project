@@ -7,12 +7,10 @@ import {
   canDeleteEmpresa,
 } from "./empresas.policy.js";
 import type { PerfilUsuario } from "@prisma/client";
+import type { AuthUser } from "../../common/types/auth-user.js";
 
-interface Actor {
-  userId: string;
-  perfil: PerfilUsuario;
-  empresaId: string;
-}
+type Actor = AuthUser;
+
 
 interface CreateEmpresaInput {
   codigo?: string;

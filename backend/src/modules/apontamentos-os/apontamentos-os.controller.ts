@@ -26,7 +26,7 @@ export async function findById(req: Request, res: Response, next: NextFunction) 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
     const { ordemServicoId } = req.params as { ordemServicoId: string };
-    const usuarioId = req.user!.userId;
+    const usuarioId = req.user!.id;
     const result = await service.create({
       ordemServicoId,
       usuarioId,

@@ -64,7 +64,7 @@ export function auditMiddleware(req: Request, res: Response, next: NextFunction)
       (typeof empresaIdResposta === "string" ? empresaIdResposta : undefined) ??
       req.user?.empresaId ??
       null;
-    const usuarioId = req.user?.userId ?? null;
+    const usuarioId = req.user?.id ?? null;
 
     auditoriaService
       .registrar({

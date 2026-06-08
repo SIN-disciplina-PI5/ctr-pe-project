@@ -7,12 +7,9 @@ import {
   canDeleteLocalizacao,
 } from "./localizacoes.policy.js";
 import type { PerfilUsuario } from "@prisma/client";
+import type { AuthUser } from "../../common/types/auth-user.js";
 
-interface Actor {
-  userId: string;
-  perfil: PerfilUsuario;
-  empresaId: string;
-}
+type Actor = AuthUser;
 
 interface CreateLocalizacaoInput {
   codigo?: string;
@@ -38,15 +35,21 @@ export class LocalizacoesService {
   private localizacoesRepository = new LocalizacoesRepository();
 
   async findAll(filters: FindAllFilters, actor: Actor) {
-    // Garante escopo por empresa: usuários não-ADMIN só veem da própria empresa
+    if (actor.perfil !== "ADMIN" && !actor.empresaId) {
+      throw new AppError({
+        message: "Usuario sem empresa vinculada.",
+        statusCode: 403,
+        errorCode: ErrorCode.FORBIDDEN,
+      });
+    }
+
     const empresaId =
-      actor.perfil === "ADMIN"
-        ? filters.empresaId
-        : actor.empresaId;
+      actor.perfil === "ADMIN" ? filters.empresaId : (actor.empresaId ?? undefined);
 
     return this.localizacoesRepository.findAll({
-      ...filters,
-      empresaId,
+      ...(filters.search !== undefined && { search: filters.search }),
+      ...(filters.ativa !== undefined && { ativa: filters.ativa }),
+      ...(empresaId !== undefined && { empresaId }),
     });
   }
 
@@ -81,6 +84,14 @@ export class LocalizacoesService {
     // Usa a empresa do actor (SUPERVISOR só cria na própria empresa)
     const empresaId = actor.empresaId;
 
+    if (!empresaId) {
+      throw new AppError({
+        message: "Usuario sem empresa vinculada.",
+        statusCode: 403,
+        errorCode: ErrorCode.FORBIDDEN,
+      });
+    }
+    
     if (data.codigo) {
       const codigoEmUso = await this.localizacoesRepository.findByCodigo(
         empresaId,
