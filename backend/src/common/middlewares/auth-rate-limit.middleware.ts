@@ -10,7 +10,7 @@ const rateLimit: typeof import("express-rate-limit").default =
 
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 10,
+  limit: 50,
   standardHeaders: "draft-7",
   legacyHeaders: false,
   handler: (_req: Request, _res: Response, next: NextFunction) => {
