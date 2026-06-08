@@ -1,6 +1,6 @@
 import cors from "cors";
 import express from "express";
-import helmet from "helmet";
+import * as helmetModule from "helmet";
 import morgan from "morgan";
 import { AppError } from "./common/errors/AppError.js";
 import { ErrorCode } from "./common/errors/error-code.js";
@@ -24,6 +24,8 @@ import { localizacoesRouter } from "./modules/localizacoes/localizacoes.routes.j
 const app = express();
 export { app };
 export default app;
+
+const helmet = helmetModule.default;
 
 app.use(helmet());
 app.use(cors());
