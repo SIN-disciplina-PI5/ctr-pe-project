@@ -14,7 +14,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:seed": "prisma db seed",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "tokens:cleanup": "tsx src/auth/clean-refresh-tokens.ts"
   },
   "prisma":{
     "seed": "npx tsx prisma/seed.ts"
@@ -34,7 +35,8 @@
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
     "pg": "^8.20.0",
-    "zod": "^4.4.2"
+    "zod": "^4.4.2",
+    "express-rate-limit": "^8.5.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
