@@ -21,7 +21,9 @@ import { dashboardRoutes } from "./modules/dashboard/dashboard.routes.js";
 import { auditoriaRouter } from "./modules/auditoria/auditoria.routes.js";
 import { localizacoesRouter } from "./modules/localizacoes/localizacoes.routes.js";
 
-export const app = express();
+const app = express();
+export { app };
+export default app;
 
 app.use(helmet());
 app.use(cors());
