@@ -200,3 +200,13 @@ EXPO_PUBLIC_API_URL=http://192.168.0.10:3333/api
 7. iniciar o frontend;
 8. testar a API no Postman;
 9. testar o frontend no navegador ou no Expo Go.
+
+
+### Equipe
+
+André Luís Gomes da Silva Filho - RA: 00000855160; 
+Arthur Azevedo Costa de Paula - RA: 00000016457; 
+Dayvson da Conceicao de Moura - RA: 00000855171; 
+Hallason Matias da Silva - RA: 00000855277; 
+José Heitor Felix Guimarães - RA: 00000855161; 
+Vinícius de Almeida Silva - RA: 00000855166
