@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import type { AuditoriaRepository } from "../../src/modules/auditoria/auditoria.repository.js";
 
-const mockRepo = {
-  create: jest.fn() as jest.Mock,
-  findAll: jest.fn() as jest.Mock,
-  findById: jest.fn() as jest.Mock,
+const mockRepo: Pick<jest.Mocked<AuditoriaRepository>, "create" | "findAll" | "findById"> = {
+  create: jest.fn(),
+  findAll: jest.fn(),
+  findById: jest.fn(),
 };
 
 jest.unstable_mockModule("../../src/modules/auditoria/auditoria.repository.js", () => ({

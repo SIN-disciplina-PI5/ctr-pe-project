@@ -1,14 +1,22 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import type { MateriaisRepository } from "../../src/modules/materiais/materiais.repository.js";
+import type { AlertasRepository } from "../../src/modules/alertas/alertas.repository.js";
 
-const mockRepo = {
-  findById: jest.fn() as jest.Mock,
-  findByCodigo: jest.fn() as jest.Mock,
-  create: jest.fn() as jest.Mock,
-  update: jest.fn() as jest.Mock,
-  updateEstoque: jest.fn() as jest.Mock,
-  delete: jest.fn() as jest.Mock,
+const mockRepo: Pick<
+  jest.Mocked<MateriaisRepository>,
+  "findById" | "findByCodigo" | "create" | "update" | "updateEstoque" | "delete"
+> = {
+  findById: jest.fn(),
+  findByCodigo: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  updateEstoque: jest.fn(),
+  delete: jest.fn(),
 };
-const mockAlertas = { createEstoqueBaixo: jest.fn() as jest.Mock };
+
+const mockAlertas: Pick<jest.Mocked<AlertasRepository>, "createEstoqueBaixo"> = {
+  createEstoqueBaixo: jest.fn(),
+};
 
 jest.unstable_mockModule("../../src/modules/materiais/materiais.repository.js", () => ({
   MateriaisRepository: jest.fn(() => mockRepo),

@@ -1,14 +1,23 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import type { OrdensServicoRepository } from "../../src/modules/ordens-servico/ordens-servico.repository.js";
+import type { AlertasRepository } from "../../src/modules/alertas/alertas.repository.js";
 
-const mockRepo = {
-  findById: jest.fn() as jest.Mock,
-  aguardarPeca: jest.fn() as jest.Mock,
-  encerrar: jest.fn() as jest.Mock,
-  cancelar: jest.fn() as jest.Mock,
+const mockRepo: Pick<
+  jest.Mocked<OrdensServicoRepository>,
+  "findById" | "aguardarPeca" | "encerrar" | "cancelar"
+> = {
+  findById: jest.fn(),
+  aguardarPeca: jest.fn(),
+  encerrar: jest.fn(),
+  cancelar: jest.fn(),
 };
-const mockAlertas = {
-  createAtivoParado: jest.fn() as jest.Mock,
-  createOSAguardandoPeca: jest.fn() as jest.Mock,
+
+const mockAlertas: Pick<
+  jest.Mocked<AlertasRepository>,
+  "createAtivoParado" | "createOSAguardandoPeca"
+> = {
+  createAtivoParado: jest.fn(),
+  createOSAguardandoPeca: jest.fn(),
 };
 
 jest.unstable_mockModule(
