@@ -1,23 +1,23 @@
-import { Platform } from 'react-native';
-import Animated from 'react-native-reanimated';
+import type { ReactNode } from 'react';
+import { View, type ViewProps } from 'react-native';
 
 /**
- * This component is used to wrap animated views that should only be animated on native.
- * @param props - The props for the animated view.
- * @returns The animated view if the platform is native, otherwise the children.
- * @example
- * <NativeOnlyAnimatedView entering={FadeIn} exiting={FadeOut}>
- *   <Text>I am only animated on native</Text>
- * </NativeOnlyAnimatedView>
+ * Lightweight wrapper used by RNR components.
+ * The animated version was crashing in Expo Go, so this falls back to a plain View.
  */
-function NativeOnlyAnimatedView(
-  props: React.ComponentProps<typeof Animated.View>,
-) {
-  if (Platform.OS === "web") {
-    return <>{props.children as React.ReactNode}</>;
-  }
+type NativeOnlyAnimatedViewProps = ViewProps & {
+  children?: ReactNode;
+  entering?: unknown;
+  exiting?: unknown;
+};
 
-  return <Animated.View {...props} />;
+function NativeOnlyAnimatedView({
+  children,
+  entering: _entering,
+  exiting: _exiting,
+  ...props
+}: NativeOnlyAnimatedViewProps) {
+  return <View {...props}>{children}</View>;
 }
 
 export { NativeOnlyAnimatedView };

@@ -24,8 +24,8 @@ function IndicadorCard({
   value: string;
   onPress?: () => void;
 }) {
-  const content = (
-    <Card className="min-w-[47%] flex-1 border-border bg-card">
+  const card = (
+    <Card className="border-border bg-card">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {label}
@@ -37,9 +37,15 @@ function IndicadorCard({
     </Card>
   );
 
-  if (!onPress) return content;
+  if (!onPress) {
+    return <View className="min-w-[47%] flex-1">{card}</View>;
+  }
 
-  return <Pressable onPress={onPress}>{content}</Pressable>;
+  return (
+    <Pressable className="min-w-[47%] flex-1" onPress={onPress}>
+      {card}
+    </Pressable>
+  );
 }
 
 export default function DashboardScreen() {
