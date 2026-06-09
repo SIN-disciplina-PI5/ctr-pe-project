@@ -86,6 +86,16 @@ export default function PerfilScreen() {
             </View>
 
             <Button
+              variant="outline"
+              className="w-full h-12 rounded-xl"
+              onPress={() => router.push("/sobre")}
+            >
+              <Text className="font-semibold text-sm tracking-wide">
+                Sobre o Projeto
+              </Text>
+            </Button>
+
+            <Button
               variant="destructive"
               className="w-full mt-2 h-12 rounded-xl active:opacity-90 shadow-sm"
               onPress={handleLogout}
