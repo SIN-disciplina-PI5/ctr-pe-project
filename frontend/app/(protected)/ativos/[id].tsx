@@ -1,9 +1,13 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, View, Alert } from "react-native";
 
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { useAtivo, useUpdateAtivoStatus } from "@/features/ativos/ativos.hooks";
+import {
+  useAtivo,
+  useDeleteAtivo,
+  useUpdateAtivoStatus,
+} from "@/features/ativos/ativos.hooks";
 import type { StatusAtivo } from "@/features/ativos/ativos.types";
 
 const STATUS_OPTIONS: StatusAtivo[] = [
@@ -19,9 +23,35 @@ export default function AtivoDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: ativo, isLoading, isError, refetch } = useAtivo(id);
   const updateStatus = useUpdateAtivoStatus(id);
+  const deleteAtivo = useDeleteAtivo();
 
   async function handleChangeStatus(status: StatusAtivo) {
     await updateStatus.mutateAsync({ status });
+  }
+
+  function handleDelete() {
+    if (!ativo) return;
+
+    Alert.alert(
+      "Excluir ativo",
+      `Confirma a exclusão de "${ativo.nome}"?`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteAtivo.mutateAsync(ativo.id);
+              Alert.alert("Sucesso", "Ativo removido com sucesso.");
+              router.replace("/ativos");
+            } catch {
+              Alert.alert("Erro", "Não foi possível excluir o ativo.");
+            }
+          },
+        },
+      ],
+    );
   }
 
   if (isLoading) {
@@ -55,7 +85,14 @@ export default function AtivoDetailScreen() {
           <Text className="text-sm text-muted-foreground">Código: {ativo.codigo}</Text>
         </View>
 
-        <Button onPress={() => router.push(`/ativos/${ativo.id}-editar`)}>
+        <Button
+          onPress={() =>
+            router.push({
+              pathname: "/ativos/editar",
+              params: { id: ativo.id },
+            })
+          }
+        >
           <Text>Editar</Text>
         </Button>
       </View>
@@ -87,6 +124,15 @@ export default function AtivoDetailScreen() {
           ))}
         </View>
       </View>
+
+      <Button
+        variant="destructive"
+        className="mt-6"
+        disabled={deleteAtivo.isPending}
+        onPress={handleDelete}
+      >
+        <Text>{deleteAtivo.isPending ? "Excluindo..." : "Excluir ativo"}</Text>
+      </Button>
     </View>
   );
 }

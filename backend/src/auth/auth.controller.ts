@@ -6,12 +6,39 @@ import type { ChangePasswordInput } from "./dto/change-password.dto.js";
 import type { RefreshTokenInput } from "./dto/refresh-token.dto.js";
 import type { SignInInput } from "./dto/sign-in.dto.js";
 import type { SignUpInput } from "./dto/sign-up.dto.js";
+import type { SignUpTestingInput } from "./dto/sign-up-testing.dto.js";
 
 const authService = new AuthService();
+
+export async function listSignupEmpresas(
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const result = await authService.listSignupEmpresas();
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
 
 export async function signUp(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await authService.signUp(req.body as SignUpInput);
+    return res.status(201).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function signUpTesting(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const result = await authService.signUpTesting(req.body as SignUpTestingInput);
     return res.status(201).json(result);
   } catch (error) {
     next(error);

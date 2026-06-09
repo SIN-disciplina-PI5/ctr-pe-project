@@ -5,20 +5,30 @@ import { authRateLimiter } from "../common/middlewares/auth-rate-limit.middlewar
 import { validate } from "../common/middlewares/validate.middleware.js";
 import {
   changePassword,
+  listSignupEmpresas,
   logout,
   me,
   refresh,
   signIn,
   signUp,
+  signUpTesting,
 } from "./auth.controller.js";
 import { changePasswordSchema } from "./dto/change-password.dto.js";
 import { refreshTokenSchema } from "./dto/refresh-token.dto.js";
 import { signInSchema } from "./dto/sign-in.dto.js";
 import { signUpSchema } from "./dto/sign-up.dto.js";
+import { signUpTestingSchema } from "./dto/sign-up-testing.dto.js";
 
 export const authRouter = Router();
 
+authRouter.get("/sign-up/empresas", listSignupEmpresas);
 authRouter.post("/sign-up", authRateLimiter, validate(signUpSchema), signUp);
+authRouter.post(
+  "/sign-up-testing",
+  authRateLimiter,
+  validate(signUpTestingSchema),
+  signUpTesting,
+);
 authRouter.post("/sign-in", authRateLimiter, validate(signInSchema), signIn);
 authRouter.post("/refresh", authRateLimiter, validate(refreshTokenSchema), refresh);
 authRouter.delete("/logout", validate(refreshTokenSchema), logout);

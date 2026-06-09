@@ -13,6 +13,7 @@ import { useOrdemServico } from "@/features/ordens-servico/ordens-servico.hooks"
 import { OSMateriaisLista } from "@/features/ordens-servico/os-materiais-lista";
 import { ModalAdicionarMaterial } from "@/features/ordens-servico/modal-adicionar-material";
 import { formatDateTime } from "@/lib/dates";
+import { OSApontamentosLista } from "@/features/ordens-servico/os-apontamentos-lista";
 
 function Linha({ label, value }: { label: string; value?: string | null }) {
   return (
@@ -122,6 +123,16 @@ export default function OrdemServicoDetalheScreen() {
         </CardContent>
       </Card>
 
+
+            <Card>
+        <CardHeader>
+          <CardTitle>Apontamentos</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <OSApontamentosLista ordemServicoId={os.id} />
+        </CardContent>
+      </Card>
+      
       <OrdemServicoActions ordemServico={os} />
 
       <Button
@@ -136,8 +147,9 @@ export default function OrdemServicoDetalheScreen() {
         <Text>Editar</Text>
       </Button>
 
-      <ModalAdicionarMaterial
+            <ModalAdicionarMaterial
         ordemServicoId={addMaterialOSId}
+        empresaId={os.empresaId}
         onClose={() => setAddMaterialOSId(null)}
       />
     </ScrollView>

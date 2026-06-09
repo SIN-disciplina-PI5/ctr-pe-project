@@ -1,39 +1,83 @@
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 
-const TOKEN_KEY = "ctrpe_token";
+const ACCESS_TOKEN_KEY = "ctrpe_access_token";
+const REFRESH_TOKEN_KEY = "ctrpe_refresh_token";
+
+async function setItem(key: string, value: string) {
+  if (Platform.OS === "web") {
+    localStorage.setItem(key, value);
+    return;
+  }
+
+  await SecureStore.setItemAsync(key, value);
+}
+
+async function getItem(key: string) {
+  if (Platform.OS === "web") {
+    return localStorage.getItem(key);
+  }
+
+  return await SecureStore.getItemAsync(key);
+}
+
+async function removeItem(key: string) {
+  if (Platform.OS === "web") {
+    localStorage.removeItem(key);
+    return;
+  }
+
+  await SecureStore.deleteItemAsync(key);
+}
 
 export async function setToken(token: string) {
   try {
-    if (Platform.OS === "web") {
-      localStorage.setItem(TOKEN_KEY, token);
-    } else {
-      await SecureStore.setItemAsync(TOKEN_KEY, token);
-    }
-  } catch (error) {
-    localStorage.setItem(TOKEN_KEY, token);
+    await setItem(ACCESS_TOKEN_KEY, token);
+  } catch {
+    localStorage.setItem(ACCESS_TOKEN_KEY, token);
   }
 }
 
 export async function getToken() {
   try {
-    if (Platform.OS === "web") {
-      return localStorage.getItem(TOKEN_KEY);
-    }
-    return await SecureStore.getItemAsync(TOKEN_KEY);
-  } catch (error) {
-    return localStorage.getItem(TOKEN_KEY);
+    return await getItem(ACCESS_TOKEN_KEY);
+  } catch {
+    return localStorage.getItem(ACCESS_TOKEN_KEY);
   }
 }
 
 export async function removeToken() {
   try {
-    if (Platform.OS === "web") {
-      localStorage.removeItem(TOKEN_KEY);
-    } else {
-      await SecureStore.deleteItemAsync(TOKEN_KEY);
-    }
-  } catch (error) {
-    localStorage.removeItem(TOKEN_KEY);
+    await removeItem(ACCESS_TOKEN_KEY);
+  } catch {
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
   }
+}
+
+export async function setRefreshToken(token: string) {
+  try {
+    await setItem(REFRESH_TOKEN_KEY, token);
+  } catch {
+    localStorage.setItem(REFRESH_TOKEN_KEY, token);
+  }
+}
+
+export async function getRefreshToken() {
+  try {
+    return await getItem(REFRESH_TOKEN_KEY);
+  } catch {
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
+  }
+}
+
+export async function removeRefreshToken() {
+  try {
+    await removeItem(REFRESH_TOKEN_KEY);
+  } catch {
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+  }
+}
+
+export async function clearSession() {
+  await Promise.all([removeToken(), removeRefreshToken()]);
 }

@@ -7,6 +7,14 @@ interface CreateSignupUserData {
   empresaId: string;
 }
 
+interface CreateSignupTestingUserData {
+  nome: string;
+  email: string;
+  senhaHash: string;
+  empresaId: string;
+  perfil: "ADMIN" | "GESTOR" | "SUPERVISOR" | "TECNICO" | "CONSULTA";
+}
+
 interface CreateRefreshTokenData {
   usuarioId: string;
   tokenHash: string;
@@ -63,6 +71,17 @@ export class AuthRepository {
     });
   }
 
+  async findActiveEmpresasForSignup() {
+    return prisma.empresa.findMany({
+      where: { ativa: true },
+      orderBy: { nome: "asc" },
+      select: {
+        id: true,
+        nome: true,
+      },
+    });
+  }
+
   async createInactiveSignupUser(data: CreateSignupUserData) {
     return prisma.usuario.create({
       data: {
@@ -72,6 +91,28 @@ export class AuthRepository {
         empresaId: data.empresaId,
         perfil: "CONSULTA",
         ativo: false,
+      },
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        perfil: true,
+        empresaId: true,
+        ativo: true,
+        createdAt: true,
+      },
+    });
+  }
+
+  async createActiveSignupTestingUser(data: CreateSignupTestingUserData) {
+    return prisma.usuario.create({
+      data: {
+        nome: data.nome,
+        email: data.email,
+        senhaHash: data.senhaHash,
+        empresaId: data.empresaId,
+        perfil: data.perfil,
+        ativo: true,
       },
       select: {
         id: true,
@@ -145,10 +186,7 @@ export class AuthRepository {
   async deleteExpiredOrRevokedRefreshTokens() {
     return prisma.refreshToken.deleteMany({
       where: {
-        OR: [
-          { expiresAt: { lt: new Date() } },
-          { revokedAt: { not: null } },
-        ],
+        OR: [{ expiresAt: { lt: new Date() } }, { revokedAt: { not: null } }],
       },
     });
   }

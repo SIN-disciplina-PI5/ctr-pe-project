@@ -18,7 +18,6 @@ export const changePasswordSchema = z.object({
   path: ["confirmarNovaSenha"],
 });
 
-
 export const signupSchema = z.object({
   nome: z
     .string({ error: "O nome é obrigatório" })
@@ -26,6 +25,12 @@ export const signupSchema = z.object({
   email: z
     .string({ error: "O e-mail é obrigatório" })
     .email("Insira um e-mail válido"),
+  empresaId: z
+    .string({ error: "A empresa é obrigatória" })
+    .min(1, "Selecione uma empresa"),
+  perfil: z.enum(["ADMIN", "GESTOR", "SUPERVISOR", "TECNICO", "CONSULTA"], {
+    error: "Selecione um perfil",
+  }),
   senha: z
     .string({ error: "A senha é obrigatória" })
     .min(6, "A senha deve conter pelo menos 6 caracteres"),

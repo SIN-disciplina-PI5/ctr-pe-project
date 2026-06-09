@@ -5,10 +5,15 @@ import { ErrorCode } from "../common/errors/error-code.js";
 import { AuthRepository } from "./auth.repository.js";
 import { TokenService } from "./token.service.js";
 import type { SignUpInput } from "./dto/sign-up.dto.js";
+import type { SignUpTestingInput } from "./dto/sign-up-testing.dto.js";
 
 export class AuthService {
   private authRepository = new AuthRepository();
   private tokenService = new TokenService();
+
+  async listSignupEmpresas() {
+    return this.authRepository.findActiveEmpresasForSignup();
+  }
 
   async signUp(data: SignUpInput) {
     const emailEmUso = await this.authRepository.findByEmail(data.email);
@@ -51,6 +56,52 @@ export class AuthService {
 
     return {
       message: "Cadastro realizado. Aguarde a ativação do usuário por um administrador.",
+      user,
+    };
+  }
+
+  async signUpTesting(data: SignUpTestingInput) {
+    const emailEmUso = await this.authRepository.findByEmail(data.email);
+
+    if (emailEmUso) {
+      throw new AppError({
+        message: "Email já está em uso",
+        statusCode: 409,
+        errorCode: ErrorCode.CONFLICT,
+      });
+    }
+
+    const empresa = await this.authRepository.findEmpresaById(data.empresaId);
+
+    if (!empresa) {
+      throw new AppError({
+        message: "Empresa não encontrada",
+        statusCode: 404,
+        errorCode: ErrorCode.NOT_FOUND,
+      });
+    }
+
+    if (!empresa.ativa) {
+      throw new AppError({
+        message: "Empresa inativa",
+        statusCode: 403,
+        errorCode: ErrorCode.FORBIDDEN,
+      });
+    }
+
+    const saltRounds = Number(process.env["BCRYPT_SALT_ROUNDS"] ?? 10);
+    const senhaHash = await bcrypt.hash(data.password, saltRounds);
+
+    const user = await this.authRepository.createActiveSignupTestingUser({
+      nome: data.nome,
+      email: data.email,
+      senhaHash,
+      empresaId: data.empresaId,
+      perfil: data.perfil,
+    });
+
+    return {
+      message: "Usuário de teste criado com sucesso.",
       user,
     };
   }

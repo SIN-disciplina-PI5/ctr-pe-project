@@ -6,7 +6,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { authService } from "@/infrastructure/auth/auth.service";
-import { removeToken, setToken } from "@/infrastructure/storage/token-storage";
+import {
+  clearSession,
+  setRefreshToken,
+  setToken,
+} from "@/infrastructure/storage/token-storage";
 import { useAuthStore } from "@/store/auth-store";
 
 export default function LoginScreen() {
@@ -19,7 +23,7 @@ export default function LoginScreen() {
 
   async function handleLogin() {
     if (!email || !senha) {
-      Alert.alert("Atencao", "Por favor, preencha todos os campos.");
+      Alert.alert("Atenção", "Por favor, preencha todos os campos.");
       return;
     }
 
@@ -31,25 +35,26 @@ export default function LoginScreen() {
         password: senha,
       });
 
-      if (!data.accessToken) {
-        throw new Error("Token nao recebido do servidor.");
+      if (!data.accessToken || !data.refreshToken) {
+        throw new Error("Sessão incompleta recebida do servidor.");
       }
 
       await setToken(data.accessToken);
+      await setRefreshToken(data.refreshToken);
 
       try {
         const user = await authService.me();
-        setAuth(data.accessToken, user);
+        setAuth(data.accessToken, data.refreshToken, user);
       } catch (error) {
-        await removeToken();
+        await clearSession();
         throw error;
       }
 
       router.replace("/dashboard");
     } catch (error: any) {
       Alert.alert(
-        "Falha no Login",
-        error.message || "Nao foi possivel conectar ao servidor.",
+        "Falha no login",
+        error.message || "Não foi possível conectar ao servidor.",
       );
     } finally {
       setCarregando(false);
@@ -73,11 +78,11 @@ export default function LoginScreen() {
 
           <View className="z-10 gap-2">
             <Text className="text-white text-lg font-bold">
-              Controle Total de Manutencao
+              Controle Total de Manutenção
             </Text>
             <Text className="text-blue-200/70 text-sm leading-relaxed">
-              Gerencie ordens de servico, monitore a saude dos ativos e minimize o
-              tempo de maquina parada em uma unica interface tecnica robusta.
+              Gerencie ordens de serviço, monitore a saúde dos ativos e minimize o
+              tempo de máquina parada em uma única interface técnica robusta.
             </Text>
           </View>
 
@@ -94,7 +99,7 @@ export default function LoginScreen() {
                   Acessar Sistema
                 </Text>
                 <Text className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                  Insira suas credenciais tecnicas
+                  Insira suas credenciais técnicas
                 </Text>
               </View>
 
@@ -156,7 +161,7 @@ export default function LoginScreen() {
 
               <View className="flex-row justify-center gap-1">
                 <Text className="text-xs font-medium text-slate-500">
-                  Nao tem uma conta?
+                  Não tem uma conta?
                 </Text>
                 <Pressable onPress={() => router.push("/signup")}>
                   <Text className="text-xs text-blue-900 font-bold underline">

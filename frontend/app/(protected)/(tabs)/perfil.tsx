@@ -1,25 +1,42 @@
 import React from "react";
-import { View } from "react-native";
+import { View, Alert } from "react-native";
 import { useRouter } from "expo-router";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { useEmpresa } from "@/features/empresas/empresas.hooks";
-import { removeToken } from "@/infrastructure/storage/token-storage";
+import { authService } from "@/infrastructure/auth/auth.service";
+import {
+  clearSession,
+  getRefreshToken,
+} from "@/infrastructure/storage/token-storage";
 import { useAuthStore } from "@/store/auth-store";
+import { useEmpresaStore } from "@/store/empresa-store";
 
 export default function PerfilScreen() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const clearAuth = useAuthStore((state) => state.clearAuth);
+  const setEmpresaId = useEmpresaStore((state) => state.setEmpresaId);
 
   const { data: empresa } = useEmpresa(user?.empresaId ?? "");
 
   async function handleLogout() {
-    await removeToken();
-    clearAuth();
-    router.replace("/(auth)/login");
+    try {
+      const refreshToken = await getRefreshToken();
+
+      if (refreshToken) {
+        await authService.logout(refreshToken);
+      }
+    } catch {
+      Alert.alert("Aviso", "A sessão local será encerrada mesmo sem resposta do servidor.");
+    } finally {
+      await clearSession();
+      clearAuth();
+      setEmpresaId(null);
+      router.replace("/(auth)/login");
+    }
   }
 
   const initials = user?.nome
