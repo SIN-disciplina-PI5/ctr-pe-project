@@ -1,4 +1,5 @@
-import { api } from "../test-server.js";
+import { api } from "../../../tests/test-server.js";
+import { prisma } from "../../../src/prisma/prisma.client.js";
 
 async function getToken(email: string, password: string): Promise<string> {
   const response = await api.post("/api/auth/sign-in").send({ email, password });
@@ -14,6 +15,7 @@ let tecnicoToken: string;
 let tecnicoId: string;
 let consultaToken: string;
 
+
 beforeAll(async () => {
   adminToken = await getToken("admin@teste.com", "novaSenha123");
   tecnicoToken = await getToken("tecnico.ativo@teste.com", "123456");
@@ -25,7 +27,38 @@ beforeAll(async () => {
   tecnicoId = me.body.id as string;
 });
 
+beforeEach(async () => {
+  await limparApontamentosAbertos();
+});
+
+
 // ─── helpers ─────────────────────────────────────────────────────────────────
+
+async function limparApontamentosAbertos() {
+  const admin = await prisma.usuario.findUnique({
+    where: { email: "admin@teste.com" },
+    select: { id: true },
+  });
+
+  const tecnico = await prisma.usuario.findUnique({
+    where: { email: "tecnico.ativo@teste.com" },
+    select: { id: true },
+  });
+
+  const consulta = await prisma.usuario.findUnique({
+    where: { email: "consulta@teste.com" },
+    select: { id: true },
+  });
+
+  const ids = [admin?.id, tecnico?.id, consulta?.id].filter(Boolean) as string[];
+
+  await prisma.apontamentoOS.deleteMany({
+    where: {
+      usuarioId: { in: ids },
+      fimEm: null,
+    },
+  });
+}
 
 async function criarOS(token: string) {
   const response = await api

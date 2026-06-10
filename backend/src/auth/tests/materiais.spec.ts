@@ -1,4 +1,4 @@
-import { api } from "../test-server.js";
+import { api } from "../../../tests/test-server.js";
 
 async function getToken(email: string, password: string): Promise<string> {
   const response = await api.post("/api/auth/sign-in").send({ email, password });

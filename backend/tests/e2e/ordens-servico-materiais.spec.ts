@@ -87,7 +87,7 @@ describe("OS Materiais - Adicionar material", () => {
     expect(response.status).toBe(201);
     expect(response.body.ordemServicoId).toBe(os.id);
     expect(response.body.materialId).toBe(materialId);
-    expect(response.body.quantidade).toBe(2);
+    expect(Number(response.body.quantidade)).toBe(2);
     expect(response.body.status).toBe("SOLICITADO");
   });
 

@@ -1,16 +1,48 @@
-import { LocalizacoesService } from "../localizacoes.service.js";
-import { LocalizacoesRepository } from "../localizacoes.repository.js";
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+
 import { AppError } from "../../../common/errors/AppError.js";
+import { LocalizacoesRepository } from "../localizacoes.repository.js";
+import { LocalizacoesService } from "../localizacoes.service.js";
 
-jest.mock("../localizacoes.repository.js");
+const adminActor = {
+  id: "user-1",
+  nome: "Admin",
+  email: "admin@teste.com",
+  perfil: "ADMIN" as const,
+  empresaId: null,
+};
 
-const MockedRepository = LocalizacoesRepository as jest.MockedClass<typeof LocalizacoesRepository>;
+const supervisorActor = {
+  id: "user-2",
+  nome: "Supervisor",
+  email: "supervisor@teste.com",
+  perfil: "SUPERVISOR" as const,
+  empresaId: "empresa-1",
+};
 
-const adminActor = { userId: "user-1", perfil: "ADMIN" as const, empresaId: "empresa-1" };
-const supervisorActor = { userId: "user-2", perfil: "SUPERVISOR" as const, empresaId: "empresa-1" };
-const supervisorOutraEmpresa = { userId: "user-3", perfil: "SUPERVISOR" as const, empresaId: "empresa-2" };
-const gestorActor = { userId: "user-4", perfil: "GESTOR" as const, empresaId: "empresa-1" };
-const tecnicoActor = { userId: "user-5", perfil: "TECNICO" as const, empresaId: "empresa-1" };
+const supervisorOutraEmpresa = {
+  id: "user-3",
+  nome: "Supervisor 2",
+  email: "supervisor2@teste.com",
+  perfil: "SUPERVISOR" as const,
+  empresaId: "empresa-2",
+};
+
+const gestorActor = {
+  id: "user-4",
+  nome: "Gestor",
+  email: "gestor@teste.com",
+  perfil: "GESTOR" as const,
+  empresaId: "empresa-1",
+};
+
+const tecnicoActor = {
+  id: "user-5",
+  nome: "Tecnico",
+  email: "tecnico@teste.com",
+  perfil: "TECNICO" as const,
+  empresaId: "empresa-1",
+};
 
 const localizacaoMock = {
   id: "loc-1",
@@ -25,41 +57,43 @@ const localizacaoMock = {
 
 describe("LocalizacoesService", () => {
   let service: LocalizacoesService;
-  let repoMock: jest.Mocked<LocalizacoesRepository>;
 
   beforeEach(() => {
-    MockedRepository.mockClear();
+    jest.restoreAllMocks();
     service = new LocalizacoesService();
-    repoMock = MockedRepository.mock.instances[0] as jest.Mocked<LocalizacoesRepository>;
   });
 
   describe("findAll - escopo por empresa", () => {
     it("ADMIN pode listar sem filtro de empresa", async () => {
-      repoMock.findAll.mockResolvedValue([localizacaoMock]);
+      const findAllSpy = jest
+        .spyOn(LocalizacoesRepository.prototype, "findAll")
+        .mockResolvedValue([localizacaoMock]);
 
       await service.findAll({}, adminActor);
 
-      expect(repoMock.findAll).toHaveBeenCalledWith(
-        expect.objectContaining({ empresaId: undefined }),
-      );
+      expect(findAllSpy).toHaveBeenCalledWith({});
     });
 
     it("SUPERVISOR só vê localizações da própria empresa", async () => {
-      repoMock.findAll.mockResolvedValue([localizacaoMock]);
+      const findAllSpy = jest
+        .spyOn(LocalizacoesRepository.prototype, "findAll")
+        .mockResolvedValue([localizacaoMock]);
 
       await service.findAll({}, supervisorActor);
 
-      expect(repoMock.findAll).toHaveBeenCalledWith(
+      expect(findAllSpy).toHaveBeenCalledWith(
         expect.objectContaining({ empresaId: "empresa-1" }),
       );
     });
 
     it("GESTOR só vê localizações da própria empresa", async () => {
-      repoMock.findAll.mockResolvedValue([localizacaoMock]);
+      const findAllSpy = jest
+        .spyOn(LocalizacoesRepository.prototype, "findAll")
+        .mockResolvedValue([localizacaoMock]);
 
       await service.findAll({}, gestorActor);
 
-      expect(repoMock.findAll).toHaveBeenCalledWith(
+      expect(findAllSpy).toHaveBeenCalledWith(
         expect.objectContaining({ empresaId: "empresa-1" }),
       );
     });
@@ -67,7 +101,9 @@ describe("LocalizacoesService", () => {
 
   describe("findById - escopo por empresa", () => {
     it("deve retornar localização quando existe e pertence à empresa", async () => {
-      repoMock.findById.mockResolvedValue(localizacaoMock);
+      jest
+        .spyOn(LocalizacoesRepository.prototype, "findById")
+        .mockResolvedValue(localizacaoMock);
 
       const result = await service.findById("loc-1", supervisorActor);
 
@@ -75,31 +111,42 @@ describe("LocalizacoesService", () => {
     });
 
     it("deve lançar FORBIDDEN quando localização pertence a outra empresa", async () => {
-      repoMock.findById.mockResolvedValue(localizacaoMock); // empresa-1
+      jest
+        .spyOn(LocalizacoesRepository.prototype, "findById")
+        .mockResolvedValue(localizacaoMock);
 
       await expect(
-        service.findById("loc-1", supervisorOutraEmpresa), // empresa-2
+        service.findById("loc-1", supervisorOutraEmpresa),
       ).rejects.toThrow(AppError);
     });
 
     it("deve lançar NOT_FOUND quando localização não existe", async () => {
-      repoMock.findById.mockResolvedValue(null);
+      jest
+        .spyOn(LocalizacoesRepository.prototype, "findById")
+        .mockResolvedValue(null);
 
-      await expect(service.findById("inexistente", adminActor)).rejects.toThrow(AppError);
+      await expect(service.findById("inexistente", adminActor)).rejects.toThrow(
+        AppError,
+      );
     });
   });
 
   describe("create", () => {
     it("SUPERVISOR pode criar localização", async () => {
-      repoMock.findByCodigo.mockResolvedValue(null);
-      repoMock.create.mockResolvedValue(localizacaoMock);
+      jest
+        .spyOn(LocalizacoesRepository.prototype, "findByCodigo")
+        .mockResolvedValue(null);
+
+      const createSpy = jest
+        .spyOn(LocalizacoesRepository.prototype, "create")
+        .mockResolvedValue(localizacaoMock);
 
       const result = await service.create(
         { nome: "Oficina", codigo: "OFICINA" },
         supervisorActor,
       );
 
-      expect(repoMock.create).toHaveBeenCalledWith(
+      expect(createSpy).toHaveBeenCalledWith(
         expect.objectContaining({ empresaId: "empresa-1", nome: "Oficina" }),
       );
       expect(result.nome).toBe("Oficina");
@@ -118,19 +165,29 @@ describe("LocalizacoesService", () => {
     });
 
     it("deve lançar CONFLICT quando código já está em uso na empresa", async () => {
-      repoMock.findByCodigo.mockResolvedValue({ id: "outro-id" });
+      jest
+        .spyOn(LocalizacoesRepository.prototype, "findByCodigo")
+        .mockResolvedValue({ id: "outro-id" });
 
       await expect(
-        service.create({ nome: "Oficina", codigo: "OFICINA" }, adminActor),
+        service.create({ nome: "Oficina", codigo: "OFICINA" }, supervisorActor),
       ).rejects.toThrow(AppError);
     });
   });
 
   describe("update", () => {
     it("ADMIN pode atualizar localização", async () => {
-      repoMock.findById.mockResolvedValue(localizacaoMock);
-      repoMock.findByCodigo.mockResolvedValue(null);
-      repoMock.update.mockResolvedValue({ ...localizacaoMock, nome: "Oficina Central" });
+      jest
+        .spyOn(LocalizacoesRepository.prototype, "findById")
+        .mockResolvedValue(localizacaoMock);
+
+      jest
+        .spyOn(LocalizacoesRepository.prototype, "findByCodigo")
+        .mockResolvedValue(null);
+
+      jest
+        .spyOn(LocalizacoesRepository.prototype, "update")
+        .mockResolvedValue({ ...localizacaoMock, nome: "Oficina Central" });
 
       const result = await service.update(
         "loc-1",
@@ -142,9 +199,17 @@ describe("LocalizacoesService", () => {
     });
 
     it("SUPERVISOR pode atualizar localização da própria empresa", async () => {
-      repoMock.findById.mockResolvedValue(localizacaoMock);
-      repoMock.findByCodigo.mockResolvedValue(null);
-      repoMock.update.mockResolvedValue({ ...localizacaoMock, nome: "Oficina Nova" });
+      jest
+        .spyOn(LocalizacoesRepository.prototype, "findById")
+        .mockResolvedValue(localizacaoMock);
+
+      jest
+        .spyOn(LocalizacoesRepository.prototype, "findByCodigo")
+        .mockResolvedValue(null);
+
+      jest
+        .spyOn(LocalizacoesRepository.prototype, "update")
+        .mockResolvedValue({ ...localizacaoMock, nome: "Oficina Nova" });
 
       const result = await service.update(
         "loc-1",
@@ -164,12 +229,17 @@ describe("LocalizacoesService", () => {
 
   describe("delete", () => {
     it("ADMIN pode inativar localização", async () => {
-      repoMock.findById.mockResolvedValue(localizacaoMock);
-      repoMock.delete.mockResolvedValue({} as any);
+      jest
+        .spyOn(LocalizacoesRepository.prototype, "findById")
+        .mockResolvedValue(localizacaoMock);
+
+      const deleteSpy = jest
+        .spyOn(LocalizacoesRepository.prototype, "delete")
+        .mockResolvedValue({} as never);
 
       await service.delete("loc-1", adminActor);
 
-      expect(repoMock.delete).toHaveBeenCalledWith("loc-1");
+      expect(deleteSpy).toHaveBeenCalledWith("loc-1");
     });
 
     it("GESTOR não pode inativar localização", async () => {

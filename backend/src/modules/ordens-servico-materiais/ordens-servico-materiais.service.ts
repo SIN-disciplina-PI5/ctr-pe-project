@@ -2,6 +2,7 @@ import { OrdensServicoMateriaisRepository } from "./ordens-servico-materiais.rep
 import { AppError } from "../../common/errors/AppError.js";
 import { ErrorCode } from "../../common/errors/error-code.js";
 import { Prisma } from "@prisma/client";
+import { OrdensServicoRepository } from "../ordens-servico/ordens-servico.repository.js";
 
 interface CreateOSMaterialInput {
   materialId: string;
@@ -16,6 +17,7 @@ interface UpdateOSMaterialInput {
 
 export class OrdensServicoMateriaisService {
   private repository = new OrdensServicoMateriaisRepository();
+  private ordensServicoRepository = new OrdensServicoRepository();
 
   async findByOrdemServico(ordemServicoId: string) {
     return this.repository.findByOrdemServico(ordemServicoId);
@@ -30,13 +32,38 @@ export class OrdensServicoMateriaisService {
   }
 
   async create(ordemServicoId: string, data: CreateOSMaterialInput) {
+    if (data.quantidade <= 0) {
+      throw new AppError({
+        message: "Quantidade deve ser maior que zero",
+        statusCode: 400,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      });
+    }
+
+    const ordemServico = await this.ordensServicoRepository.findById(ordemServicoId);
+
+    if (!ordemServico) {
+      throw new AppError({
+        message: "Ordem de serviço não encontrada",
+        statusCode: 404,
+        errorCode: ErrorCode.NOT_FOUND,
+      });
+    }
+
     const material = await this.repository.findMaterialById(data.materialId);
 
-    if (!material || !material.ativo) throw new AppError({ message: "Material não encontrado ou inativo", statusCode: 404, errorCode: ErrorCode.NOT_FOUND });
+    if (!material || !material.ativo) {
+      throw new AppError({
+        message: "Material não encontrado ou inativo",
+        statusCode: 404,
+        errorCode: ErrorCode.NOT_FOUND,
+      });
+    }
 
-    const custoUnitario = data.custoUnitario !== undefined
-      ? new Prisma.Decimal(data.custoUnitario)
-      : material.custoMedio;
+    const custoUnitario =
+      data.custoUnitario !== undefined
+        ? new Prisma.Decimal(data.custoUnitario)
+        : material.custoMedio;
 
     return this.repository.create({
       ordemServicoId,

@@ -2,9 +2,24 @@ import { api } from "../../../../tests/test-server.js";
 import { prisma } from "../../../prisma/prisma.client.js";
 import jwt from "jsonwebtoken";
 
-function makeToken(perfil: string, empresaId = "empresa-teste-id") {
+function makeToken(
+  perfil: string,
+  empresaId: string | null = "empresa-teste-id",
+  id = "user-teste-id",
+) {
   const secret = process.env["JWT_SECRET"] ?? "test-secret";
-  return jwt.sign({ userId: "user-teste-id", perfil, empresaId }, secret, { expiresIn: "1h" });
+
+  return jwt.sign(
+    {
+      id,
+      nome: "Usuário Teste",
+      email: `${perfil.toLowerCase()}@teste.com`,
+      perfil,
+      empresaId,
+    },
+    secret,
+    { subject: id, expiresIn: "1h" },
+  );
 }
 
 const adminToken = makeToken("ADMIN");

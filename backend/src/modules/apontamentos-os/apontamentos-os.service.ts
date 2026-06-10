@@ -2,6 +2,8 @@ import { Prisma } from "@prisma/client";
 import { AppError } from "../../common/errors/AppError.js";
 import { ErrorCode } from "../../common/errors/error-code.js";
 import { ApontamentosOSRepository } from "./apontamentos-os.repository.js";
+import { OrdensServicoRepository } from "../ordens-servico/ordens-servico.repository.js";
+
 
 interface CreateApontamentoInput {
   ordemServicoId: string;
@@ -24,6 +26,7 @@ interface EncerrarApontamentoInput {
 
 export class ApontamentosOSService {
   private repository = new ApontamentosOSRepository();
+  private ordensServicoRepository = new OrdensServicoRepository();
 
   async findByOrdemServico(ordemServicoId: string) {
     return this.repository.findByOrdemServico(ordemServicoId);
@@ -38,9 +41,25 @@ export class ApontamentosOSService {
   }
 
   async create(data: CreateApontamentoInput) {
+    const ordemServico = await this.ordensServicoRepository.findById(data.ordemServicoId);
+
+    if (!ordemServico) {
+      throw new AppError({
+        message: "Ordem de serviço não encontrada",
+        statusCode: 404,
+        errorCode: ErrorCode.NOT_FOUND,
+      });
+    }
+
     const aberto = await this.repository.findAbertoPorUsuario(data.usuarioId);
 
-    if (aberto) throw new AppError({ message: "Usuário já possui um apontamento em aberto", statusCode: 400, errorCode: ErrorCode.VALIDATION_ERROR });
+    if (aberto) {
+      throw new AppError({
+        message: "Usuário já possui um apontamento em aberto",
+        statusCode: 400,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      });
+    }
 
     return this.repository.create(data);
   }

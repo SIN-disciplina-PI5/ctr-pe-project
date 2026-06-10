@@ -1,29 +1,54 @@
-import { EmpresasService } from "../empresas.service.js";
-import { EmpresasRepository } from "../empresas.repository.js";
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+
 import { AppError } from "../../../common/errors/AppError.js";
+import { EmpresasRepository } from "../empresas.repository.js";
+import { EmpresasService } from "../empresas.service.js";
 
-jest.mock("../empresas.repository.js");
+const adminActor = {
+  id: "user-1",
+  nome: "Admin",
+  email: "admin@teste.com",
+  perfil: "ADMIN" as const,
+  empresaId: null,
+};
 
-const MockedRepository = EmpresasRepository as jest.MockedClass<typeof EmpresasRepository>;
+const supervisorActor = {
+  id: "user-2",
+  nome: "Supervisor",
+  email: "supervisor@teste.com",
+  perfil: "SUPERVISOR" as const,
+  empresaId: "empresa-1",
+};
 
-const adminActor = { userId: "user-1", perfil: "ADMIN" as const, empresaId: "empresa-1" };
-const supervisorActor = { userId: "user-2", perfil: "SUPERVISOR" as const, empresaId: "empresa-1" };
-const gestorActor = { userId: "user-3", perfil: "GESTOR" as const, empresaId: "empresa-1" };
+const gestorActor = {
+  id: "user-3",
+  nome: "Gestor",
+  email: "gestor@teste.com",
+  perfil: "GESTOR" as const,
+  empresaId: "empresa-1",
+};
 
 describe("EmpresasService", () => {
   let service: EmpresasService;
-  let repoMock: jest.Mocked<EmpresasRepository>;
 
   beforeEach(() => {
-    MockedRepository.mockClear();
+    jest.restoreAllMocks();
     service = new EmpresasService();
-    repoMock = MockedRepository.mock.instances[0] as jest.Mocked<EmpresasRepository>;
   });
 
   describe("findById", () => {
     it("deve retornar a empresa quando encontrada", async () => {
-      const empresa = { id: "empresa-1", nome: "CTR-PE", codigo: "CTRPE", ativa: true, createdAt: new Date() };
-      repoMock.findById.mockResolvedValue(empresa);
+      const empresa = {
+        id: "empresa-1",
+        nome: "CTR-PE",
+        codigo: "CTRPE",
+        ativa: true,
+        createdAt: new Date(),
+      };
+
+      jest
+        .spyOn(EmpresasRepository.prototype, "findById")
+        .mockResolvedValue(empresa);
 
       const result = await service.findById("empresa-1");
 
@@ -31,7 +56,9 @@ describe("EmpresasService", () => {
     });
 
     it("deve lançar NOT_FOUND quando empresa não existe", async () => {
-      repoMock.findById.mockResolvedValue(null);
+      jest
+        .spyOn(EmpresasRepository.prototype, "findById")
+        .mockResolvedValue(null);
 
       await expect(service.findById("inexistente")).rejects.toThrow(AppError);
     });
@@ -39,12 +66,26 @@ describe("EmpresasService", () => {
 
   describe("create", () => {
     it("ADMIN pode criar empresa", async () => {
-      repoMock.findByCodigo.mockResolvedValue(null);
-      repoMock.create.mockResolvedValue({ id: "nova", nome: "Nova Empresa", codigo: "NOVA", ativa: true, createdAt: new Date() });
+      jest
+        .spyOn(EmpresasRepository.prototype, "findByCodigo")
+        .mockResolvedValue(null);
 
-      const result = await service.create({ nome: "Nova Empresa", codigo: "NOVA" }, adminActor);
+      const createSpy = jest
+        .spyOn(EmpresasRepository.prototype, "create")
+        .mockResolvedValue({
+          id: "nova",
+          nome: "Nova Empresa",
+          codigo: "NOVA",
+          ativa: true,
+          createdAt: new Date(),
+        });
 
-      expect(repoMock.create).toHaveBeenCalledTimes(1);
+      const result = await service.create(
+        { nome: "Nova Empresa", codigo: "NOVA" },
+        adminActor,
+      );
+
+      expect(createSpy).toHaveBeenCalledTimes(1);
       expect(result.nome).toBe("Nova Empresa");
     });
 
@@ -61,7 +102,9 @@ describe("EmpresasService", () => {
     });
 
     it("deve lançar CONFLICT quando código já está em uso", async () => {
-      repoMock.findByCodigo.mockResolvedValue({ id: "outro-id" });
+      jest
+        .spyOn(EmpresasRepository.prototype, "findByCodigo")
+        .mockResolvedValue({ id: "outro-id" });
 
       await expect(
         service.create({ nome: "Nova Empresa", codigo: "EXISTENTE" }, adminActor),
@@ -71,12 +114,31 @@ describe("EmpresasService", () => {
 
   describe("update", () => {
     it("ADMIN pode atualizar empresa", async () => {
-      const empresa = { id: "empresa-1", nome: "CTR-PE", codigo: "CTRPE", ativa: true, createdAt: new Date() };
-      repoMock.findById.mockResolvedValue(empresa);
-      repoMock.findByCodigo.mockResolvedValue(null);
-      repoMock.update.mockResolvedValue({ ...empresa, nome: "CTR-PE Atualizada" });
+      const empresa = {
+        id: "empresa-1",
+        nome: "CTR-PE",
+        codigo: "CTRPE",
+        ativa: true,
+        createdAt: new Date(),
+      };
 
-      const result = await service.update("empresa-1", { nome: "CTR-PE Atualizada" }, adminActor);
+      jest
+        .spyOn(EmpresasRepository.prototype, "findById")
+        .mockResolvedValue(empresa);
+
+      jest
+        .spyOn(EmpresasRepository.prototype, "findByCodigo")
+        .mockResolvedValue(null);
+
+      jest
+        .spyOn(EmpresasRepository.prototype, "update")
+        .mockResolvedValue({ ...empresa, nome: "CTR-PE Atualizada" });
+
+      const result = await service.update(
+        "empresa-1",
+        { nome: "CTR-PE Atualizada" },
+        adminActor,
+      );
 
       expect(result.nome).toBe("CTR-PE Atualizada");
     });
@@ -90,13 +152,32 @@ describe("EmpresasService", () => {
 
   describe("delete", () => {
     it("ADMIN pode inativar empresa", async () => {
-      const empresa = { id: "empresa-1", nome: "CTR-PE", codigo: "CTRPE", ativa: true, createdAt: new Date() };
-      repoMock.findById.mockResolvedValue(empresa);
-      repoMock.delete.mockResolvedValue({ id: "empresa-1", nome: "CTR-PE", codigo: "CTRPE", ativa: false, createdAt: new Date(), updatedAt: new Date() });
+      const empresa = {
+        id: "empresa-1",
+        nome: "CTR-PE",
+        codigo: "CTRPE",
+        ativa: true,
+        createdAt: new Date(),
+      };
+
+      jest
+        .spyOn(EmpresasRepository.prototype, "findById")
+        .mockResolvedValue(empresa);
+
+      const deleteSpy = jest
+        .spyOn(EmpresasRepository.prototype, "delete")
+        .mockResolvedValue({
+          id: "empresa-1",
+          nome: "CTR-PE",
+          codigo: "CTRPE",
+          ativa: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
 
       await service.delete("empresa-1", adminActor);
 
-      expect(repoMock.delete).toHaveBeenCalledWith("empresa-1");
+      expect(deleteSpy).toHaveBeenCalledWith("empresa-1");
     });
 
     it("SUPERVISOR não pode inativar empresa", async () => {

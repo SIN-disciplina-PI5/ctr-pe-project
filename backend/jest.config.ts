@@ -3,7 +3,13 @@ import type { Config } from "jest";
 const config: Config = {
   preset: "ts-jest/presets/default-esm",
   testEnvironment: "node",
-  roots: ["<rootDir>/tests"],
+  roots: ["<rootDir>"],
+  testMatch: [
+    "<rootDir>/tests/**/*spec.ts",
+    "<rootDir>/tests/**/*test.ts",
+    "<rootDir>/src/**/*spec.ts",
+    "<rootDir>/src/**/*test.ts",
+  ],
   setupFilesAfterEnv: ["<rootDir>/tests/setup.ts"],
   clearMocks: true,
   extensionsToTreatAsEsm: [".ts"],

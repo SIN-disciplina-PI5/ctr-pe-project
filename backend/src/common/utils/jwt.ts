@@ -1,4 +1,4 @@
-import { sign, type SignOptions } from "jsonwebtoken";
+import jwt, { type SignOptions } from "jsonwebtoken";
 
 import type { AuthUser } from "../types/auth-user.js";
 
@@ -18,7 +18,7 @@ export function generateAuthToken(user: AuthUser) {
     expiresIn,
   };
 
-  return sign(
+  return jwt.sign(
     {
       id: user.id,
       empresaId: user.empresaId,

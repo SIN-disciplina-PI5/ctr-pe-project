@@ -1,5 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { ApontamentosOSService } from "./apontamentos-os.service.js";
+import { AppError } from "../../common/errors/AppError.js";
+import { ErrorCode } from "../../common/errors/error-code.js";
 
 const service = new ApontamentosOSService();
 
@@ -27,13 +29,33 @@ export async function create(req: Request, res: Response, next: NextFunction) {
   try {
     const { ordemServicoId } = req.params as { ordemServicoId: string };
     const usuarioId = req.user!.id;
+
+    if (!req.body?.inicioEm) {
+      throw new AppError({
+        message: "Dados inválidos.",
+        statusCode: 400,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      });
+    }
+
+    const inicioEm = new Date(req.body.inicioEm);
+
+    if (Number.isNaN(inicioEm.getTime())) {
+      throw new AppError({
+        message: "Dados inválidos.",
+        statusCode: 400,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      });
+    }
+
     const result = await service.create({
       ordemServicoId,
       usuarioId,
-      inicioEm: new Date(req.body.inicioEm),
+      inicioEm,
       ...(req.body.descricao !== undefined && { descricao: req.body.descricao }),
       ...(req.body.custoHora !== undefined && { custoHora: req.body.custoHora }),
     });
+
     return res.status(201).json(result);
   } catch (error) {
     next(error);
