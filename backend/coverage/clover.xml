@@ -1,0 +1,1808 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1781126554589" clover="3.2.0">
+  <project timestamp="1781126554589" name="All files">
+    <metrics statements="1421" coveredstatements="1084" conditionals="916" coveredconditionals="571" methods="348" coveredmethods="256" elements="2685" coveredelements="1911" complexity="0" loc="1421" ncloc="1421" packages="27" files="100" classes="100"/>
+    <package name="src">
+      <metrics statements="29" coveredstatements="28" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="2"/>
+      <file name="app.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\app.ts">
+        <metrics statements="29" coveredstatements="28" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="2"/>
+        <line num="24" count="16" type="stmt"/>
+        <line num="25" count="16" type="stmt"/>
+        <line num="27" count="16" type="stmt"/>
+        <line num="31" count="16" type="stmt"/>
+        <line num="32" count="16" type="stmt"/>
+        <line num="33" count="16" type="stmt"/>
+        <line num="34" count="16" type="stmt"/>
+        <line num="35" count="16" type="stmt"/>
+        <line num="36" count="16" type="stmt"/>
+        <line num="38" count="16" type="stmt"/>
+        <line num="39" count="16" type="stmt"/>
+        <line num="40" count="16" type="stmt"/>
+        <line num="41" count="16" type="stmt"/>
+        <line num="42" count="16" type="stmt"/>
+        <line num="43" count="16" type="stmt"/>
+        <line num="44" count="16" type="stmt"/>
+        <line num="45" count="16" type="stmt"/>
+        <line num="46" count="16" type="stmt"/>
+        <line num="47" count="16" type="stmt"/>
+        <line num="48" count="16" type="stmt"/>
+        <line num="49" count="16" type="stmt"/>
+        <line num="50" count="16" type="stmt"/>
+        <line num="52" count="16" type="stmt"/>
+        <line num="53" count="1" type="stmt"/>
+        <line num="60" count="16" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="70" count="16" type="stmt"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="80" count="16" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.auth">
+      <metrics statements="159" coveredstatements="55" conditionals="50" coveredconditionals="12" methods="39" coveredmethods="13"/>
+      <file name="auth.controller.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\auth\auth.controller.ts">
+        <metrics statements="39" coveredstatements="10" conditionals="0" coveredconditionals="0" methods="8" coveredmethods="2"/>
+        <line num="11" count="16" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="49" count="53" type="stmt"/>
+        <line num="50" count="53" type="stmt"/>
+        <line num="51" count="53" type="stmt"/>
+        <line num="52" count="50" type="stmt"/>
+        <line num="54" count="3" type="stmt"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="72" count="0" type="stmt"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="79" count="8" type="stmt"/>
+        <line num="80" count="8" type="stmt"/>
+        <line num="81" count="8" type="stmt"/>
+        <line num="82" count="8" type="stmt"/>
+        <line num="84" count="0" type="stmt"/>
+        <line num="93" count="0" type="stmt"/>
+        <line num="94" count="0" type="stmt"/>
+        <line num="96" count="0" type="stmt"/>
+        <line num="98" count="0" type="stmt"/>
+        <line num="105" count="0" type="stmt"/>
+        <line num="107" count="0" type="stmt"/>
+      </file>
+      <file name="auth.repository.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\auth\auth.repository.ts">
+        <metrics statements="14" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="14" coveredmethods="4"/>
+        <line num="26" count="53" type="stmt"/>
+        <line num="41" count="8" type="stmt"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="75" count="0" type="stmt"/>
+        <line num="86" count="0" type="stmt"/>
+        <line num="108" count="0" type="stmt"/>
+        <line num="130" count="0" type="stmt"/>
+        <line num="137" count="50" type="stmt"/>
+        <line num="144" count="50" type="stmt"/>
+        <line num="150" count="0" type="stmt"/>
+        <line num="168" count="0" type="stmt"/>
+        <line num="175" count="0" type="stmt"/>
+        <line num="187" count="0" type="stmt"/>
+      </file>
+      <file name="auth.routes.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\auth\auth.routes.ts">
+        <metrics statements="9" coveredstatements="9" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="22" count="16" type="stmt"/>
+        <line num="24" count="16" type="stmt"/>
+        <line num="25" count="16" type="stmt"/>
+        <line num="26" count="16" type="stmt"/>
+        <line num="32" count="16" type="stmt"/>
+        <line num="33" count="16" type="stmt"/>
+        <line num="34" count="16" type="stmt"/>
+        <line num="36" count="16" type="stmt"/>
+        <line num="37" count="16" type="stmt"/>
+      </file>
+      <file name="auth.service.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\auth\auth.service.ts">
+        <metrics statements="79" coveredstatements="22" conditionals="44" coveredconditionals="9" methods="10" coveredmethods="3"/>
+        <line num="11" count="16" type="stmt"/>
+        <line num="12" count="16" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="21" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="31" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="39" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="47" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="50" count="0" type="stmt"/>
+        <line num="57" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="66" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="76" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="84" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="85" count="0" type="stmt"/>
+        <line num="92" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="93" count="0" type="stmt"/>
+        <line num="95" count="0" type="stmt"/>
+        <line num="103" count="0" type="stmt"/>
+        <line num="110" count="8" type="stmt"/>
+        <line num="112" count="8" type="cond" truecount="1" falsecount="1"/>
+        <line num="113" count="0" type="stmt"/>
+        <line num="120" count="8" type="stmt"/>
+        <line num="129" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="130" count="0" type="stmt"/>
+        <line num="137" count="0" type="stmt"/>
+        <line num="139" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="140" count="0" type="stmt"/>
+        <line num="147" count="0" type="stmt"/>
+        <line num="149" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="150" count="0" type="stmt"/>
+        <line num="157" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="158" count="0" type="stmt"/>
+        <line num="160" count="0" type="stmt"/>
+        <line num="162" count="0" type="stmt"/>
+        <line num="166" count="53" type="stmt"/>
+        <line num="168" count="53" type="cond" truecount="2" falsecount="0"/>
+        <line num="169" count="1" type="stmt"/>
+        <line num="176" count="52" type="cond" truecount="2" falsecount="0"/>
+        <line num="177" count="1" type="stmt"/>
+        <line num="184" count="51" type="stmt"/>
+        <line num="186" count="51" type="cond" truecount="2" falsecount="0"/>
+        <line num="187" count="1" type="stmt"/>
+        <line num="194" count="50" type="stmt"/>
+        <line num="202" count="50" type="stmt"/>
+        <line num="203" count="50" type="stmt"/>
+        <line num="205" count="50" type="stmt"/>
+        <line num="207" count="50" type="stmt"/>
+        <line num="214" count="0" type="stmt"/>
+        <line num="215" count="0" type="stmt"/>
+        <line num="217" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="218" count="0" type="stmt"/>
+        <line num="225" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="226" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="227" count="0" type="stmt"/>
+        <line num="230" count="0" type="stmt"/>
+        <line num="237" count="0" type="stmt"/>
+        <line num="239" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="240" count="0" type="stmt"/>
+        <line num="242" count="0" type="stmt"/>
+        <line num="249" count="0" type="stmt"/>
+        <line num="251" count="0" type="stmt"/>
+        <line num="259" count="0" type="stmt"/>
+        <line num="264" count="0" type="stmt"/>
+        <line num="271" count="0" type="stmt"/>
+        <line num="272" count="0" type="stmt"/>
+        <line num="276" count="0" type="stmt"/>
+        <line num="280" count="50" type="stmt"/>
+        <line num="281" count="50" type="stmt"/>
+        <line num="283" count="50" type="stmt"/>
+        <line num="289" count="50" type="stmt"/>
+      </file>
+      <file name="clean-refresh-tokens.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\auth\clean-refresh-tokens.ts">
+        <metrics statements="7" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="0"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="8" count="0" type="stmt"/>
+        <line num="9" count="0" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+      </file>
+      <file name="token.service.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\auth\token.service.ts">
+        <metrics statements="11" coveredstatements="10" conditionals="6" coveredconditionals="3" methods="4" coveredmethods="4"/>
+        <line num="8" count="50" type="stmt"/>
+        <line num="9" count="50" type="cond" truecount="1" falsecount="1"/>
+        <line num="13" count="50" type="cond" truecount="1" falsecount="1"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="17" count="50" type="stmt"/>
+        <line num="34" count="50" type="stmt"/>
+        <line num="38" count="50" type="stmt"/>
+        <line num="42" count="50" type="cond" truecount="1" falsecount="1"/>
+        <line num="43" count="50" type="stmt"/>
+        <line num="44" count="50" type="stmt"/>
+        <line num="45" count="50" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.auth.dto">
+      <metrics statements="6" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+      <file name="change-password.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\auth\dto\change-password.dto.ts">
+        <metrics statements="2" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+      </file>
+      <file name="refresh-token.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\auth\dto\refresh-token.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+      <file name="sign-in.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\auth\dto\sign-in.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+      <file name="sign-up-testing.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\auth\dto\sign-up-testing.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+      <file name="sign-up.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\auth\dto\sign-up.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.common.errors">
+      <metrics statements="6" coveredstatements="6" conditionals="2" coveredconditionals="0" methods="1" coveredmethods="1"/>
+      <file name="AppError.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\common\errors\AppError.ts">
+        <metrics statements="5" coveredstatements="5" conditionals="2" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="21" count="168" type="stmt"/>
+        <line num="22" count="168" type="stmt"/>
+        <line num="23" count="168" type="stmt"/>
+        <line num="24" count="168" type="stmt"/>
+        <line num="25" count="168" type="stmt"/>
+      </file>
+      <file name="error-code.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\common\errors\error-code.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="28" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.common.middlewares">
+      <metrics statements="92" coveredstatements="82" conditionals="80" coveredconditionals="60" methods="18" coveredmethods="17"/>
+      <file name="audit.middleware.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\common\middlewares\audit.middleware.ts">
+        <metrics statements="33" coveredstatements="32" conditionals="39" coveredconditionals="32" methods="7" coveredmethods="7"/>
+        <line num="5" count="16" type="stmt"/>
+        <line num="7" count="16" type="stmt"/>
+        <line num="9" count="16" type="stmt"/>
+        <line num="12" count="238" type="cond" truecount="2" falsecount="0"/>
+        <line num="13" count="222" type="cond" truecount="2" falsecount="0"/>
+        <line num="15" count="218" type="cond" truecount="3" falsecount="2"/>
+        <line num="17" count="169" type="stmt"/>
+        <line num="20" count="46" type="stmt"/>
+        <line num="22" count="3" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="29" count="238" type="stmt"/>
+        <line num="30" count="238" type="cond" truecount="1" falsecount="1"/>
+        <line num="34" count="447" type="cond" truecount="2" falsecount="0"/>
+        <line num="35" count="44" type="stmt"/>
+        <line num="39" count="403" type="stmt"/>
+        <line num="40" count="403" type="stmt"/>
+        <line num="41" count="400" type="stmt"/>
+        <line num="42" count="400" type="stmt"/>
+        <line num="45" count="403" type="stmt"/>
+        <line num="46" count="403" type="cond" truecount="4" falsecount="0"/>
+        <line num="48" count="288" type="cond" truecount="1" falsecount="1"/>
+        <line num="49" count="526" type="cond" truecount="2" falsecount="0"/>
+        <line num="51" count="238" type="stmt"/>
+        <line num="52" count="238" type="cond" truecount="1" falsecount="1"/>
+        <line num="55" count="238" type="cond" truecount="4" falsecount="0"/>
+        <line num="59" count="238" type="stmt"/>
+        <line num="60" count="238" type="cond" truecount="2" falsecount="1"/>
+        <line num="62" count="238" type="stmt"/>
+        <line num="64" count="238" type="cond" truecount="5" falsecount="0"/>
+        <line num="67" count="238" type="cond" truecount="1" falsecount="1"/>
+        <line num="69" count="238" type="stmt"/>
+        <line num="79" count="7" type="stmt"/>
+        <line num="83" count="403" type="stmt"/>
+      </file>
+      <file name="auth-rate-limit.middleware.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\common\middlewares\auth-rate-limit.middleware.ts">
+        <metrics statements="4" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="7" count="16" type="stmt"/>
+        <line num="9" count="16" type="stmt"/>
+        <line num="11" count="16" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+      </file>
+      <file name="auth.middleware.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\common\middlewares\auth.middleware.ts">
+        <metrics statements="31" coveredstatements="27" conditionals="24" coveredconditionals="17" methods="4" coveredmethods="4"/>
+        <line num="9" count="1536" type="stmt"/>
+        <line num="11" count="1536" type="cond" truecount="1" falsecount="1"/>
+        <line num="15" count="384" type="stmt"/>
+        <line num="17" count="384" type="cond" truecount="4" falsecount="0"/>
+        <line num="18" count="297" type="stmt"/>
+        <line num="21" count="87" type="cond" truecount="1" falsecount="1"/>
+        <line num="25" count="384" type="cond" truecount="1" falsecount="1"/>
+        <line num="26" count="384" type="stmt"/>
+        <line num="27" count="384" type="stmt"/>
+        <line num="28" count="384" type="stmt"/>
+        <line num="29" count="384" type="stmt"/>
+        <line num="31" count="384" type="cond" truecount="5" falsecount="1"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="35" count="384" type="stmt"/>
+        <line num="45" count="392" type="stmt"/>
+        <line num="47" count="392" type="cond" truecount="2" falsecount="0"/>
+        <line num="48" count="7" type="stmt"/>
+        <line num="57" count="385" type="stmt"/>
+        <line num="59" count="385" type="cond" truecount="1" falsecount="1"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="69" count="385" type="stmt"/>
+        <line num="71" count="385" type="stmt"/>
+        <line num="72" count="385" type="stmt"/>
+        <line num="74" count="384" type="cond" truecount="1" falsecount="1"/>
+        <line num="75" count="0" type="stmt"/>
+        <line num="78" count="384" type="stmt"/>
+        <line num="80" count="384" type="cond" truecount="1" falsecount="1"/>
+        <line num="81" count="0" type="stmt"/>
+        <line num="84" count="384" type="stmt"/>
+        <line num="86" count="384" type="stmt"/>
+        <line num="88" count="1" type="stmt"/>
+      </file>
+      <file name="error-handler.middleware.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\common\middlewares\error-handler.middleware.ts">
+        <metrics statements="4" coveredstatements="2" conditionals="8" coveredconditionals="4" methods="1" coveredmethods="1"/>
+        <line num="11" count="127" type="cond" truecount="1" falsecount="1"/>
+        <line num="12" count="127" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+      </file>
+      <file name="request-context.middleware.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\common\middlewares\request-context.middleware.ts">
+        <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="9" count="447" type="stmt"/>
+        <line num="11" count="447" type="stmt"/>
+        <line num="12" count="447" type="stmt"/>
+        <line num="14" count="447" type="stmt"/>
+      </file>
+      <file name="require-role.middleware.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\common\middlewares\require-role.middleware.ts">
+        <metrics statements="7" coveredstatements="6" conditionals="4" coveredconditionals="3" methods="2" coveredmethods="2"/>
+        <line num="7" count="688" type="stmt"/>
+        <line num="8" count="335" type="stmt"/>
+        <line num="10" count="335" type="cond" truecount="1" falsecount="1"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="14" count="335" type="cond" truecount="2" falsecount="0"/>
+        <line num="15" count="26" type="stmt"/>
+        <line num="18" count="309" type="stmt"/>
+      </file>
+      <file name="validate.middleware.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\common\middlewares\validate.middleware.ts">
+        <metrics statements="9" coveredstatements="8" conditionals="5" coveredconditionals="4" methods="2" coveredmethods="2"/>
+        <line num="9" count="416" type="stmt"/>
+        <line num="10" count="229" type="stmt"/>
+        <line num="11" count="229" type="stmt"/>
+        <line num="12" count="220" type="cond" truecount="2" falsecount="0"/>
+        <line num="13" count="211" type="stmt"/>
+        <line num="15" count="220" type="stmt"/>
+        <line num="17" count="9" type="cond" truecount="1" falsecount="1"/>
+        <line num="18" count="9" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.common.types">
+      <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+      <file name="auth-user.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\common\types\auth-user.ts">
+        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="1" count="16" type="stmt"/>
+        <line num="20" count="384" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.common.utils">
+      <metrics statements="19" coveredstatements="18" conditionals="10" coveredconditionals="8" methods="5" coveredmethods="5"/>
+      <file name="date.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\common\utils\date.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="4" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="12" count="1" type="stmt"/>
+      </file>
+      <file name="get-current-user.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\common\utils\get-current-user.ts">
+        <metrics statements="3" coveredstatements="2" conditionals="2" coveredconditionals="1" methods="1" coveredmethods="1"/>
+        <line num="8" count="8" type="cond" truecount="1" falsecount="1"/>
+        <line num="9" count="0" type="stmt"/>
+        <line num="16" count="8" type="stmt"/>
+      </file>
+      <file name="jwt.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\common\utils\jwt.ts">
+        <metrics statements="6" coveredstatements="6" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
+        <line num="6" count="3" type="stmt"/>
+        <line num="8" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="12" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="21" count="2" type="stmt"/>
+      </file>
+      <file name="password.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\common\utils\password.ts">
+        <metrics statements="3" coveredstatements="3" conditionals="2" coveredconditionals="1" methods="2" coveredmethods="2"/>
+        <line num="3" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="6" count="3" type="stmt"/>
+        <line num="10" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.alertas">
+      <metrics statements="94" coveredstatements="78" conditionals="64" coveredconditionals="37" methods="23" coveredmethods="22"/>
+      <file name="alertas.controller.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\alertas\alertas.controller.ts">
+        <metrics statements="40" coveredstatements="28" conditionals="14" coveredconditionals="9" methods="7" coveredmethods="6"/>
+        <line num="5" count="16" type="stmt"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="23" count="2" type="stmt"/>
+        <line num="24" count="2" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="32" count="1" type="stmt"/>
+        <line num="34" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="43" count="1" type="stmt"/>
+        <line num="48" count="1" type="stmt"/>
+        <line num="49" count="1" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="56" count="0" type="stmt"/>
+        <line num="57" count="0" type="stmt"/>
+        <line num="58" count="0" type="stmt"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="66" count="3" type="stmt"/>
+        <line num="67" count="3" type="stmt"/>
+        <line num="68" count="3" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="75" count="1" type="stmt"/>
+        <line num="76" count="1" type="stmt"/>
+        <line num="77" count="1" type="stmt"/>
+        <line num="78" count="1" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
+        <line num="85" count="1" type="stmt"/>
+        <line num="86" count="1" type="stmt"/>
+        <line num="87" count="1" type="stmt"/>
+        <line num="88" count="1" type="stmt"/>
+        <line num="90" count="0" type="stmt"/>
+        <line num="95" count="1" type="stmt"/>
+        <line num="96" count="1" type="stmt"/>
+        <line num="97" count="1" type="stmt"/>
+        <line num="98" count="1" type="stmt"/>
+        <line num="100" count="0" type="stmt"/>
+      </file>
+      <file name="alertas.repository.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\alertas\alertas.repository.ts">
+        <metrics statements="30" coveredstatements="26" conditionals="48" coveredconditionals="26" methods="9" coveredmethods="9"/>
+        <line num="4" count="18" type="stmt"/>
+        <line num="39" count="18" type="stmt"/>
+        <line num="58" count="3" type="stmt"/>
+        <line num="71" count="3" type="stmt"/>
+        <line num="78" count="3" type="stmt"/>
+        <line num="96" count="3" type="stmt"/>
+        <line num="112" count="3" type="stmt"/>
+        <line num="121" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="123" count="0" type="stmt"/>
+        <line num="129" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="135" count="0" type="stmt"/>
+        <line num="155" count="2" type="stmt"/>
+        <line num="164" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="166" count="2" type="stmt"/>
+        <line num="171" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="173" count="2" type="stmt"/>
+        <line num="191" count="2" type="stmt"/>
+        <line num="193" count="2" type="stmt"/>
+        <line num="209" count="2" type="stmt"/>
+        <line num="211" count="2" type="stmt"/>
+        <line num="212" count="9" type="stmt"/>
+        <line num="221" count="9" type="cond" truecount="2" falsecount="0"/>
+        <line num="223" count="1" type="stmt"/>
+        <line num="239" count="1" type="stmt"/>
+        <line num="242" count="2" type="stmt"/>
+        <line num="246" count="7" type="stmt"/>
+        <line num="257" count="7" type="stmt"/>
+        <line num="261" count="7" type="cond" truecount="1" falsecount="1"/>
+        <line num="262" count="0" type="stmt"/>
+        <line num="265" count="7" type="stmt"/>
+      </file>
+      <file name="alertas.routes.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\alertas\alertas.routes.ts">
+        <metrics statements="9" coveredstatements="9" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="17" count="16" type="stmt"/>
+        <line num="19" count="16" type="stmt"/>
+        <line num="21" count="16" type="stmt"/>
+        <line num="22" count="16" type="stmt"/>
+        <line num="23" count="16" type="stmt"/>
+        <line num="24" count="16" type="stmt"/>
+        <line num="30" count="16" type="stmt"/>
+        <line num="31" count="16" type="stmt"/>
+        <line num="36" count="16" type="stmt"/>
+      </file>
+      <file name="alertas.service.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\alertas\alertas.service.ts">
+        <metrics statements="15" coveredstatements="15" conditionals="2" coveredconditionals="2" methods="7" coveredmethods="7"/>
+        <line num="25" count="20" type="stmt"/>
+        <line num="28" count="3" type="stmt"/>
+        <line num="29" count="3" type="stmt"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="37" count="6" type="stmt"/>
+        <line num="39" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="40" count="1" type="stmt"/>
+        <line num="47" count="5" type="stmt"/>
+        <line num="51" count="3" type="stmt"/>
+        <line num="55" count="2" type="stmt"/>
+        <line num="56" count="2" type="stmt"/>
+        <line num="63" count="2" type="stmt"/>
+        <line num="64" count="2" type="stmt"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="72" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.alertas.dto">
+      <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="create-alerta.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\alertas\dto\create-alerta.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+      <file name="list-alertas.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\alertas\dto\list-alertas.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.apontamentos-os">
+      <metrics statements="94" coveredstatements="69" conditionals="50" coveredconditionals="31" methods="23" coveredmethods="16"/>
+      <file name="apontamentos-os.controller.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\apontamentos-os\apontamentos-os.controller.ts">
+        <metrics statements="37" coveredstatements="21" conditionals="8" coveredconditionals="7" methods="6" coveredmethods="3"/>
+        <line num="6" count="16" type="stmt"/>
+        <line num="9" count="0" type="stmt"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="29" count="41" type="stmt"/>
+        <line num="30" count="41" type="stmt"/>
+        <line num="31" count="41" type="stmt"/>
+        <line num="33" count="41" type="cond" truecount="2" falsecount="0"/>
+        <line num="34" count="2" type="stmt"/>
+        <line num="41" count="39" type="stmt"/>
+        <line num="43" count="39" type="cond" truecount="1" falsecount="1"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="51" count="39" type="stmt"/>
+        <line num="59" count="20" type="stmt"/>
+        <line num="61" count="21" type="stmt"/>
+        <line num="66" count="0" type="stmt"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="68" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="76" count="30" type="stmt"/>
+        <line num="77" count="30" type="stmt"/>
+        <line num="78" count="30" type="stmt"/>
+        <line num="79" count="13" type="stmt"/>
+        <line num="81" count="17" type="stmt"/>
+        <line num="86" count="2" type="stmt"/>
+        <line num="87" count="2" type="stmt"/>
+        <line num="88" count="2" type="stmt"/>
+        <line num="89" count="1" type="stmt"/>
+        <line num="91" count="1" type="stmt"/>
+      </file>
+      <file name="apontamentos-os.repository.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\apontamentos-os\apontamentos-os.repository.ts">
+        <metrics statements="21" coveredstatements="19" conditionals="8" coveredconditionals="8" methods="11" coveredmethods="9"/>
+        <line num="21" count="16" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="45" count="32" type="stmt"/>
+        <line num="52" count="37" type="stmt"/>
+        <line num="59" count="20" type="stmt"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="82" count="13" type="stmt"/>
+        <line num="83" count="13" type="stmt"/>
+        <line num="88" count="13" type="stmt"/>
+        <line num="98" count="13" type="stmt"/>
+        <line num="100" count="13" type="stmt"/>
+        <line num="105" count="1" type="stmt"/>
+        <line num="106" count="1" type="stmt"/>
+        <line num="111" count="1" type="stmt"/>
+        <line num="113" count="1" type="stmt"/>
+        <line num="121" count="14" type="stmt"/>
+        <line num="126" count="14" type="stmt"/>
+        <line num="127" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="131" count="14" type="stmt"/>
+        <line num="136" count="14" type="stmt"/>
+        <line num="138" count="14" type="stmt"/>
+      </file>
+      <file name="apontamentos-os.routes.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\apontamentos-os\apontamentos-os.routes.ts">
+        <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="6" count="16" type="stmt"/>
+        <line num="8" count="16" type="stmt"/>
+        <line num="10" count="16" type="stmt"/>
+        <line num="11" count="16" type="stmt"/>
+        <line num="12" count="16" type="stmt"/>
+        <line num="13" count="16" type="stmt"/>
+      </file>
+      <file name="apontamentos-os.service.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\apontamentos-os\apontamentos-os.service.ts">
+        <metrics statements="30" coveredstatements="23" conditionals="34" coveredconditionals="16" methods="6" coveredmethods="4"/>
+        <line num="28" count="16" type="stmt"/>
+        <line num="29" count="16" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="36" count="32" type="stmt"/>
+        <line num="38" count="32" type="cond" truecount="2" falsecount="0"/>
+        <line num="40" count="16" type="stmt"/>
+        <line num="44" count="39" type="stmt"/>
+        <line num="46" count="39" type="cond" truecount="2" falsecount="0"/>
+        <line num="47" count="2" type="stmt"/>
+        <line num="54" count="37" type="stmt"/>
+        <line num="56" count="37" type="cond" truecount="2" falsecount="0"/>
+        <line num="57" count="17" type="stmt"/>
+        <line num="64" count="20" type="stmt"/>
+        <line num="68" count="0" type="stmt"/>
+        <line num="70" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="72" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="73" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="75" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="86" count="30" type="stmt"/>
+        <line num="88" count="15" type="cond" truecount="2" falsecount="0"/>
+        <line num="90" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="91" count="14" type="stmt"/>
+        <line num="93" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="95" count="13" type="stmt"/>
+        <line num="97" count="13" type="cond" truecount="2" falsecount="0"/>
+        <line num="98" count="13" type="cond" truecount="2" falsecount="0"/>
+        <line num="100" count="13" type="stmt"/>
+        <line num="104" count="2" type="stmt"/>
+        <line num="105" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.ativos">
+      <metrics statements="72" coveredstatements="39" conditionals="62" coveredconditionals="32" methods="23" coveredmethods="12"/>
+      <file name="ativos.controller.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ativos\ativos.controller.ts">
+        <metrics statements="32" coveredstatements="14" conditionals="12" coveredconditionals="7" methods="6" coveredmethods="3"/>
+        <line num="5" count="16" type="stmt"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="18" count="2" type="stmt"/>
+        <line num="27" count="2" type="stmt"/>
+        <line num="28" count="2" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="45" count="9" type="stmt"/>
+        <line num="46" count="9" type="stmt"/>
+        <line num="47" count="8" type="stmt"/>
+        <line num="49" count="1" type="stmt"/>
+        <line num="54" count="2" type="stmt"/>
+        <line num="55" count="2" type="stmt"/>
+        <line num="56" count="2" type="stmt"/>
+        <line num="57" count="2" type="stmt"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="66" count="0" type="stmt"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="68" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="75" count="0" type="stmt"/>
+        <line num="76" count="0" type="stmt"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="78" count="0" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
+      </file>
+      <file name="ativos.policy.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ativos\ativos.policy.ts">
+        <metrics statements="4" coveredstatements="0" conditionals="4" coveredconditionals="0" methods="4" coveredmethods="0"/>
+        <line num="4" count="0" type="stmt"/>
+        <line num="8" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="12" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="16" count="0" type="stmt"/>
+      </file>
+      <file name="ativos.repository.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ativos\ativos.repository.ts">
+        <metrics statements="7" coveredstatements="5" conditionals="34" coveredconditionals="20" methods="7" coveredmethods="5"/>
+        <line num="49" count="2" type="stmt"/>
+        <line num="86" count="2" type="stmt"/>
+        <line num="111" count="9" type="stmt"/>
+        <line num="118" count="8" type="stmt"/>
+        <line num="159" count="2" type="stmt"/>
+        <line num="185" count="0" type="stmt"/>
+        <line num="193" count="0" type="stmt"/>
+      </file>
+      <file name="ativos.routes.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ativos\ativos.routes.ts">
+        <metrics statements="8" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="11" count="16" type="stmt"/>
+        <line num="13" count="16" type="stmt"/>
+        <line num="15" count="16" type="stmt"/>
+        <line num="16" count="16" type="stmt"/>
+        <line num="17" count="16" type="stmt"/>
+        <line num="18" count="16" type="stmt"/>
+        <line num="19" count="16" type="stmt"/>
+        <line num="20" count="16" type="stmt"/>
+      </file>
+      <file name="ativos.service.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ativos\ativos.service.ts">
+        <metrics statements="21" coveredstatements="12" conditionals="12" coveredconditionals="5" methods="6" coveredmethods="4"/>
+        <line num="51" count="16" type="stmt"/>
+        <line num="52" count="16" type="stmt"/>
+        <line num="55" count="2" type="stmt"/>
+        <line num="59" count="2" type="stmt"/>
+        <line num="61" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="63" count="2" type="stmt"/>
+        <line num="67" count="9" type="stmt"/>
+        <line num="69" count="9" type="cond" truecount="2" falsecount="0"/>
+        <line num="71" count="8" type="stmt"/>
+        <line num="75" count="2" type="stmt"/>
+        <line num="77" count="2" type="cond" truecount="2" falsecount="2"/>
+        <line num="78" count="0" type="stmt"/>
+        <line num="79" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="82" count="2" type="stmt"/>
+        <line num="86" count="0" type="stmt"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="90" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="91" count="0" type="stmt"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="101" count="0" type="stmt"/>
+        <line num="102" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.ativos.dto">
+      <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="create-ativo.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ativos\dto\create-ativo.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+      <file name="list-ativos.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ativos\dto\list-ativos.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+      <file name="update-ativo.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ativos\dto\update-ativo.dto.ts">
+        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+        <line num="21" count="16" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.auditoria">
+      <metrics statements="27" coveredstatements="19" conditionals="34" coveredconditionals="27" methods="8" coveredmethods="6"/>
+      <file name="auditoria.controller.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\auditoria\auditoria.controller.ts">
+        <metrics statements="12" coveredstatements="6" conditionals="12" coveredconditionals="9" methods="2" coveredmethods="1"/>
+        <line num="5" count="16" type="stmt"/>
+        <line num="8" count="3" type="stmt"/>
+        <line num="10" count="3" type="stmt"/>
+        <line num="19" count="3" type="stmt"/>
+        <line num="28" count="3" type="stmt"/>
+        <line num="29" count="3" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+      </file>
+      <file name="auditoria.repository.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\auditoria\auditoria.repository.ts">
+        <metrics statements="4" coveredstatements="3" conditionals="20" coveredconditionals="17" methods="3" coveredmethods="2"/>
+        <line num="24" count="16" type="stmt"/>
+        <line num="46" count="238" type="stmt"/>
+        <line num="65" count="3" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
+      </file>
+      <file name="auditoria.routes.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\auditoria\auditoria.routes.ts">
+        <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="8" count="16" type="stmt"/>
+        <line num="10" count="16" type="stmt"/>
+        <line num="12" count="16" type="stmt"/>
+        <line num="18" count="16" type="stmt"/>
+      </file>
+      <file name="auditoria.service.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\auditoria\auditoria.service.ts">
+        <metrics statements="7" coveredstatements="6" conditionals="2" coveredconditionals="1" methods="3" coveredmethods="3"/>
+        <line num="26" count="35" type="stmt"/>
+        <line num="29" count="239" type="stmt"/>
+        <line num="33" count="4" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="39" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="40" count="1" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.auditoria.dto">
+      <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="list-auditoria.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\auditoria\dto\list-auditoria.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.dashboard">
+      <metrics statements="67" coveredstatements="48" conditionals="12" coveredconditionals="3" methods="25" coveredmethods="16"/>
+      <file name="dashboard.controller.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\dashboard\dashboard.controller.ts">
+        <metrics statements="29" coveredstatements="25" conditionals="4" coveredconditionals="3" methods="6" coveredmethods="6"/>
+        <line num="4" count="17" type="stmt"/>
+        <line num="7" count="7" type="stmt"/>
+        <line num="8" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="9" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="13" count="3" type="stmt"/>
+        <line num="14" count="3" type="stmt"/>
+        <line num="15" count="3" type="stmt"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="43" count="1" type="stmt"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="53" count="1" type="stmt"/>
+        <line num="54" count="1" type="stmt"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="58" count="0" type="stmt"/>
+      </file>
+      <file name="dashboard.repository.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\dashboard\dashboard.repository.ts">
+        <metrics statements="15" coveredstatements="0" conditionals="8" coveredconditionals="0" methods="9" coveredmethods="0"/>
+        <line num="5" count="0" type="stmt"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="50" count="0" type="stmt"/>
+        <line num="57" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="73" count="0" type="stmt"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="83" count="0" type="stmt"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="93" count="0" type="stmt"/>
+      </file>
+      <file name="dashboard.routes.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\dashboard\dashboard.routes.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="12" count="16" type="stmt"/>
+        <line num="14" count="16" type="stmt"/>
+        <line num="16" count="16" type="stmt"/>
+        <line num="17" count="16" type="stmt"/>
+        <line num="18" count="16" type="stmt"/>
+        <line num="19" count="16" type="stmt"/>
+        <line num="20" count="16" type="stmt"/>
+      </file>
+      <file name="dashboard.service.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\dashboard\dashboard.service.ts">
+        <metrics statements="16" coveredstatements="16" conditionals="0" coveredconditionals="0" methods="10" coveredmethods="10"/>
+        <line num="3" count="18" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="39" count="1" type="stmt"/>
+        <line num="41" count="2" type="stmt"/>
+        <line num="46" count="2" type="stmt"/>
+        <line num="51" count="1" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="58" count="2" type="stmt"/>
+        <line num="63" count="2" type="stmt"/>
+        <line num="68" count="1" type="stmt"/>
+        <line num="73" count="1" type="stmt"/>
+        <line num="75" count="1" type="stmt"/>
+        <line num="76" count="1" type="stmt"/>
+        <line num="87" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.empresas">
+      <metrics statements="71" coveredstatements="67" conditionals="26" coveredconditionals="16" methods="20" coveredmethods="20"/>
+      <file name="empresas.controller.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\empresas\empresas.controller.ts">
+        <metrics statements="29" coveredstatements="28" conditionals="4" coveredconditionals="2" methods="5" coveredmethods="5"/>
+        <line num="4" count="16" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="27" count="2" type="stmt"/>
+        <line num="28" count="2" type="stmt"/>
+        <line num="29" count="2" type="stmt"/>
+        <line num="30" count="1" type="stmt"/>
+        <line num="32" count="1" type="stmt"/>
+        <line num="37" count="3" type="stmt"/>
+        <line num="38" count="3" type="stmt"/>
+        <line num="39" count="3" type="stmt"/>
+        <line num="40" count="1" type="stmt"/>
+        <line num="42" count="2" type="stmt"/>
+        <line num="47" count="2" type="stmt"/>
+        <line num="48" count="2" type="stmt"/>
+        <line num="49" count="2" type="stmt"/>
+        <line num="50" count="2" type="stmt"/>
+        <line num="51" count="1" type="stmt"/>
+        <line num="53" count="1" type="stmt"/>
+        <line num="58" count="2" type="stmt"/>
+        <line num="59" count="2" type="stmt"/>
+        <line num="60" count="2" type="stmt"/>
+        <line num="61" count="2" type="stmt"/>
+        <line num="62" count="1" type="stmt"/>
+        <line num="64" count="1" type="stmt"/>
+      </file>
+      <file name="empresas.policy.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\empresas\empresas.policy.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="6" coveredconditionals="6" methods="4" coveredmethods="4"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="13" count="9" type="cond" truecount="2" falsecount="0"/>
+        <line num="14" count="5" type="stmt"/>
+        <line num="23" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="24" count="3" type="stmt"/>
+        <line num="33" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="34" count="3" type="stmt"/>
+      </file>
+      <file name="empresas.repository.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\empresas\empresas.repository.ts">
+        <metrics statements="6" coveredstatements="6" conditionals="4" coveredconditionals="2" methods="6" coveredmethods="6"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="40" count="4" type="stmt"/>
+        <line num="53" count="1" type="stmt"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="73" count="1" type="stmt"/>
+        <line num="87" count="1" type="stmt"/>
+      </file>
+      <file name="empresas.routes.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\empresas\empresas.routes.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="9" count="16" type="stmt"/>
+        <line num="11" count="16" type="stmt"/>
+        <line num="13" count="16" type="stmt"/>
+        <line num="14" count="16" type="stmt"/>
+        <line num="15" count="16" type="stmt"/>
+        <line num="16" count="16" type="stmt"/>
+        <line num="17" count="16" type="stmt"/>
+      </file>
+      <file name="empresas.service.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\empresas\empresas.service.ts">
+        <metrics statements="22" coveredstatements="19" conditionals="12" coveredconditionals="6" methods="5" coveredmethods="5"/>
+        <line num="33" count="26" type="stmt"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="40" count="8" type="stmt"/>
+        <line num="42" count="8" type="cond" truecount="2" falsecount="0"/>
+        <line num="43" count="2" type="stmt"/>
+        <line num="49" count="6" type="stmt"/>
+        <line num="53" count="7" type="stmt"/>
+        <line num="55" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="56" count="3" type="stmt"/>
+        <line num="59" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="67" count="2" type="stmt"/>
+        <line num="71" count="4" type="stmt"/>
+        <line num="73" count="2" type="stmt"/>
+        <line num="75" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="78" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="79" count="0" type="stmt"/>
+        <line num="87" count="2" type="stmt"/>
+        <line num="91" count="4" type="stmt"/>
+        <line num="93" count="2" type="stmt"/>
+        <line num="94" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.empresas.dto">
+      <metrics statements="4" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+      <file name="create-empresa.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\empresas\dto\create-empresa.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+      <file name="list-empresas.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\empresas\dto\list-empresas.dto.ts">
+        <metrics statements="2" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+        <line num="7" count="0" type="stmt"/>
+      </file>
+      <file name="update-empresa.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\empresas\dto\update-empresa.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.localizacoes">
+      <metrics statements="81" coveredstatements="75" conditionals="58" coveredconditionals="40" methods="20" coveredmethods="20"/>
+      <file name="localizacoes.controller.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\localizacoes\localizacoes.controller.ts">
+        <metrics statements="31" coveredstatements="30" conditionals="6" coveredconditionals="3" methods="5" coveredmethods="5"/>
+        <line num="4" count="16" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="33" count="2" type="stmt"/>
+        <line num="34" count="2" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+        <line num="36" count="2" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="39" count="1" type="stmt"/>
+        <line num="44" count="4" type="stmt"/>
+        <line num="45" count="4" type="stmt"/>
+        <line num="46" count="4" type="stmt"/>
+        <line num="47" count="2" type="stmt"/>
+        <line num="49" count="2" type="stmt"/>
+        <line num="54" count="2" type="stmt"/>
+        <line num="55" count="2" type="stmt"/>
+        <line num="56" count="2" type="stmt"/>
+        <line num="57" count="2" type="stmt"/>
+        <line num="58" count="1" type="stmt"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="65" count="2" type="stmt"/>
+        <line num="66" count="2" type="stmt"/>
+        <line num="67" count="2" type="stmt"/>
+        <line num="68" count="2" type="stmt"/>
+        <line num="69" count="1" type="stmt"/>
+        <line num="71" count="1" type="stmt"/>
+      </file>
+      <file name="localizacoes.policy.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\localizacoes\localizacoes.policy.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="12" coveredconditionals="12" methods="4" coveredmethods="4"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="13" count="11" type="cond" truecount="4" falsecount="0"/>
+        <line num="14" count="5" type="stmt"/>
+        <line num="23" count="8" type="cond" truecount="4" falsecount="0"/>
+        <line num="24" count="3" type="stmt"/>
+        <line num="33" count="7" type="cond" truecount="4" falsecount="0"/>
+        <line num="34" count="3" type="stmt"/>
+      </file>
+      <file name="localizacoes.repository.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\localizacoes\localizacoes.repository.ts">
+        <metrics statements="6" coveredstatements="6" conditionals="6" coveredconditionals="3" methods="6" coveredmethods="6"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="48" count="4" type="stmt"/>
+        <line num="64" count="2" type="stmt"/>
+        <line num="71" count="2" type="stmt"/>
+        <line num="87" count="1" type="stmt"/>
+        <line num="104" count="1" type="stmt"/>
+      </file>
+      <file name="localizacoes.routes.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\localizacoes\localizacoes.routes.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="15" count="16" type="stmt"/>
+        <line num="17" count="16" type="stmt"/>
+        <line num="19" count="16" type="stmt"/>
+        <line num="20" count="16" type="stmt"/>
+        <line num="21" count="16" type="stmt"/>
+        <line num="22" count="16" type="stmt"/>
+        <line num="23" count="16" type="stmt"/>
+      </file>
+      <file name="localizacoes.service.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\localizacoes\localizacoes.service.ts">
+        <metrics statements="30" coveredstatements="25" conditionals="34" coveredconditionals="22" methods="5" coveredmethods="5"/>
+        <line num="35" count="31" type="stmt"/>
+        <line num="38" count="4" type="cond" truecount="3" falsecount="1"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="47" count="4" type="cond" truecount="3" falsecount="1"/>
+        <line num="49" count="4" type="stmt"/>
+        <line num="57" count="10" type="stmt"/>
+        <line num="59" count="10" type="cond" truecount="2" falsecount="0"/>
+        <line num="60" count="2" type="stmt"/>
+        <line num="67" count="8" type="cond" truecount="2" falsecount="0"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="78" count="7" type="stmt"/>
+        <line num="82" count="8" type="stmt"/>
+        <line num="85" count="4" type="stmt"/>
+        <line num="87" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="95" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="96" count="4" type="stmt"/>
+        <line num="100" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="101" count="1" type="stmt"/>
+        <line num="108" count="3" type="stmt"/>
+        <line num="112" count="5" type="stmt"/>
+        <line num="114" count="3" type="stmt"/>
+        <line num="116" count="3" type="cond" truecount="2" falsecount="2"/>
+        <line num="117" count="0" type="stmt"/>
+        <line num="121" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="122" count="0" type="stmt"/>
+        <line num="130" count="3" type="stmt"/>
+        <line num="134" count="4" type="stmt"/>
+        <line num="136" count="2" type="stmt"/>
+        <line num="137" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.localizacoes.dto">
+      <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="create-localizacao.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\localizacoes\dto\create-localizacao.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+      <file name="list-localizacoes.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\localizacoes\dto\list-localizacoes.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+      <file name="update-localizacao.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\localizacoes\dto\update-localizacao.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.materiais">
+      <metrics statements="105" coveredstatements="72" conditionals="76" coveredconditionals="46" methods="24" coveredmethods="16"/>
+      <file name="materiais.controller.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\materiais\materiais.controller.ts">
+        <metrics statements="31" coveredstatements="14" conditionals="8" coveredconditionals="0" methods="6" coveredmethods="3"/>
+        <line num="4" count="16" type="stmt"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="8" count="0" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="40" count="36" type="stmt"/>
+        <line num="41" count="36" type="stmt"/>
+        <line num="42" count="34" type="stmt"/>
+        <line num="44" count="2" type="stmt"/>
+        <line num="49" count="2" type="stmt"/>
+        <line num="50" count="2" type="stmt"/>
+        <line num="51" count="2" type="stmt"/>
+        <line num="52" count="2" type="stmt"/>
+        <line num="54" count="0" type="stmt"/>
+        <line num="59" count="16" type="stmt"/>
+        <line num="60" count="16" type="stmt"/>
+        <line num="61" count="16" type="stmt"/>
+        <line num="62" count="10" type="stmt"/>
+        <line num="64" count="6" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="72" count="0" type="stmt"/>
+        <line num="74" count="0" type="stmt"/>
+      </file>
+      <file name="materiais.policy.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\materiais\materiais.policy.ts">
+        <metrics statements="4" coveredstatements="4" conditionals="4" coveredconditionals="4" methods="4" coveredmethods="4"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="8" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="12" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="16" count="3" type="stmt"/>
+      </file>
+      <file name="materiais.repository.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\materiais\materiais.repository.ts">
+        <metrics statements="11" coveredstatements="5" conditionals="20" coveredconditionals="11" methods="8" coveredmethods="5"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="62" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="75" count="18" type="stmt"/>
+        <line num="94" count="36" type="stmt"/>
+        <line num="101" count="34" type="stmt"/>
+        <line num="130" count="2" type="stmt"/>
+        <line num="150" count="10" type="stmt"/>
+        <line num="162" count="0" type="stmt"/>
+      </file>
+      <file name="materiais.routes.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\materiais\materiais.routes.ts">
+        <metrics statements="8" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="10" count="16" type="stmt"/>
+        <line num="12" count="16" type="stmt"/>
+        <line num="14" count="16" type="stmt"/>
+        <line num="15" count="16" type="stmt"/>
+        <line num="16" count="16" type="stmt"/>
+        <line num="17" count="16" type="stmt"/>
+        <line num="18" count="16" type="stmt"/>
+        <line num="19" count="16" type="stmt"/>
+      </file>
+      <file name="materiais.service.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\materiais\materiais.service.ts">
+        <metrics statements="51" coveredstatements="41" conditionals="44" coveredconditionals="31" methods="6" coveredmethods="4"/>
+        <line num="44" count="20" type="stmt"/>
+        <line num="45" count="20" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="52" count="20" type="stmt"/>
+        <line num="54" count="20" type="cond" truecount="2" falsecount="0"/>
+        <line num="55" count="3" type="stmt"/>
+        <line num="62" count="17" type="stmt"/>
+        <line num="66" count="38" type="stmt"/>
+        <line num="71" count="38" type="cond" truecount="2" falsecount="0"/>
+        <line num="72" count="3" type="stmt"/>
+        <line num="79" count="35" type="stmt"/>
+        <line num="81" count="35" type="cond" truecount="1" falsecount="1"/>
+        <line num="82" count="35" type="cond" truecount="1" falsecount="1"/>
+        <line num="84" count="35" type="cond" truecount="2" falsecount="0"/>
+        <line num="85" count="8" type="stmt"/>
+        <line num="95" count="35" type="stmt"/>
+        <line num="99" count="2" type="stmt"/>
+        <line num="101" count="2" type="cond" truecount="2" falsecount="2"/>
+        <line num="102" count="0" type="stmt"/>
+        <line num="107" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="108" count="0" type="stmt"/>
+        <line num="116" count="2" type="stmt"/>
+        <line num="118" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="119" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="121" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="122" count="0" type="stmt"/>
+        <line num="132" count="2" type="stmt"/>
+        <line num="136" count="17" type="stmt"/>
+        <line num="138" count="15" type="cond" truecount="1" falsecount="1"/>
+        <line num="142" count="15" type="cond" truecount="2" falsecount="0"/>
+        <line num="143" count="4" type="cond" truecount="3" falsecount="1"/>
+        <line num="144" count="0" type="stmt"/>
+        <line num="151" count="4" type="stmt"/>
+        <line num="152" count="11" type="cond" truecount="2" falsecount="0"/>
+        <line num="153" count="7" type="cond" truecount="3" falsecount="1"/>
+        <line num="154" count="0" type="stmt"/>
+        <line num="161" count="7" type="stmt"/>
+        <line num="163" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="164" count="3" type="stmt"/>
+        <line num="171" count="4" type="stmt"/>
+        <line num="173" count="4" type="cond" truecount="4" falsecount="0"/>
+        <line num="174" count="2" type="stmt"/>
+        <line num="181" count="2" type="stmt"/>
+        <line num="184" count="10" type="stmt"/>
+        <line num="189" count="10" type="stmt"/>
+        <line num="190" count="10" type="stmt"/>
+        <line num="192" count="10" type="cond" truecount="1" falsecount="1"/>
+        <line num="193" count="0" type="stmt"/>
+        <line num="203" count="10" type="stmt"/>
+        <line num="207" count="0" type="stmt"/>
+        <line num="208" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.materiais.dto">
+      <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="create-material.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\materiais\dto\create-material.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+      <file name="list-materiais.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\materiais\dto\list-materiais.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+      <file name="update-material.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\materiais\dto\update-material.dto.ts">
+        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+        <line num="13" count="16" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.ordens-servico">
+      <metrics statements="200" coveredstatements="167" conditionals="228" coveredconditionals="130" methods="45" coveredmethods="35"/>
+      <file name="ordens-servico.controller.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ordens-servico\ordens-servico.controller.ts">
+        <metrics statements="70" coveredstatements="55" conditionals="36" coveredconditionals="18" methods="9" coveredmethods="7"/>
+        <line num="7" count="16" type="stmt"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="38" count="10" type="stmt"/>
+        <line num="39" count="10" type="stmt"/>
+        <line num="40" count="10" type="stmt"/>
+        <line num="41" count="10" type="stmt"/>
+        <line num="43" count="0" type="stmt"/>
+        <line num="48" count="79" type="stmt"/>
+        <line num="49" count="79" type="stmt"/>
+        <line num="50" count="79" type="stmt"/>
+        <line num="52" count="0" type="stmt"/>
+        <line num="57" count="0" type="stmt"/>
+        <line num="58" count="0" type="stmt"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="67" count="12" type="stmt"/>
+        <line num="68" count="12" type="stmt"/>
+        <line num="69" count="12" type="stmt"/>
+        <line num="70" count="12" type="cond" truecount="1" falsecount="1"/>
+        <line num="72" count="12" type="stmt"/>
+        <line num="74" count="12" type="cond" truecount="2" falsecount="0"/>
+        <line num="75" count="2" type="stmt"/>
+        <line num="78" count="10" type="stmt"/>
+        <line num="79" count="9" type="stmt"/>
+        <line num="81" count="3" type="stmt"/>
+        <line num="86" count="4" type="stmt"/>
+        <line num="87" count="4" type="stmt"/>
+        <line num="88" count="4" type="stmt"/>
+        <line num="89" count="4" type="stmt"/>
+        <line num="91" count="4" type="stmt"/>
+        <line num="93" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="94" count="1" type="stmt"/>
+        <line num="97" count="3" type="stmt"/>
+        <line num="98" count="2" type="stmt"/>
+        <line num="100" count="2" type="stmt"/>
+        <line num="105" count="2" type="stmt"/>
+        <line num="106" count="2" type="stmt"/>
+        <line num="107" count="2" type="stmt"/>
+        <line num="108" count="2" type="stmt"/>
+        <line num="110" count="2" type="stmt"/>
+        <line num="112" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="113" count="0" type="stmt"/>
+        <line num="116" count="2" type="stmt"/>
+        <line num="117" count="1" type="stmt"/>
+        <line num="119" count="1" type="stmt"/>
+        <line num="124" count="4" type="stmt"/>
+        <line num="125" count="4" type="stmt"/>
+        <line num="126" count="4" type="stmt"/>
+        <line num="127" count="4" type="stmt"/>
+        <line num="134" count="4" type="stmt"/>
+        <line num="136" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="137" count="1" type="stmt"/>
+        <line num="140" count="3" type="stmt"/>
+        <line num="146" count="2" type="stmt"/>
+        <line num="148" count="2" type="stmt"/>
+        <line num="153" count="2" type="stmt"/>
+        <line num="154" count="2" type="stmt"/>
+        <line num="155" count="2" type="stmt"/>
+        <line num="156" count="2" type="stmt"/>
+        <line num="161" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="162" count="0" type="stmt"/>
+        <line num="165" count="2" type="stmt"/>
+        <line num="169" count="1" type="stmt"/>
+        <line num="171" count="1" type="stmt"/>
+      </file>
+      <file name="ordens-servico.policy.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ordens-servico\ordens-servico.policy.ts">
+        <metrics statements="16" coveredstatements="11" conditionals="40" coveredconditionals="25" methods="8" coveredmethods="5"/>
+        <line num="8" count="12" type="cond" truecount="4" falsecount="0"/>
+        <line num="9" count="3" type="cond" truecount="4" falsecount="0"/>
+        <line num="10" count="2" type="stmt"/>
+        <line num="14" count="4" type="cond" truecount="4" falsecount="0"/>
+        <line num="15" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="20" count="2" type="cond" truecount="2" falsecount="2"/>
+        <line num="21" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="26" count="4" type="cond" truecount="4" falsecount="0"/>
+        <line num="27" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="32" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="40" count="0" type="cond" truecount="0" falsecount="3"/>
+        <line num="44" count="0" type="cond" truecount="0" falsecount="3"/>
+      </file>
+      <file name="ordens-servico.repository.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ordens-servico\ordens-servico.repository.ts">
+        <metrics statements="45" coveredstatements="42" conditionals="58" coveredconditionals="35" methods="17" coveredmethods="15"/>
+        <line num="58" count="16" type="stmt"/>
+        <line num="111" count="0" type="stmt"/>
+        <line num="136" count="111" type="stmt"/>
+        <line num="159" count="27887" type="stmt"/>
+        <line num="173" count="79" type="stmt"/>
+        <line num="185" count="79" type="stmt"/>
+        <line num="186" count="79" type="stmt"/>
+        <line num="221" count="79" type="cond" truecount="1" falsecount="1"/>
+        <line num="222" count="0" type="stmt"/>
+        <line num="225" count="79" type="stmt"/>
+        <line num="235" count="9" type="stmt"/>
+        <line num="236" count="9" type="stmt"/>
+        <line num="245" count="9" type="stmt"/>
+        <line num="250" count="9" type="stmt"/>
+        <line num="255" count="2" type="stmt"/>
+        <line num="256" count="2" type="stmt"/>
+        <line num="266" count="2" type="stmt"/>
+        <line num="271" count="2" type="stmt"/>
+        <line num="276" count="1" type="stmt"/>
+        <line num="277" count="1" type="stmt"/>
+        <line num="282" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="286" count="1" type="stmt"/>
+        <line num="297" count="1" type="stmt"/>
+        <line num="302" count="1" type="stmt"/>
+        <line num="312" count="2" type="stmt"/>
+        <line num="313" count="2" type="stmt"/>
+        <line num="323" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="324" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="325" count="2" type="stmt"/>
+        <line num="327" count="2" type="stmt"/>
+        <line num="341" count="2" type="stmt"/>
+        <line num="354" count="2" type="stmt"/>
+        <line num="363" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="364" count="2" type="stmt"/>
+        <line num="370" count="2" type="stmt"/>
+        <line num="378" count="1" type="stmt"/>
+        <line num="379" count="1" type="stmt"/>
+        <line num="384" count="1" type="cond" truecount="2" falsecount="0"/>
+        <line num="386" count="1" type="stmt"/>
+        <line num="396" count="1" type="stmt"/>
+        <line num="407" count="1" type="stmt"/>
+        <line num="416" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="417" count="1" type="stmt"/>
+        <line num="423" count="1" type="stmt"/>
+        <line num="428" count="0" type="stmt"/>
+      </file>
+      <file name="ordens-servico.routes.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ordens-servico\ordens-servico.routes.ts">
+        <metrics statements="15" coveredstatements="15" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="12" count="16" type="stmt"/>
+        <line num="14" count="16" type="stmt"/>
+        <line num="16" count="16" type="stmt"/>
+        <line num="17" count="16" type="stmt"/>
+        <line num="18" count="16" type="stmt"/>
+        <line num="19" count="16" type="stmt"/>
+        <line num="21" count="16" type="stmt"/>
+        <line num="28" count="16" type="stmt"/>
+        <line num="34" count="16" type="stmt"/>
+        <line num="40" count="16" type="stmt"/>
+        <line num="47" count="16" type="stmt"/>
+        <line num="53" count="16" type="stmt"/>
+        <line num="59" count="16" type="stmt"/>
+        <line num="65" count="16" type="stmt"/>
+        <line num="71" count="16" type="stmt"/>
+      </file>
+      <file name="ordens-servico.service.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ordens-servico\ordens-servico.service.ts">
+        <metrics statements="52" coveredstatements="44" conditionals="94" coveredconditionals="52" methods="10" coveredmethods="8"/>
+        <line num="61" count="21" type="stmt"/>
+        <line num="62" count="21" type="stmt"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="69" count="57" type="stmt"/>
+        <line num="71" count="57" type="cond" truecount="2" falsecount="0"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="79" count="56" type="stmt"/>
+        <line num="83" count="79" type="stmt"/>
+        <line num="85" count="79" type="cond" truecount="3" falsecount="1"/>
+        <line num="86" count="0" type="stmt"/>
+        <line num="93" count="79" type="cond" truecount="1" falsecount="1"/>
+        <line num="94" count="0" type="stmt"/>
+        <line num="101" count="79" type="cond" truecount="2" falsecount="0"/>
+        <line num="103" count="79" type="stmt"/>
+        <line num="108" count="79" type="cond" truecount="1" falsecount="1"/>
+        <line num="109" count="0" type="stmt"/>
+        <line num="116" count="79" type="stmt"/>
+        <line num="134" count="79" type="cond" truecount="1" falsecount="1"/>
+        <line num="135" count="0" type="stmt"/>
+        <line num="142" count="79" type="stmt"/>
+        <line num="147" count="11" type="stmt"/>
+        <line num="149" count="11" type="cond" truecount="2" falsecount="0"/>
+        <line num="150" count="2" type="stmt"/>
+        <line num="157" count="9" type="cond" truecount="3" falsecount="1"/>
+        <line num="159" count="9" type="stmt"/>
+        <line num="163" count="4" type="stmt"/>
+        <line num="165" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="166" count="1" type="stmt"/>
+        <line num="173" count="3" type="stmt"/>
+        <line num="175" count="3" type="stmt"/>
+        <line num="180" count="3" type="stmt"/>
+        <line num="184" count="2" type="stmt"/>
+        <line num="186" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="187" count="1" type="stmt"/>
+        <line num="194" count="1" type="stmt"/>
+        <line num="203" count="4" type="stmt"/>
+        <line num="205" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="206" count="2" type="stmt"/>
+        <line num="213" count="2" type="stmt"/>
+        <line num="225" count="3" type="stmt"/>
+        <line num="227" count="3" type="cond" truecount="4" falsecount="0"/>
+        <line num="228" count="2" type="stmt"/>
+        <line num="235" count="1" type="stmt"/>
+        <line num="242" count="0" type="stmt"/>
+        <line num="244" count="0" type="stmt"/>
+        <line num="266" count="79" type="stmt"/>
+        <line num="268" count="79" type="stmt"/>
+        <line num="269" count="27808" type="stmt"/>
+        <line num="270" count="27808" type="stmt"/>
+        <line num="275" count="27808" type="cond" truecount="2" falsecount="0"/>
+        <line num="276" count="79" type="stmt"/>
+        <line num="280" count="0" type="stmt"/>
+      </file>
+      <file name="ordens-servico.workflow.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ordens-servico\ordens-servico.workflow.ts">
+        <metrics statements="2" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.ordens-servico-materiais">
+      <metrics statements="107" coveredstatements="82" conditionals="32" coveredconditionals="25" methods="26" coveredmethods="19"/>
+      <file name="ordens-servico-materiais.controller.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ordens-servico-materiais\ordens-servico-materiais.controller.ts">
+        <metrics statements="38" coveredstatements="22" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="4"/>
+        <line num="4" count="16" type="stmt"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="8" count="0" type="stmt"/>
+        <line num="9" count="0" type="stmt"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="27" count="21" type="stmt"/>
+        <line num="28" count="21" type="stmt"/>
+        <line num="29" count="21" type="stmt"/>
+        <line num="30" count="18" type="stmt"/>
+        <line num="32" count="3" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="47" count="14" type="stmt"/>
+        <line num="48" count="14" type="stmt"/>
+        <line num="49" count="14" type="stmt"/>
+        <line num="50" count="14" type="stmt"/>
+        <line num="51" count="11" type="stmt"/>
+        <line num="53" count="3" type="stmt"/>
+        <line num="58" count="7" type="stmt"/>
+        <line num="59" count="7" type="stmt"/>
+        <line num="60" count="7" type="stmt"/>
+        <line num="61" count="7" type="stmt"/>
+        <line num="62" count="4" type="stmt"/>
+        <line num="64" count="3" type="stmt"/>
+        <line num="69" count="1" type="stmt"/>
+        <line num="70" count="1" type="stmt"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="74" count="0" type="stmt"/>
+      </file>
+      <file name="ordens-servico-materiais.repository.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ordens-servico-materiais\ordens-servico-materiais.repository.ts">
+        <metrics statements="29" coveredstatements="23" conditionals="4" coveredconditionals="0" methods="12" coveredmethods="10"/>
+        <line num="16" count="16" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="46" count="22" type="stmt"/>
+        <line num="53" count="31" type="stmt"/>
+        <line num="65" count="18" type="stmt"/>
+        <line num="67" count="18" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
+        <line num="85" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="86" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="87" count="0" type="stmt"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="97" count="11" type="stmt"/>
+        <line num="98" count="11" type="stmt"/>
+        <line num="103" count="11" type="stmt"/>
+        <line num="105" count="11" type="stmt"/>
+        <line num="111" count="11" type="stmt"/>
+        <line num="116" count="11" type="stmt"/>
+        <line num="118" count="11" type="stmt"/>
+        <line num="123" count="4" type="stmt"/>
+        <line num="124" count="4" type="stmt"/>
+        <line num="129" count="4" type="stmt"/>
+        <line num="135" count="4" type="stmt"/>
+        <line num="140" count="4" type="stmt"/>
+        <line num="142" count="4" type="stmt"/>
+        <line num="147" count="1" type="stmt"/>
+        <line num="158" count="15" type="stmt"/>
+        <line num="163" count="15" type="stmt"/>
+        <line num="164" count="12" type="stmt"/>
+        <line num="168" count="15" type="stmt"/>
+      </file>
+      <file name="ordens-servico-materiais.routes.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ordens-servico-materiais\ordens-servico-materiais.routes.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="6" count="16" type="stmt"/>
+        <line num="8" count="16" type="stmt"/>
+        <line num="10" count="16" type="stmt"/>
+        <line num="11" count="16" type="stmt"/>
+        <line num="12" count="16" type="stmt"/>
+        <line num="13" count="16" type="stmt"/>
+        <line num="14" count="16" type="stmt"/>
+      </file>
+      <file name="ordens-servico-materiais.service.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ordens-servico-materiais\ordens-servico-materiais.service.ts">
+        <metrics statements="33" coveredstatements="30" conditionals="28" coveredconditionals="25" methods="7" coveredmethods="5"/>
+        <line num="19" count="16" type="stmt"/>
+        <line num="20" count="16" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="27" count="22" type="stmt"/>
+        <line num="29" count="22" type="cond" truecount="2" falsecount="0"/>
+        <line num="31" count="20" type="stmt"/>
+        <line num="35" count="21" type="cond" truecount="2" falsecount="0"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="43" count="20" type="stmt"/>
+        <line num="45" count="20" type="cond" truecount="2" falsecount="0"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="53" count="19" type="stmt"/>
+        <line num="55" count="19" type="cond" truecount="4" falsecount="0"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="64" count="18" type="cond" truecount="2" falsecount="0"/>
+        <line num="68" count="18" type="stmt"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="78" count="0" type="stmt"/>
+        <line num="82" count="14" type="stmt"/>
+        <line num="84" count="13" type="cond" truecount="2" falsecount="0"/>
+        <line num="86" count="12" type="cond" truecount="2" falsecount="0"/>
+        <line num="88" count="12" type="stmt"/>
+        <line num="90" count="12" type="cond" truecount="1" falsecount="1"/>
+        <line num="92" count="12" type="cond" truecount="2" falsecount="0"/>
+        <line num="94" count="11" type="stmt"/>
+        <line num="98" count="7" type="stmt"/>
+        <line num="100" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="102" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="104" count="4" type="stmt"/>
+        <line num="108" count="1" type="stmt"/>
+        <line num="110" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="112" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="114" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.ordens-servico.dto">
+      <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="create-ordem-servico.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ordens-servico\dto\create-ordem-servico.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+      <file name="list-ordens-servico.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ordens-servico\dto\list-ordens-servico.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+      <file name="update-ordem-servico.dto.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\ordens-servico\dto\update-ordem-servico.dto.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="16" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.paradas-ativos">
+      <metrics statements="85" coveredstatements="77" conditionals="82" coveredconditionals="67" methods="21" coveredmethods="18"/>
+      <file name="paradas-ativos.controller.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\paradas-ativos\paradas-ativos.controller.ts">
+        <metrics statements="33" coveredstatements="28" conditionals="10" coveredconditionals="10" methods="6" coveredmethods="6"/>
+        <line num="4" count="17" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="32" count="1" type="stmt"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="42" count="6" type="stmt"/>
+        <line num="43" count="6" type="stmt"/>
+        <line num="44" count="4" type="stmt"/>
+        <line num="46" count="2" type="stmt"/>
+        <line num="51" count="1" type="stmt"/>
+        <line num="52" count="1" type="stmt"/>
+        <line num="53" count="1" type="stmt"/>
+        <line num="54" count="1" type="stmt"/>
+        <line num="56" count="0" type="stmt"/>
+        <line num="61" count="2" type="stmt"/>
+        <line num="62" count="2" type="stmt"/>
+        <line num="63" count="2" type="stmt"/>
+        <line num="64" count="2" type="stmt"/>
+        <line num="65" count="2" type="stmt"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="72" count="3" type="stmt"/>
+        <line num="73" count="3" type="stmt"/>
+        <line num="74" count="3" type="stmt"/>
+        <line num="75" count="3" type="stmt"/>
+        <line num="76" count="3" type="stmt"/>
+        <line num="78" count="0" type="stmt"/>
+      </file>
+      <file name="paradas-ativos.repository.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\paradas-ativos\paradas-ativos.repository.ts">
+        <metrics statements="12" coveredstatements="9" conditionals="26" coveredconditionals="11" methods="9" coveredmethods="6"/>
+        <line num="27" count="18" type="stmt"/>
+        <line num="52" count="0" type="stmt"/>
+        <line num="72" count="3" type="stmt"/>
+        <line num="79" count="4" type="stmt"/>
+        <line num="86" count="3" type="stmt"/>
+        <line num="101" count="0" type="stmt"/>
+        <line num="109" count="1" type="stmt"/>
+        <line num="114" count="1" type="stmt"/>
+        <line num="116" count="1" type="stmt"/>
+        <line num="124" count="2" type="stmt"/>
+        <line num="135" count="4" type="stmt"/>
+        <line num="146" count="0" type="stmt"/>
+      </file>
+      <file name="paradas-ativos.routes.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\paradas-ativos\paradas-ativos.routes.ts">
+        <metrics statements="8" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="6" count="16" type="stmt"/>
+        <line num="8" count="16" type="stmt"/>
+        <line num="10" count="16" type="stmt"/>
+        <line num="11" count="16" type="stmt"/>
+        <line num="12" count="16" type="stmt"/>
+        <line num="13" count="16" type="stmt"/>
+        <line num="14" count="16" type="stmt"/>
+        <line num="15" count="16" type="stmt"/>
+      </file>
+      <file name="paradas-ativos.service.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\paradas-ativos\paradas-ativos.service.ts">
+        <metrics statements="32" coveredstatements="32" conditionals="46" coveredconditionals="46" methods="6" coveredmethods="6"/>
+        <line num="31" count="33" type="stmt"/>
+        <line num="32" count="33" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="45" count="10" type="stmt"/>
+        <line num="47" count="10" type="cond" truecount="2" falsecount="0"/>
+        <line num="49" count="9" type="stmt"/>
+        <line num="53" count="12" type="stmt"/>
+        <line num="55" count="12" type="cond" truecount="4" falsecount="0"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="63" count="11" type="cond" truecount="2" falsecount="0"/>
+        <line num="64" count="1" type="stmt"/>
+        <line num="71" count="10" type="cond" truecount="2" falsecount="0"/>
+        <line num="72" count="4" type="stmt"/>
+        <line num="76" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="77" count="1" type="stmt"/>
+        <line num="84" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="85" count="1" type="stmt"/>
+        <line num="92" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="93" count="1" type="stmt"/>
+        <line num="101" count="7" type="stmt"/>
+        <line num="103" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="105" count="5" type="stmt"/>
+        <line num="115" count="5" type="stmt"/>
+        <line num="121" count="5" type="stmt"/>
+        <line num="125" count="1" type="stmt"/>
+        <line num="126" count="1" type="stmt"/>
+        <line num="130" count="3" type="stmt"/>
+        <line num="132" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="134" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="138" count="4" type="stmt"/>
+        <line num="140" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="142" count="3" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.usuarios">
+      <metrics statements="79" coveredstatements="71" conditionals="48" coveredconditionals="36" methods="21" coveredmethods="17"/>
+      <file name="usuarios.controller.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\usuarios\usuarios.controller.ts">
+        <metrics statements="35" coveredstatements="31" conditionals="10" coveredconditionals="10" methods="6" coveredmethods="6"/>
+        <line num="8" count="17" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="34" count="4" type="stmt"/>
+        <line num="35" count="4" type="stmt"/>
+        <line num="36" count="4" type="stmt"/>
+        <line num="38" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="39" count="2" type="stmt"/>
+        <line num="42" count="2" type="stmt"/>
+        <line num="43" count="2" type="stmt"/>
+        <line num="45" count="2" type="stmt"/>
+        <line num="50" count="5" type="stmt"/>
+        <line num="51" count="5" type="stmt"/>
+        <line num="52" count="2" type="stmt"/>
+        <line num="54" count="3" type="stmt"/>
+        <line num="59" count="1" type="stmt"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="61" count="1" type="stmt"/>
+        <line num="62" count="1" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="69" count="1" type="stmt"/>
+        <line num="70" count="1" type="stmt"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="73" count="1" type="stmt"/>
+        <line num="75" count="0" type="stmt"/>
+        <line num="80" count="1" type="stmt"/>
+        <line num="81" count="1" type="stmt"/>
+        <line num="82" count="1" type="stmt"/>
+        <line num="83" count="1" type="stmt"/>
+        <line num="85" count="0" type="stmt"/>
+      </file>
+      <file name="usuarios.policy.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\usuarios\usuarios.policy.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="14" coveredconditionals="14" methods="2" coveredmethods="2"/>
+        <line num="4" count="11" type="cond" truecount="2" falsecount="0"/>
+        <line num="5" count="9" type="cond" truecount="2" falsecount="0"/>
+        <line num="6" count="8" type="cond" truecount="2" falsecount="0"/>
+        <line num="7" count="7" type="cond" truecount="4" falsecount="0"/>
+        <line num="8" count="5" type="cond" truecount="4" falsecount="0"/>
+        <line num="9" count="4" type="stmt"/>
+        <line num="13" count="5" type="stmt"/>
+      </file>
+      <file name="usuarios.repository.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\usuarios\usuarios.repository.ts">
+        <metrics statements="7" coveredstatements="3" conditionals="10" coveredconditionals="1" methods="7" coveredmethods="3"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="70" count="3" type="stmt"/>
+        <line num="84" count="1" type="stmt"/>
+        <line num="105" count="0" type="stmt"/>
+        <line num="121" count="0" type="stmt"/>
+        <line num="129" count="0" type="stmt"/>
+      </file>
+      <file name="usuarios.routes.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\usuarios\usuarios.routes.ts">
+        <metrics statements="8" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="6" count="16" type="stmt"/>
+        <line num="8" count="16" type="stmt"/>
+        <line num="10" count="16" type="stmt"/>
+        <line num="11" count="16" type="stmt"/>
+        <line num="12" count="16" type="stmt"/>
+        <line num="13" count="16" type="stmt"/>
+        <line num="14" count="16" type="stmt"/>
+        <line num="15" count="16" type="stmt"/>
+      </file>
+      <file name="usuarios.service.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\modules\usuarios\usuarios.service.ts">
+        <metrics statements="22" coveredstatements="22" conditionals="14" coveredconditionals="11" methods="6" coveredmethods="6"/>
+        <line num="31" count="26" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="38" count="7" type="stmt"/>
+        <line num="40" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="42" count="6" type="stmt"/>
+        <line num="46" count="5" type="stmt"/>
+        <line num="48" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="50" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="51" count="2" type="stmt"/>
+        <line num="53" count="2" type="stmt"/>
+        <line num="63" count="2" type="stmt"/>
+        <line num="65" count="2" type="cond" truecount="4" falsecount="0"/>
+        <line num="66" count="1" type="stmt"/>
+        <line num="67" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="70" count="1" type="stmt"/>
+        <line num="74" count="1" type="stmt"/>
+        <line num="76" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="77" count="1" type="stmt"/>
+        <line num="79" count="1" type="stmt"/>
+        <line num="81" count="1" type="stmt"/>
+        <line num="85" count="1" type="stmt"/>
+        <line num="86" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.prisma">
+      <metrics statements="5" coveredstatements="4" conditionals="2" coveredconditionals="1" methods="0" coveredmethods="0"/>
+      <file name="prisma.client.ts" path="C:\Users\pc performance\Documents\CTRPE\ctr-pe-project\backend\src\prisma\prisma.client.ts">
+        <metrics statements="5" coveredstatements="4" conditionals="2" coveredconditionals="1" methods="0" coveredmethods="0"/>
+        <line num="5" count="36" type="stmt"/>
+        <line num="7" count="36" type="cond" truecount="1" falsecount="1"/>
+        <line num="8" count="0" type="stmt"/>
+        <line num="11" count="36" type="stmt"/>
+        <line num="13" count="36" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>

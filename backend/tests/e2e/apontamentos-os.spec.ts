@@ -1,4 +1,6 @@
 import { api } from "../test-server.js";
+import { prisma } from "../../src/prisma/prisma.client.js";
+
 
 async function getToken(email: string, password: string): Promise<string> {
   const response = await api.post("/api/auth/sign-in").send({ email, password });
@@ -25,7 +27,37 @@ beforeAll(async () => {
   tecnicoId = me.body.id as string;
 });
 
+beforeEach(async () => {
+  await limparApontamentosAbertos();
+});
+
 // ─── helpers ─────────────────────────────────────────────────────────────────
+
+async function limparApontamentosAbertos() {
+  const admin = await prisma.usuario.findUnique({
+    where: { email: "admin@teste.com" },
+    select: { id: true },
+  });
+
+  const tecnico = await prisma.usuario.findUnique({
+    where: { email: "tecnico.ativo@teste.com" },
+    select: { id: true },
+  });
+
+  const consulta = await prisma.usuario.findUnique({
+    where: { email: "consulta@teste.com" },
+    select: { id: true },
+  });
+
+  const ids = [admin?.id, tecnico?.id, consulta?.id].filter(Boolean) as string[];
+
+  await prisma.apontamentoOS.deleteMany({
+    where: {
+      usuarioId: { in: ids },
+      fimEm: null,
+    },
+  });
+}
 
 async function criarOS(token: string) {
   const response = await api
@@ -414,6 +446,7 @@ describe("[TEST] Testar técnico criando apenas apontamento próprio", () => {
       });
 
     expect(response.status).toBe(201);
+    expect(response.body.usuarioId).not.toBe(tecnicoId);
   });
 
   it("should CONSULTA não conseguir criar apontamento", async () => {
