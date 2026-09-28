@@ -4,7 +4,7 @@ import { Text } from "@/components/ui/text";
 import type { Ativo } from "@/features/ativos/ativos.types";
 
 import { CriticidadeBadge } from "./criticidade-badge";
-import { StatusBadge } from "./status-badge";
+import { AtivoStatusBadge } from "./ativo-status-badge";
 
 type AtivoCardProps = {
   ativo: Ativo;
@@ -23,7 +23,7 @@ export function AtivoCard({ ativo, onPress }: AtivoCardProps) {
           <Text className="text-sm text-muted-foreground">Código: {ativo.codigo}</Text>
         </View>
 
-        <StatusBadge status={ativo.status} />
+        <AtivoStatusBadge status={ativo.status} />
       </View>
 
       <View className="mt-3 flex-row flex-wrap gap-2">
