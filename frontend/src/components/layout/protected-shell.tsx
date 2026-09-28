@@ -26,11 +26,13 @@ import { authService } from "@/infrastructure/auth/auth.service";
 import { clearSession, getRefreshToken } from "@/infrastructure/storage/token-storage";
 import { useAuthStore } from "@/store/auth-store";
 import { useEmpresaStore } from "@/store/empresa-store";
+import type { PerfilUsuario } from "@/features/usuarios/usuarios.types";
 
 type NavItem = {
   href: string;
   label: string;
   icon: LucideIcon;
+  perfis?: PerfilUsuario[];
 };
 
 const NAV_ITEMS: NavItem[] = [
@@ -40,7 +42,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/materiais", label: "Materiais", icon: Package },
   { href: "/paradas", label: "Paradas", icon: CirclePause },
   { href: "/alertas", label: "Alertas", icon: Bell },
-  { href: "/auditoria", label: "Auditoria", icon: FileText },
+  { href: "/auditoria", label: "Auditoria", icon: FileText, perfis: ["ADMIN", "GESTOR"],},
   { href: "/cadastros/empresas", label: "Empresas", icon: Building2 },
   { href: "/cadastros/localizacoes", label: "Localizacoes", icon: MapPinned },
   { href: "/cadastros/usuarios", label: "Usuarios", icon: Users },
@@ -102,6 +104,11 @@ export function ProtectedShell({ children }: { children: ReactNode }) {
     }
   }
 
+  const visibleNavItems = NAV_ITEMS.filter(
+  (item) =>
+    !item.perfis ||
+    (user && item.perfis.includes(user.perfil)),
+);
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-1 bg-background">
@@ -138,7 +145,7 @@ export function ProtectedShell({ children }: { children: ReactNode }) {
           </View>
 
           <View className="flex-row items-center gap-1 px-4 pb-3">
-            {NAV_ITEMS.map((item) => (
+            {visibleNavItems.map((item) => (
               <TopItem
                 key={item.href}
                 item={item}
