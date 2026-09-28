@@ -19,8 +19,8 @@ export const useLoginMutation = () => {
 
 export const useLogoutMutation = () => {
   return useMutation({
-    mutationFn: async () => {
-      return authService.logout();
+    mutationFn: async (refreshToken: string) => {
+      return authService.logout(refreshToken);
     },
     onSuccess: () => {
       console.log('Logout realizado com sucesso');
