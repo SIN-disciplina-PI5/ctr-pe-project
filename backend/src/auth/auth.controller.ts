@@ -47,8 +47,18 @@ export async function signUpTesting(
 
 export async function signIn(req: Request, res: Response, next: NextFunction) {
   try {
-    const { email, password } = req.body as SignInInput;
-    const result = await authService.signIn(email, password);
+    const { email, password, recaptchaToken, recaptchaPlatform } =
+      req.body as SignInInput;
+
+    const result = await authService.signIn(
+      email,
+      password,
+      recaptchaToken,
+      recaptchaPlatform,
+      req.get("user-agent") ?? undefined,
+      req.ip,
+    );
+
     return res.status(200).json(result);
   } catch (error) {
     next(error);

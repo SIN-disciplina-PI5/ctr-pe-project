@@ -2,14 +2,17 @@ import bcrypt from "bcrypt";
 
 import { AppError } from "../common/errors/AppError.js";
 import { ErrorCode } from "../common/errors/error-code.js";
+import { RecaptchaService } from "../common/services/recaptcha.service.js";
 import { AuthRepository } from "./auth.repository.js";
 import { TokenService } from "./token.service.js";
+import type { RecaptchaPlatform } from "./dto/sign-in.dto.js";
 import type { SignUpInput } from "./dto/sign-up.dto.js";
-import type { SignUpTestingInput } from "./dto/sign-up-testing.dto.js";
+import type { SignUpTestingInput } from "./dto/sign-up-testing.dto.js"; 
 
 export class AuthService {
   private authRepository = new AuthRepository();
   private tokenService = new TokenService();
+  private recaptchaService = new RecaptchaService();
 
   async listSignupEmpresas() {
     return this.authRepository.findActiveEmpresasForSignup();
@@ -55,7 +58,8 @@ export class AuthService {
     });
 
     return {
-      message: "Cadastro realizado. Aguarde a ativação do usuário por um administrador.",
+      message:
+        "Cadastro realizado. Aguarde a ativação do usuário por um administrador.",
       user,
     };
   }
@@ -144,7 +148,10 @@ export class AuthService {
       });
     }
 
-    const passwordMatch = await bcrypt.compare(currentPassword, user.senhaHash);
+    const passwordMatch = await bcrypt.compare(
+      currentPassword,
+      user.senhaHash,
+    );
 
     if (!passwordMatch) {
       throw new AppError({
@@ -162,7 +169,24 @@ export class AuthService {
     return { message: "Senha alterada com sucesso" };
   }
 
-  async signIn(email: string, password: string) {
+    async signIn(
+    email: string,
+    password: string,
+    recaptchaToken: string,
+    recaptchaPlatform: RecaptchaPlatform,
+    userAgent?: string,
+    userIpAddress?: string,
+  ) {
+    const siteKey = this.getRecaptchaSiteKey(recaptchaPlatform);
+
+    const recaptchaValid = await this.recaptchaService.validateToken(
+      recaptchaToken,
+      siteKey,
+      "LOGIN",
+      userAgent,
+      userIpAddress,
+    );
+
     const user = await this.authRepository.findByEmail(email);
 
     if (!user) {
@@ -212,7 +236,8 @@ export class AuthService {
 
   async refresh(refreshToken: string) {
     const tokenHash = this.tokenService.hashRefreshToken(refreshToken);
-    const storedToken = await this.authRepository.findRefreshTokenByHash(tokenHash);
+    const storedToken =
+      await this.authRepository.findRefreshTokenByHash(tokenHash);
 
     if (!storedToken) {
       throw new AppError({
@@ -276,6 +301,23 @@ export class AuthService {
     return this.authRepository.deleteExpiredOrRevokedRefreshTokens();
   }
 
+    private getRecaptchaSiteKey(platform: RecaptchaPlatform): string {
+    const envVarByPlatform: Record<RecaptchaPlatform, string> = {
+      web: "RECAPTCHA_WEB_SITE_KEY",
+      android: "RECAPTCHA_ANDROID_SITE_KEY",
+      ios: "RECAPTCHA_IOS_SITE_KEY",
+    };
+
+    const envVarName = envVarByPlatform[platform];
+    const siteKey = process.env[envVarName];
+
+    if (!siteKey) {
+      throw new Error(`${envVarName} não configurado.`);
+    }
+
+    return siteKey;
+  }
+
   private async issueRefreshToken(usuarioId: string, expiresAt?: Date) {
     const refreshToken = this.tokenService.generateRefreshToken();
     const tokenHash = this.tokenService.hashRefreshToken(refreshToken);
@@ -283,7 +325,8 @@ export class AuthService {
     await this.authRepository.createRefreshToken({
       usuarioId,
       tokenHash,
-      expiresAt: expiresAt ?? this.tokenService.getRefreshTokenExpiresAt(),
+      expiresAt:
+        expiresAt ?? this.tokenService.getRefreshTokenExpiresAt(),
     });
 
     return refreshToken;

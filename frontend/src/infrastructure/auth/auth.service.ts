@@ -1,15 +1,19 @@
 import { apiClient } from "../api/api-client";
 import type { Usuario, PerfilUsuario } from "@/features/usuarios/usuarios.types";
 
+export type RecaptchaPlatform = "web" | "android" | "ios";
+
 type LoginCredentials = {
   email: string;
   password: string;
+  recaptchaToken: string;
+  recaptchaPlatform: RecaptchaPlatform;
 };
 
 type LoginResponse = {
   accessToken: string;
   refreshToken: string;
-};
+};  
 
 type SignupEmpresa = {
   id: string;
@@ -30,7 +34,9 @@ export const authService = {
       const response = await apiClient.post("/auth/sign-in", credentials);
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || "Erro ao realizar autenticação");
+      throw new Error(
+        error.response?.data?.error || "Erro ao realizar autenticação",
+      );
     }
   },
 
@@ -39,7 +45,10 @@ export const authService = {
       const response = await apiClient.get("/auth/me");
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || "Erro ao carregar usuário autenticado");
+      throw new Error(
+        error.response?.data?.error ||
+          "Erro ao carregar usuário autenticado",
+      );
     }
   },
 
