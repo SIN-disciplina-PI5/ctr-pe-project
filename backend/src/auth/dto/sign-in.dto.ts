@@ -12,10 +12,8 @@ export const signInSchema = z.object({
   password: z
     .string({ error: "A senha é obrigatória." })
     .min(1, "A senha é obrigatória."),
-  recaptchaToken: z
-    .string({ error: "O reCAPTCHA é obrigatório." })
-    .min(1, "O reCAPTCHA é obrigatório."),
-  recaptchaPlatform: recaptchaPlatformSchema,
+  recaptchaToken: z.string().optional(),
+  recaptchaPlatform: recaptchaPlatformSchema.optional().default("web"),
 });
 
 export type SignInInput = z.infer<typeof signInSchema>;

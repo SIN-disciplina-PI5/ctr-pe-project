@@ -2,12 +2,10 @@
   "expo": {
     "name": "frontend",
     "slug": "frontend",
-    "scheme": "ctrpe",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -15,35 +13,29 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ctrpe.app"
+      "bundleIdentifier": "com.ctrpe.project",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
-      "package": "com.ctrpe.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "package": "com.ctrpe.project"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     },
     "plugins": [
       "expo-router",
       "expo-secure-store"
     ],
-    "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "98dab77e-4ad5-444a-9d68-b7b19d3eb7a6"
-      }
-    },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/98dab77e-4ad5-444a-9d68-b7b19d3eb7a6"
+    "scheme": "ctrpe",
+    "experiments": {
+      "typedRoutes": true
     }
   }
 }

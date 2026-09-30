@@ -3,16 +3,18 @@ import bcrypt from "bcrypt";
 import { AppError } from "../common/errors/AppError.js";
 import { ErrorCode } from "../common/errors/error-code.js";
 import { RecaptchaService } from "../common/services/recaptcha.service.js";
+import { AuditoriaService } from "../modules/auditoria/auditoria.service.js";
 import { AuthRepository } from "./auth.repository.js";
 import { TokenService } from "./token.service.js";
 import type { RecaptchaPlatform } from "./dto/sign-in.dto.js";
 import type { SignUpInput } from "./dto/sign-up.dto.js";
-import type { SignUpTestingInput } from "./dto/sign-up-testing.dto.js"; 
+import type { SignUpTestingInput } from "./dto/sign-up-testing.dto.js";
 
 export class AuthService {
   private authRepository = new AuthRepository();
   private tokenService = new TokenService();
   private recaptchaService = new RecaptchaService();
+  private auditoriaService = new AuditoriaService();
 
   async listSignupEmpresas() {
     return this.authRepository.findActiveEmpresasForSignup();
@@ -169,27 +171,81 @@ export class AuthService {
     return { message: "Senha alterada com sucesso" };
   }
 
-    async signIn(
+  async signIn(
     email: string,
     password: string,
-    recaptchaToken: string,
-    recaptchaPlatform: RecaptchaPlatform,
+    recaptchaToken?: string,
+    recaptchaPlatform: RecaptchaPlatform = "web",
     userAgent?: string,
     userIpAddress?: string,
   ) {
-    const siteKey = this.getRecaptchaSiteKey(recaptchaPlatform);
+    const isTest = process.env.NODE_ENV === "test";
 
-    const recaptchaValid = await this.recaptchaService.validateToken(
-      recaptchaToken,
-      siteKey,
-      "LOGIN",
-      userAgent,
-      userIpAddress,
-    );
+    // Em ambiente de produção e desenvolvimento, o token é obrigatório
+    if (!recaptchaToken && !isTest) {
+      throw new AppError({
+        message: "O reCAPTCHA é obrigatório.",
+        statusCode: 400,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      });
+    }
 
+    // Validação ativa contra bots
+    if (recaptchaToken) {
+      const siteKey = this.getRecaptchaSiteKey(recaptchaPlatform);
+      const recaptchaValid = await this.recaptchaService.validateToken(
+        recaptchaToken,
+        siteKey,
+        "LOGIN",
+        userAgent,
+        userIpAddress,
+      );
+
+      if (!recaptchaValid) {
+        try {
+          await this.auditoriaService.registrar({
+            entidade: "AUTH",
+            entidadeId: email,
+            acao: "LOGIN",
+            depois: {
+              sucesso: false,
+              motivo: "Bloqueado pelo reCAPTCHA Enterprise (suspeita de bot)",
+              plataforma: recaptchaPlatform,
+              ip: userIpAddress,
+              userAgent,
+            },
+          });
+        } catch {
+          // Garante a resposta mesmo se houver oscilação de banco
+        }
+
+        throw new AppError({
+          message: "Validação do reCAPTCHA falhou. Acesso bloqueado por segurança.",
+          statusCode: 403,
+          errorCode: ErrorCode.FORBIDDEN,
+        });
+      }
+    }
+
+    // Busca do usuário
     const user = await this.authRepository.findByEmail(email);
 
     if (!user) {
+      try {
+        await this.auditoriaService.registrar({
+          entidade: "AUTH",
+          entidadeId: email,
+          acao: "LOGIN",
+          depois: {
+            sucesso: false,
+            motivo: "Usuário não encontrado",
+            plataforma: recaptchaPlatform,
+            ip: userIpAddress,
+            userAgent,
+          },
+        });
+      } catch {}
+
       throw new AppError({
         message: "Usuario nao encontrado",
         statusCode: 404,
@@ -198,6 +254,23 @@ export class AuthService {
     }
 
     if (!user.ativo) {
+      try {
+        await this.auditoriaService.registrar({
+          entidade: "USUARIO",
+          entidadeId: user.id,
+          acao: "LOGIN",
+          empresaId: user.empresaId,
+          usuarioId: user.id,
+          depois: {
+            sucesso: false,
+            motivo: "Usuário inativo",
+            plataforma: recaptchaPlatform,
+            ip: userIpAddress,
+            userAgent,
+          },
+        });
+      } catch {}
+
       throw new AppError({
         message: "Usuario inativo",
         statusCode: 403,
@@ -205,9 +278,27 @@ export class AuthService {
       });
     }
 
+    // Validação de senha
     const passwordMatch = await bcrypt.compare(password, user.senhaHash);
 
     if (!passwordMatch) {
+      try {
+        await this.auditoriaService.registrar({
+          entidade: "USUARIO",
+          entidadeId: user.id,
+          acao: "LOGIN",
+          empresaId: user.empresaId,
+          usuarioId: user.id,
+          depois: {
+            sucesso: false,
+            motivo: "Senha inválida",
+            plataforma: recaptchaPlatform,
+            ip: userIpAddress,
+            userAgent,
+          },
+        });
+      } catch {}
+
       throw new AppError({
         message: "Senha invalida",
         statusCode: 401,
@@ -215,6 +306,7 @@ export class AuthService {
       });
     }
 
+    // Emissão de tokens
     const authUser = {
       id: user.id,
       empresaId: user.empresaId,
@@ -227,6 +319,23 @@ export class AuthService {
     const refreshToken = await this.issueRefreshToken(user.id);
 
     await this.authRepository.updateLastLogin(user.id);
+
+    // Registro de Auditoria: Login bem-sucedido
+    try {
+      await this.auditoriaService.registrar({
+        entidade: "USUARIO",
+        entidadeId: user.id,
+        acao: "LOGIN",
+        empresaId: user.empresaId,
+        usuarioId: user.id,
+        depois: {
+          sucesso: true,
+          plataforma: recaptchaPlatform,
+          ip: userIpAddress,
+          userAgent,
+        },
+      });
+    } catch {}
 
     return {
       accessToken,
@@ -301,7 +410,7 @@ export class AuthService {
     return this.authRepository.deleteExpiredOrRevokedRefreshTokens();
   }
 
-    private getRecaptchaSiteKey(platform: RecaptchaPlatform): string {
+  private getRecaptchaSiteKey(platform: RecaptchaPlatform): string {
     const envVarByPlatform: Record<RecaptchaPlatform, string> = {
       web: "RECAPTCHA_WEB_SITE_KEY",
       android: "RECAPTCHA_ANDROID_SITE_KEY",

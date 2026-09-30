@@ -4,6 +4,7 @@ import { prisma } from "../src/prisma/prisma.client.js";
 
 async function main() {
   const EMPRESA_ID = "cmph1bzxt0000u68mgs97sqmr";
+  const ATIVO_ID = "cmplnper80000ek8mr30wm4w3";
 
   const senhaAdminHash = await bcrypt.hash("novaSenha123", 10);
   const senhaPadraoHash = await bcrypt.hash("123456", 10);
@@ -20,6 +21,23 @@ async function main() {
       codigo: "EMP-TESTE-FIXA",
       nome: "Empresa Teste",
       ativa: true,
+    },
+  });
+
+  const ativo = await prisma.ativo.upsert({
+    where: { id: ATIVO_ID },
+    update: {
+      codigo: "ATV-TESTE-FIXO",
+      nome: "Ativo Teste Fixo",
+      tipo: "MAQUINA",
+      empresaId: empresa.id,
+    },
+    create: {
+      id: ATIVO_ID,
+      codigo: "ATV-TESTE-FIXO",
+      nome: "Ativo Teste Fixo",
+      tipo: "MAQUINA",
+      empresaId: empresa.id,
     },
   });
 
@@ -139,6 +157,7 @@ async function main() {
 
   console.log("Seed concluído.");
   console.log("Empresa:", empresa.codigo, empresa.id);
+  console.log("Ativo:", ativo.codigo, ativo.id);
   console.log("Admin:", admin.email);
   console.log("Supervisor:", supervisor.email);
   console.log("Gestor:", gestor.email);
