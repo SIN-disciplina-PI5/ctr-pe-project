@@ -30,7 +30,7 @@ cd "$ROOT/frontend" && [ -d node_modules ] || npm install --ignore-scripts
 
 echo "[3/5] Generating backend test coverage..."
 cd "$BACKEND"
-npm test -- --coverage --coverageReporters=lcov --passWithNoTests 2>/dev/null || true
+npm test -- --coverage --coverageReporters=lcov --testPathPattern=tests/unit 2>/dev/null || true
 
 echo "[4/5] Scanning backend..."
 cd "$ROOT"
