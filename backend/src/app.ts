@@ -28,7 +28,34 @@ const app = express();
 export { app };
 export default app;
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:"],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+        formAction: ["'self'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    referrerPolicy: { policy: "no-referrer" },
+  }),
+);
+
+// Middleware defensivo adicional para controle estrito de cache na API
+app.use((_req, res, next) => {
+  res.setHeader("Permissions-Policy", "accelerometer=(), camera=(), geolocation=(), microphone=()");
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+  res.setHeader("Pragma", "no-cache");
+  next();
+});
 app.use(cors());
 app.use(morgan("dev"));
 app.use(requestContextMiddleware);
