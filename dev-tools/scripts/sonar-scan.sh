@@ -14,7 +14,7 @@ if [ -z "$SONAR_TOKEN" ]; then
   exit 1
 fi
 
-echo "[1/3] Starting SonarQube..."
+echo "[1/4] Starting SonarQube..."
 cd "$DEV_TOOLS"
 docker compose up -d sonarqube
 
@@ -24,18 +24,30 @@ until curl -sf http://localhost:9000/api/system/status | grep -q '"status":"UP"'
 done
 echo ""
 
-echo "[2/3] Generating test coverage..."
+echo "[2/4] Generating backend test coverage..."
 cd "$BACKEND"
 npm test -- --coverage --coverageReporters=lcov --passWithNoTests 2>/dev/null || true
 
-echo "[3/3] Running scanner..."
+echo "[3/4] Scanning backend..."
 cd "$ROOT"
 docker run --rm \
   --network host \
   -e SONAR_TOKEN="$SONAR_TOKEN" \
   -v "$ROOT:/usr/src" \
   sonarsource/sonar-scanner-cli \
-  -Dproject.settings=/usr/src/dev-tools/sonar/sonar-project.properties \
+  -Dproject.settings=/usr/src/dev-tools/sonar/backend.properties \
   -Dsonar.projectBaseDir=/usr/src
 
-echo "Done. Dashboard: http://localhost:9000/dashboard?id=manutencao-conectada"
+echo "[4/4] Scanning frontend..."
+docker run --rm \
+  --network host \
+  -e SONAR_TOKEN="$SONAR_TOKEN" \
+  -v "$ROOT:/usr/src" \
+  sonarsource/sonar-scanner-cli \
+  -Dproject.settings=/usr/src/dev-tools/sonar/frontend.properties \
+  -Dsonar.projectBaseDir=/usr/src
+
+echo ""
+echo "Done."
+echo "  Backend:  http://localhost:9000/dashboard?id=manutencao_conectada_backend"
+echo "  Frontend: http://localhost:9000/dashboard?id=manutencao_conectada_frontend"

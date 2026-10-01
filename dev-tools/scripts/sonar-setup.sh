@@ -7,8 +7,6 @@ DEV_TOOLS="$ROOT/dev-tools"
 SONAR_URL="http://localhost:9000"
 ADMIN_USER="admin"
 DEFAULT_PASS="admin"
-PROJECT_KEY="manutencao-conectada"
-PROJECT_NAME="Manutencao Conectada"
 
 NEW_PASS="${1:-}"
 if [ -z "$NEW_PASS" ]; then
@@ -31,14 +29,16 @@ curl -sf -u "$ADMIN_USER:$DEFAULT_PASS" -X POST "$SONAR_URL/api/users/change_pas
   -d "login=$ADMIN_USER&previousPassword=$DEFAULT_PASS&password=$NEW_PASS" > /dev/null
 echo "Password updated."
 
-echo "[3/4] Creating project '$PROJECT_KEY'..."
+echo "[3/4] Creating projects..."
 curl -sf -u "$ADMIN_USER:$NEW_PASS" -X POST "$SONAR_URL/api/projects/create" \
-  -d "project=$PROJECT_KEY&name=$PROJECT_NAME" > /dev/null
-echo "Project created."
+  -d "project=manutencao_conectada_backend&name=Manutencao Conectada - Backend" > /dev/null
+curl -sf -u "$ADMIN_USER:$NEW_PASS" -X POST "$SONAR_URL/api/projects/create" \
+  -d "project=manutencao_conectada_frontend&name=Manutencao Conectada - Frontend" > /dev/null
+echo "Projects created."
 
 echo "[4/4] Generating token and saving to dev-tools/.env..."
 TOKEN_RESPONSE=$(curl -sf -u "$ADMIN_USER:$NEW_PASS" -X POST "$SONAR_URL/api/user_tokens/generate" \
-  -d "name=manutencao-conectada-token")
+  -d "name=manutencao_conectada_token")
 TOKEN=$(echo "$TOKEN_RESPONSE" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
 
 echo "SONAR_TOKEN=$TOKEN" > "$DEV_TOOLS/.env"
