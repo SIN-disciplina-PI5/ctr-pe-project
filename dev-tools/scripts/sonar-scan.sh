@@ -14,7 +14,7 @@ if [ -z "$SONAR_TOKEN" ]; then
   exit 1
 fi
 
-echo "[1/4] Starting SonarQube..."
+echo "[1/5] Starting SonarQube..."
 cd "$DEV_TOOLS"
 docker compose up -d sonarqube
 
@@ -24,11 +24,15 @@ until curl -sf http://localhost:9000/api/system/status | grep -q '"status":"UP"'
 done
 echo ""
 
-echo "[2/4] Generating backend test coverage..."
+echo "[2/5] Installing dependencies..."
+cd "$ROOT/backend" && [ -d node_modules ] || npm install --ignore-scripts
+cd "$ROOT/frontend" && [ -d node_modules ] || npm install --ignore-scripts
+
+echo "[3/5] Generating backend test coverage..."
 cd "$BACKEND"
 npm test -- --coverage --coverageReporters=lcov --passWithNoTests 2>/dev/null || true
 
-echo "[3/4] Scanning backend..."
+echo "[4/5] Scanning backend..."
 cd "$ROOT"
 docker run --rm \
   --network host \
@@ -38,7 +42,7 @@ docker run --rm \
   -Dproject.settings=/usr/src/dev-tools/sonar/backend.properties \
   -Dsonar.projectBaseDir=/usr/src
 
-echo "[4/4] Scanning frontend..."
+echo "[5/5] Scanning frontend..."
 docker run --rm \
   --network host \
   -e SONAR_TOKEN="$SONAR_TOKEN" \
@@ -49,5 +53,5 @@ docker run --rm \
 
 echo ""
 echo "Done."
-echo "  Backend:  http://localhost:9000/dashboard?id=manutencao_conectada_backend"
-echo "  Frontend: http://localhost:9000/dashboard?id=manutencao_conectada_frontend"
+echo "  Backend:  http://localhost:9000/dashboard?id=manutencao-conectada-backend"
+echo "  Frontend: http://localhost:9000/dashboard?id=manutencao-conectada-frontend"
