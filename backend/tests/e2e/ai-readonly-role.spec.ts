@@ -156,21 +156,21 @@ describe("role da IA: configuração", () => {
     });
   });
 
-  it("tem statement_timeout, limite de linhas e search_path definidos no role", async () => {
+  it("tem statement_timeout e search_path definidos no role", async () => {
     const { rows } = await ai.query<{ rolconfig: string[] }>(
       `SELECT rolconfig FROM pg_roles WHERE rolname = current_user`,
     );
-    const config = rows[0]!.rolconfig;
-    expect(config).toEqual(
-      expect.arrayContaining([
-        "statement_timeout=10s",
-        "ai.max_rows=500",
-        "search_path=ai",
-      ]),
+    expect(rows[0]!.rolconfig).toEqual(
+      expect.arrayContaining(["statement_timeout=10s", "search_path=ai"]),
     );
 
-    const live = await ai.query(`SELECT current_setting('statement_timeout') AS t, current_setting('ai.max_rows') AS r`);
-    expect(live.rows[0]).toEqual({ t: "10s", r: "500" });
+    const live = await ai.query(`SELECT current_setting('statement_timeout') AS t`);
+    expect(live.rows[0]).toEqual({ t: "10s" });
+  });
+
+  it("expõe o limite de linhas em ai.max_rows()", async () => {
+    const { rows } = await ai.query(`SELECT ai.max_rows() AS max_rows`);
+    expect(rows[0]).toEqual({ max_rows: 500 });
   });
 
   it("tem CONNECT, mas não pode criar objetos no banco nem nos schemas", async () => {

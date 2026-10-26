@@ -115,7 +115,7 @@ O agente de consulta executa SQL gerado por LLM. Para que esse SQL só consiga *
 
 - o role `ctrpe_ai_readonly` com `CONNECT` no banco e `SELECT` **apenas** nas views do schema `ai` (nenhuma permissão nas tabelas base);
 - o schema `ai` com 7 views em `snake_case`, todas com `empresa_id`;
-- limites no próprio role: `statement_timeout = 10s`, `idle_in_transaction_session_timeout = 30s` e `ai.max_rows = 500`.
+- limites: `statement_timeout = 10s` e `idle_in_transaction_session_timeout = 30s` no próprio role, e o limite de linhas na função `ai.max_rows()` (500).
 
 ### Configuração
 
@@ -151,7 +151,7 @@ Não são expostos: `Usuario` (e-mail, `senhaHash`, perfil), `RefreshToken` e `L
 
 ### Limites e o que o executor de consultas deve fazer
 
-- O Postgres **não tem limite de linhas por role**. O valor oficial fica em `ai.max_rows` (`SELECT current_setting('ai.max_rows')`) e quem executa o SQL gerado deve forçar o `LIMIT` com base nele.
+- O Postgres **não tem limite de linhas por role**. O valor oficial fica na função `ai.max_rows()` (`SELECT ai.max_rows()`) e quem executa o SQL gerado deve forçar o `LIMIT` com base nele.
 - O role consegue criar tabelas **temporárias** (privilégio `TEMPORARY` herdado de `PUBLIC` no banco). Elas são locais à sessão e não tocam nos dados, mas o executor deve aceitar apenas um único `SELECT` e usar transação `READ ONLY`.
 - Views rodam com as permissões do dono. Ao criar uma nova view para a IA, conceda `GRANT SELECT` explicitamente ao role; o contrário (nada concedido) é o padrão seguro.
 - O filtro por empresa (RLS ou reescrita de SQL) **não** faz parte desta camada.

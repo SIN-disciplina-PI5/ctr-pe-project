@@ -10,7 +10,7 @@
 --   * views em snake_case, com nomes de colunas legíveis para o negócio
 --   * toda view expõe empresa_id (o filtro por empresa NÃO é feito aqui; é
 --     decidido no spike de text-to-SQL)
---   * statement_timeout e limite de linhas configurados no próprio role
+--   * statement_timeout no próprio role e limite de linhas em ai.max_rows()
 --
 -- A senha do role NÃO fica no repositório. Defina-a depois do deploy com:
 --   npm run ai-role:set-password
@@ -41,12 +41,11 @@ BEGIN
 END
 $$;
 
--- Limites do role. O Postgres não possui um "row limit" nativo por role:
--- "ai.max_rows" é o valor oficial do limite, lido pelo executor de consultas
--- da camada de IA (SELECT current_setting('ai.max_rows')) para forçar o LIMIT.
+-- Limites do role. O limite de linhas fica em ai.max_rows() (seção 2): o Postgres
+-- não tem "row limit" nativo por role, e um parâmetro personalizado em
+-- ALTER ROLE SET exige superuser.
 ALTER ROLE ctrpe_ai_readonly SET statement_timeout = '10s';
 ALTER ROLE ctrpe_ai_readonly SET idle_in_transaction_session_timeout = '30s';
-ALTER ROLE ctrpe_ai_readonly SET ai.max_rows = '500';
 ALTER ROLE ctrpe_ai_readonly SET search_path = ai;
 
 -- CONNECT no banco atual (o nome do banco varia por ambiente)
@@ -67,6 +66,15 @@ GRANT USAGE ON SCHEMA ai TO ctrpe_ai_readonly;
 
 -- Garantia explícita: nada direto nas tabelas base
 REVOKE ALL ON ALL TABLES IN SCHEMA public FROM ctrpe_ai_readonly;
+
+-- Limite máximo de linhas por consulta da IA. É lido pelo executor de consultas
+-- (SELECT ai.max_rows()) para forçar o LIMIT; o banco em si não o aplica.
+CREATE OR REPLACE FUNCTION ai.max_rows() RETURNS integer
+LANGUAGE sql IMMUTABLE PARALLEL SAFE
+AS 'SELECT 500';
+
+REVOKE ALL ON FUNCTION ai.max_rows() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION ai.max_rows() TO ctrpe_ai_readonly;
 
 
 -- -----------------------------------------------------------------------------
