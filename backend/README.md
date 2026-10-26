@@ -109,6 +109,59 @@ npm run test:watch
 
 ---
 
+## Camada de IA: role somente leitura e views
+
+O agente de consulta executa SQL gerado por LLM. Para que esse SQL só consiga **ler** dados seguros, a migration `20261026120000_ai_readonly_role_and_views` cria:
+
+- o role `ctrpe_ai_readonly` com `CONNECT` no banco e `SELECT` **apenas** nas views do schema `ai` (nenhuma permissão nas tabelas base);
+- o schema `ai` com 7 views em `snake_case`, todas com `empresa_id`;
+- limites no próprio role: `statement_timeout = 10s`, `idle_in_transaction_session_timeout = 30s` e `ai.max_rows = 500`.
+
+### Configuração
+
+1. Aplique as migrations (`npm run prisma:deploy`). O usuário que roda a migration precisa poder criar roles (`CREATEROLE`; no Neon, o dono padrão do banco já pode).
+2. Defina a senha do role no `.env`, na variável **própria** `AI_READONLY_DATABASE_URL` (veja `.env.example`). O usuário da URL deve ser `ctrpe_ai_readonly`. No Neon, mantenha o mesmo host e `?sslmode=require`.
+3. Aplique a senha no banco: `npm run ai-role:set-password` (usa o `DATABASE_URL` do dono; a senha nunca vai para o repositório).
+
+O agente deve usar **somente** `AI_READONLY_DATABASE_URL`, nunca o `DATABASE_URL`.
+
+### Views disponíveis (schema `ai`)
+
+O `search_path` do role é `ai`, então as consultas podem usar o nome sem prefixo (`SELECT ... FROM ativos`).
+
+| View | Conteúdo |
+|------|----------|
+| `ativos` | Máquinas, caminhões, equipamentos e componentes, com localização |
+| `ordens_servico` | O.S. com ativo, responsável, prazos, tempos e custos. Colunas calculadas: `esta_aberta`, `esta_atrasada` |
+| `paradas` | Paradas de ativos. Coluna calculada: `esta_aberta` |
+| `materiais` | Cadastro e estoque. Coluna calculada: `estoque_baixo` |
+| `os_materiais` | Materiais solicitados/consumidos por O.S., com quantidade e custo |
+| `alertas` | Alertas do sistema |
+| `apontamentos_os` | Apontamentos de tempo dos técnicos (timesheets) |
+
+Não são expostos: `Usuario` (e-mail, `senhaHash`, perfil), `RefreshToken` e `LogAuditoria`. Pessoas aparecem apenas como `*_nome`.
+
+### Regras de negócio embutidas nas views
+
+- **Parada aberta:** `paradas.esta_aberta` (`status = 'ABERTA'`). Não use `fim_em IS NULL`: paradas `CANCELADA` também ficam com `fim_em` nulo.
+- **O.S. aberta:** `status` diferente de `ENCERRADA` e `CANCELADA`.
+- **O.S. atrasada:** O.S. aberta com `prazo_em` vencido.
+- **Estoque baixo:** `estoque_atual <= estoque_minimo`.
+- Valores monetários (`custo_*`) estão em BRL.
+
+### Limites e o que o executor de consultas deve fazer
+
+- O Postgres **não tem limite de linhas por role**. O valor oficial fica em `ai.max_rows` (`SELECT current_setting('ai.max_rows')`) e quem executa o SQL gerado deve forçar o `LIMIT` com base nele.
+- O role consegue criar tabelas **temporárias** (privilégio `TEMPORARY` herdado de `PUBLIC` no banco). Elas são locais à sessão e não tocam nos dados, mas o executor deve aceitar apenas um único `SELECT` e usar transação `READ ONLY`.
+- Views rodam com as permissões do dono. Ao criar uma nova view para a IA, conceda `GRANT SELECT` explicitamente ao role; o contrário (nada concedido) é o padrão seguro.
+- O filtro por empresa (RLS ou reescrita de SQL) **não** faz parte desta camada.
+
+### Testes
+
+`tests/e2e/ai-readonly-role.spec.ts` conecta como o role da IA e verifica: leitura das views, `empresa_id` em todas, ausência de credenciais, `INSERT`/`UPDATE`/`DELETE`/DDL negados, leitura de tabelas excluídas negada e a configuração de timeout e limite de linhas. Ele exige `DATABASE_URL`, `AI_READONLY_DATABASE_URL` e a senha já aplicada.
+
+---
+
 ## Rotas da API
 
 Todas as rotas (exceto `/api/auth/sign-in`) exigem o header:
