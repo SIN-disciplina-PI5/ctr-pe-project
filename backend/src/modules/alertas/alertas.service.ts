@@ -4,7 +4,7 @@ import { ErrorCode } from "../../common/errors/error-code.js";
 import { AlertasRepository } from "./alertas.repository.js";
 
 interface FindAllFilters {
-  empresaId?: string;
+  empresaId: string; // Obrigatório
   status?: StatusAlerta;
   tipo?: TipoAlerta;
   usuarioId?: string;
@@ -33,8 +33,8 @@ export class AlertasService {
     return this.alertasRepository.findAll({ ...filters, usuarioId });
   }
 
-  async findById(id: string) {
-    const alerta = await this.alertasRepository.findById(id);
+  async findById(id: string, empresaId: string) {
+    const alerta = await this.alertasRepository.findById(id, empresaId);
 
     if (!alerta) {
       throw new AppError({
@@ -51,24 +51,24 @@ export class AlertasService {
     return this.alertasRepository.create(data);
   }
 
-  async marcarComoLido(id: string) {
-    await this.findById(id);
-    return this.alertasRepository.updateStatus(id, {
+  async marcarComoLido(id: string, empresaId: string) {
+    await this.findById(id, empresaId);
+    return this.alertasRepository.updateStatus(id, empresaId, {
       status: "LIDO",
       lidoEm: new Date(),
     });
   }
 
-  async resolver(id: string) {
-    await this.findById(id);
-    return this.alertasRepository.updateStatus(id, {
+  async resolver(id: string, empresaId: string) {
+    await this.findById(id, empresaId);
+    return this.alertasRepository.updateStatus(id, empresaId, {
       status: "RESOLVIDO",
       resolvidoEm: new Date(),
     });
   }
 
-  async ignorar(id: string) {
-    await this.findById(id);
-    return this.alertasRepository.updateStatus(id, { status: "IGNORADO" });
+  async ignorar(id: string, empresaId: string) {
+    await this.findById(id, empresaId);
+    return this.alertasRepository.updateStatus(id, empresaId, { status: "IGNORADO" });
   }
 }

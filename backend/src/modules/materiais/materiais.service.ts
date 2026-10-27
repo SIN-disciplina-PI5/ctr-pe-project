@@ -27,7 +27,7 @@ interface UpdateMaterialInput {
 }
 
 interface FindAllFilters {
-  empresaId?: string;
+  empresaId: string; // Obrigatório
   search?: string;
   ativo?: boolean;
   estoqueBaixo?: boolean;
@@ -48,8 +48,8 @@ export class MateriaisService {
     return this.materiaisRepository.findAll(filters);
   }
 
-  async findById(id: string) {
-    const material = await this.materiaisRepository.findById(id);
+  async findById(id: string, empresaId: string) {
+    const material = await this.materiaisRepository.findById(id, empresaId);
 
     if (!material) {
       throw new AppError({
@@ -95,12 +95,12 @@ export class MateriaisService {
     return material;
   }
 
-  async update(id: string, data: UpdateMaterialInput) {
-    const material = await this.findById(id);
+  async update(id: string, empresaId: string, data: UpdateMaterialInput) {
+    const material = await this.findById(id, empresaId);
 
     if (data.codigo && data.codigo !== material.codigo) {
       const codigoEmUso = await this.materiaisRepository.findByCodigo(
-        material.empresaId,
+        empresaId,
         data.codigo
       );
 
@@ -113,7 +113,7 @@ export class MateriaisService {
       }
     }
 
-    const materialAtualizado = await this.materiaisRepository.update(id, data);
+    const materialAtualizado = await this.materiaisRepository.update(id, empresaId, data);
 
     const estoqueAtual = new Prisma.Decimal(materialAtualizado.estoqueAtual ?? 0);
     const estoqueMinimo = new Prisma.Decimal(materialAtualizado.estoqueMinimo ?? 0);
@@ -132,8 +132,8 @@ export class MateriaisService {
     return materialAtualizado;
   }
 
-  async updateEstoque(id: string, input: UpdateEstoqueInput) {
-    const material = await this.findById(id);
+  async updateEstoque(id: string, empresaId: string, input: UpdateEstoqueInput) {
+    const material = await this.findById(id, empresaId);
 
     const estoqueAtual = new Prisma.Decimal(material.estoqueAtual ?? 0);
 
@@ -183,6 +183,7 @@ export class MateriaisService {
 
     const materialAtualizado = await this.materiaisRepository.updateEstoque(
       id,
+      empresaId,
       novoEstoque
     );
 
@@ -203,8 +204,8 @@ export class MateriaisService {
     return materialAtualizado;
   }
 
-  async delete(id: string) {
-    await this.findById(id);
-    return this.materiaisRepository.delete(id);
+  async delete(id: string, empresaId: string) {
+    await this.findById(id, empresaId);
+    return this.materiaisRepository.delete(id, empresaId);
   }
 }

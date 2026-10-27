@@ -14,7 +14,7 @@ interface RegistrarAuditoriaInput {
 }
 
 interface FindAllFilters {
-  empresaId?: string;
+  empresaId: string; // Obrigatório
   usuarioId?: string;
   entidade?: string;
   entidadeId?: string;
@@ -33,8 +33,8 @@ export class AuditoriaService {
     return this.auditoriaRepository.findAll(filters);
   }
 
-  async findById(id: string) {
-    const log = await this.auditoriaRepository.findById(id);
+  async findById(id: string, empresaId: string) {
+    const log = await this.auditoriaRepository.findById(id, empresaId);
 
     if (!log) {
       throw new AppError({

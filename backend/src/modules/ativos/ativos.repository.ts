@@ -36,7 +36,7 @@ interface UpdateAtivoData {
 }
 
 interface FindAllFilters {
-  empresaId?: string;
+  empresaId: string;
   localizacaoId?: string;
   status?: StatusAtivo;
   tipo?: TipoAtivo;
@@ -48,7 +48,7 @@ export class AtivosRepository {
   async findAll(filters: FindAllFilters) {
     return prisma.ativo.findMany({
       where: {
-        ...(filters.empresaId !== undefined && { empresaId: filters.empresaId }),
+        empresaId: filters.empresaId,
         ...(filters.localizacaoId !== undefined && { localizacaoId: filters.localizacaoId }),
         ...(filters.status !== undefined && { status: filters.status }),
         ...(filters.tipo !== undefined && { tipo: filters.tipo }),
@@ -82,9 +82,9 @@ export class AtivosRepository {
     });
   }
 
-  async findById(id: string) {
-    return prisma.ativo.findUnique({
-      where: { id },
+  async findById(id: string, empresaId: string) {
+    return prisma.ativo.findFirst({
+      where: { id, empresaId },
       select: {
         id: true,
         empresaId: true,
@@ -155,7 +155,7 @@ export class AtivosRepository {
     });
   }
 
-  async update(id: string, data: UpdateAtivoData) {
+  async update(id: string, empresaId: string, data: UpdateAtivoData) {
     return prisma.ativo.update({
       where: { id },
       data,
@@ -181,7 +181,7 @@ export class AtivosRepository {
     });
   }
 
-  async updateStatus(id: string, status: StatusAtivo) {
+  async updateStatus(id: string, empresaId: string, status: StatusAtivo) {
     return prisma.ativo.update({
       where: { id },
       data: { status },
@@ -189,7 +189,7 @@ export class AtivosRepository {
     });
   }
 
-  async delete(id: string) {
+  async delete(id: string, empresaId: string) {
     return prisma.ativo.update({
       where: { id },
       data: { ativo: false },

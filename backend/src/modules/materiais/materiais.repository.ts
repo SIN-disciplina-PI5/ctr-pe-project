@@ -24,7 +24,7 @@ interface UpdateMaterialData {
 }
 
 interface FindAllFilters {
-  empresaId?: string;
+  empresaId: string;
   search?: string;
   ativo?: boolean;
   estoqueBaixo?: boolean;
@@ -34,7 +34,7 @@ export class MateriaisRepository {
   async findAll(filters: FindAllFilters) {
     const materiais = await prisma.material.findMany({
       where: {
-        ...(filters.empresaId !== undefined && { empresaId: filters.empresaId }),
+        empresaId: filters.empresaId,
         ...(filters.ativo !== undefined && { ativo: filters.ativo }),
         ...(filters.search && {
           OR: [
@@ -58,7 +58,6 @@ export class MateriaisRepository {
       },
     });
 
-    // ✅ resolve estoqueBaixo sem usar "fields"
     if (filters.estoqueBaixo) {
       return materiais.filter(
         (m) =>
@@ -71,9 +70,9 @@ export class MateriaisRepository {
     return materiais;
   }
 
-  async findById(id: string) {
-    return prisma.material.findUnique({
-      where: { id },
+  async findById(id: string, empresaId: string) {
+    return prisma.material.findFirst({
+      where: { id, empresaId },
       select: {
         id: true,
         empresaId: true,
@@ -126,7 +125,7 @@ export class MateriaisRepository {
     });
   }
 
-  async update(id: string, data: UpdateMaterialData) {
+  async update(id: string, empresaId: string, data: UpdateMaterialData) {
     return prisma.material.update({
       where: { id },
       data,
@@ -146,7 +145,7 @@ export class MateriaisRepository {
     });
   }
 
-  async updateEstoque(id: string, estoqueAtual: Prisma.Decimal) {
+  async updateEstoque(id: string, empresaId: string, estoqueAtual: Prisma.Decimal) {
     return prisma.material.update({
       where: { id },
       data: { estoqueAtual },
@@ -158,7 +157,7 @@ export class MateriaisRepository {
     });
   }
 
-  async delete(id: string) {
+  async delete(id: string, empresaId: string) {
     return prisma.material.update({
       where: { id },
       data: { ativo: false },

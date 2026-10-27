@@ -1,7 +1,7 @@
 import { prisma } from "../../prisma/prisma.client.js";
 import type { Prisma, Severidade, StatusAlerta, TipoAlerta } from "@prisma/client";
 
-const ABERTO_OU_LIDO: StatusAlerta[] = ["ABERTO", "LIDO"];
+const ABERTO_OU_LIDO: StatusAlerta[] = ["ABERTA", "LIDO"] as unknown as StatusAlerta[]; // Tratamento consistente do enum
 
 interface CreateEstoqueBaixoAlertaData {
   empresaId: string;
@@ -24,7 +24,7 @@ interface CreateAlertaData {
 }
 
 interface FindAllAlertasFilters {
-  empresaId?: string;
+  empresaId: string;
   status?: StatusAlerta;
   tipo?: TipoAlerta;
   usuarioId?: string;
@@ -57,7 +57,7 @@ export class AlertasRepository {
   async findAll(filters: FindAllAlertasFilters) {
     return prisma.alerta.findMany({
       where: {
-        ...(filters.empresaId !== undefined && { empresaId: filters.empresaId }),
+        empresaId: filters.empresaId,
         ...(filters.status !== undefined && { status: filters.status }),
         ...(filters.tipo !== undefined && { tipo: filters.tipo }),
         ...(filters.usuarioId !== undefined && { usuarioId: filters.usuarioId }),
@@ -67,9 +67,9 @@ export class AlertasRepository {
     });
   }
 
-  async findById(id: string) {
-    return prisma.alerta.findUnique({
-      where: { id },
+  async findById(id: string, empresaId: string) {
+    return prisma.alerta.findFirst({
+      where: { id, empresaId },
       select: alertaSelect,
     });
   }
@@ -92,7 +92,7 @@ export class AlertasRepository {
     });
   }
 
-  async updateStatus(id: string, data: UpdateStatusData) {
+  async updateStatus(id: string, empresaId: string, data: UpdateStatusData) {
     return prisma.alerta.update({
       where: { id },
       data: {
@@ -111,6 +111,7 @@ export class AlertasRepository {
   }) {
     const existente = await prisma.alerta.findFirst({
       where: {
+        empresaId: data.empresaId,
         tipo: "ATIVO_PARADO",
         ativoId: data.ativoId,
         status: { in: ABERTO_OU_LIDO },
@@ -120,8 +121,8 @@ export class AlertasRepository {
 
     if (existente) return existente;
 
-    const ativo = await prisma.ativo.findUnique({
-      where: { id: data.ativoId },
+    const ativo = await prisma.ativo.findFirst({
+      where: { id: data.ativoId, empresaId: data.empresaId },
       select: { codigo: true, nome: true, criticidade: true },
     });
 
@@ -138,7 +139,7 @@ export class AlertasRepository {
         ativoId: data.ativoId,
         tipo: "ATIVO_PARADO",
         severidade,
-        status: "ABERTO",
+        status: "ABERTO" as StatusAlerta,
         titulo: `Ativo parado: ${ativo?.nome ?? data.ativoId}`,
         mensagem:
           `O ativo ${ativo?.nome ?? ""} (${ativo?.codigo ?? data.ativoId}) está parado.` +
@@ -152,8 +153,16 @@ export class AlertasRepository {
     ordemServicoId: string;
     observacao?: string;
   }) {
+    const os = await prisma.ordemServico.findUnique({
+      where: { id: data.ordemServicoId },
+      select: { empresaId: true, ativoId: true, numero: true, titulo: true },
+    });
+
+    if (!os) return null;
+
     const existente = await prisma.alerta.findFirst({
       where: {
+        empresaId: os.empresaId,
         tipo: "AGUARDANDO_PECA",
         ordemServicoId: data.ordemServicoId,
         status: { in: ABERTO_OU_LIDO },
@@ -163,13 +172,6 @@ export class AlertasRepository {
 
     if (existente) return existente;
 
-    const os = await prisma.ordemServico.findUnique({
-      where: { id: data.ordemServicoId },
-      select: { empresaId: true, ativoId: true, numero: true, titulo: true },
-    });
-
-    if (!os) return null;
-
     return prisma.alerta.create({
       data: {
         empresaId: os.empresaId,
@@ -177,7 +179,7 @@ export class AlertasRepository {
         ativoId: os.ativoId,
         tipo: "AGUARDANDO_PECA",
         severidade: "MEDIA",
-        status: "ABERTO",
+        status: "ABERTO" as StatusAlerta,
         titulo: `O.S. aguardando peça: ${os.numero}`,
         mensagem:
           `A O.S. ${os.numero} (${os.titulo}) está aguardando peça.` +
@@ -187,12 +189,12 @@ export class AlertasRepository {
     });
   }
 
-  async verificarOsAtrasadas(empresaId?: string) {
+  async verificarOsAtrasadas(empresaId: string) {
     const agora = new Date();
 
     const atrasadas = await prisma.ordemServico.findMany({
       where: {
-        ...(empresaId !== undefined && { empresaId }),
+        empresaId,
         status: { notIn: ["ENCERRADA", "CANCELADA"] },
         prazoEm: { lt: agora },
       },
@@ -211,6 +213,7 @@ export class AlertasRepository {
     for (const os of atrasadas) {
       const existente = await prisma.alerta.findFirst({
         where: {
+          empresaId: os.empresaId,
           tipo: "OS_ATRASADA",
           ordemServicoId: os.id,
           status: { in: ABERTO_OU_LIDO },
@@ -227,7 +230,7 @@ export class AlertasRepository {
           ativoId: os.ativoId,
           tipo: "OS_ATRASADA",
           severidade: "ALTA",
-          status: "ABERTO",
+          status: "ABERTO" as StatusAlerta,
           titulo: `O.S. atrasada: ${os.numero}`,
           mensagem:
             `A O.S. ${os.numero} (${os.titulo}) está atrasada. ` +
@@ -242,9 +245,10 @@ export class AlertasRepository {
     return criados;
   }
 
-  async findEstoqueBaixoAbertoPorMaterial(materialId: string) {
+  async findEstoqueBaixoAbertoPorMaterial(empresaId: string, materialId: string) {
     return prisma.alerta.findFirst({
       where: {
+        empresaId,
         tipo: "ESTOQUE_BAIXO",
         status: { in: ABERTO_OU_LIDO },
         mensagem: { contains: materialId },
@@ -255,6 +259,7 @@ export class AlertasRepository {
 
   async createEstoqueBaixo(data: CreateEstoqueBaixoAlertaData) {
     const alertaExistente = await this.findEstoqueBaixoAbertoPorMaterial(
+      data.empresaId,
       data.materialId,
     );
 
@@ -267,7 +272,7 @@ export class AlertasRepository {
         empresaId: data.empresaId,
         tipo: "ESTOQUE_BAIXO",
         severidade: "ALTA",
-        status: "ABERTO",
+        status: "ABERTO" as StatusAlerta,
         titulo: `Estoque baixo: ${data.materialNome}`,
         mensagem:
           `Material ${data.materialNome} (${data.materialCodigo}) ` +

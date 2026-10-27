@@ -49,7 +49,7 @@ interface UpdateOrdemServicoInput {
 }
 
 interface FindAllFilters {
-  empresaId?: string;
+  empresaId: string;
   ativoId?: string;
   responsavelId?: string;
   status?: "ABERTA" | "EM_EXECUCAO" | "AGUARDANDO_PECA" | "ENCERRADA" | "CANCELADA";
@@ -65,8 +65,8 @@ export class OrdensServicoService {
     return this.ordensServicoRepository.findAll(filters);
   }
 
-  async findById(id: string) {
-    const ordemServico = await this.ordensServicoRepository.findById(id);
+  async findById(id: string, empresaId: string) {
+    const ordemServico = await this.ordensServicoRepository.findById(id, empresaId);
 
     if (!ordemServico) {
       throw new AppError({
@@ -80,21 +80,13 @@ export class OrdensServicoService {
   }
 
   async create(data: CreateOrdemServicoInput) {
-    const ativo = await this.ordensServicoRepository.findAtivoById(data.ativoId);
+    const ativo = await this.ordensServicoRepository.findAtivoById(data.ativoId, data.empresaId);
 
     if (!ativo || !ativo.ativo) {
       throw new AppError({
         message: "Ativo não encontrado ou inativo",
         statusCode: 404,
         errorCode: ErrorCode.NOT_FOUND,
-      });
-    }
-
-    if (ativo.empresaId !== data.empresaId) {
-      throw new AppError({
-        message: "Ativo não pertence à empresa informada",
-        statusCode: 400,
-        errorCode: ErrorCode.VALIDATION_ERROR,
       });
     }
 
@@ -142,106 +134,105 @@ export class OrdensServicoService {
     return ordemServico;
   }
 
+  async iniciar(id: string, empresaId: string, iniciadaEm?: string) {
+    const os = await this.findById(id, empresaId);
 
-  async iniciar(id: string, iniciadaEm?: string) {
-  const os = await this.findById(id);
+    if (os.status !== "ABERTA") {
+      throw new AppError({
+        message: "Apenas O.S. com status ABERTA pode ser iniciada",
+        statusCode: 400,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      });
+    }
 
-  if (os.status !== "ABERTA") {
-    throw new AppError({
-      message: "Apenas O.S. com status ABERTA pode ser iniciada",
-      statusCode: 400,
-      errorCode: ErrorCode.VALIDATION_ERROR,
+    const dataInicio = iniciadaEm ? new Date(iniciadaEm) : (os.iniciadaEm ?? new Date());
+
+    return this.ordensServicoRepository.iniciar(id, empresaId, dataInicio);
+  }
+
+  async aguardarPeca(id: string, empresaId: string, observacao?: string) {
+    const os = await this.findById(id, empresaId);
+
+    if (os.status !== "EM_EXECUCAO") {
+      throw new AppError({
+        message: "Apenas O.S. com status EM_EXECUCAO pode aguardar peça",
+        statusCode: 400,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      });
+    }
+
+    const atualizada = await this.ordensServicoRepository.aguardarPeca(id, empresaId, observacao);
+
+    await this.alertasRepository.createOSAguardandoPeca({
+      ordemServicoId: id,
+      ...(observacao !== undefined && { observacao }),
+    });
+
+    return atualizada;
+  }
+
+  async retomar(id: string, empresaId: string, observacao?: string) {
+    const os = await this.findById(id, empresaId);
+
+    if (os.status !== "AGUARDANDO_PECA") {
+      throw new AppError({
+        message: "Apenas O.S. com status AGUARDANDO_PECA pode ser retomada",
+        statusCode: 400,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      });
+    }
+
+    return this.ordensServicoRepository.retomar(id, empresaId, observacao);
+  }
+
+  async encerrar(id: string, empresaId: string, data: {
+    diagnostico?: string;
+    solucao?: string;
+    observacao?: string;
+    encerradaEm?: string;
+  }) {
+    const os = await this.findById(id, empresaId);
+
+    if (!["EM_EXECUCAO", "AGUARDANDO_PECA"].includes(os.status)) {
+      throw new AppError({
+        message: "Apenas O.S. em execução ou aguardando peça pode ser encerrada",
+        statusCode: 400,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      });
+    }
+
+    return this.ordensServicoRepository.encerrar(id, empresaId, {
+      ...(data.diagnostico !== undefined && { diagnostico: data.diagnostico }),
+      ...(data.solucao !== undefined && { solucao: data.solucao }),
+      ...(data.observacao !== undefined && { observacao: data.observacao }),
+      ...(data.encerradaEm !== undefined && { encerradaEm: new Date(data.encerradaEm) }),
     });
   }
 
-  const dataInicio = iniciadaEm ? new Date(iniciadaEm) : (os.iniciadaEm ?? new Date());
+  async cancelar(id: string, empresaId: string, data: {
+    motivo?: string;
+    canceladaEm?: string;
+  }) {
+    const os = await this.findById(id, empresaId);
 
-  return this.ordensServicoRepository.iniciar(id, dataInicio);
-}
+    if (os.status === "ENCERRADA" || os.status === "CANCELADA") {
+      throw new AppError({
+        message: "O.S. já encerrada ou cancelada não pode ser cancelada",
+        statusCode: 400,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      });
+    }
 
-async aguardarPeca(id: string, observacao?: string) {
-  const os = await this.findById(id);
-
-  if (os.status !== "EM_EXECUCAO") {
-    throw new AppError({
-      message: "Apenas O.S. com status EM_EXECUCAO pode aguardar peça",
-      statusCode: 400,
-      errorCode: ErrorCode.VALIDATION_ERROR,
+    return this.ordensServicoRepository.cancelar(id, empresaId, {
+      ...(data.motivo !== undefined && { motivo: data.motivo }),
+      ...(data.canceladaEm !== undefined && { canceladaEm: new Date(data.canceladaEm) }),
     });
   }
 
-  const atualizada = await this.ordensServicoRepository.aguardarPeca(id, observacao);
+  async update(id: string, empresaId: string, data: UpdateOrdemServicoInput) {
+    await this.findById(id, empresaId);
 
-  await this.alertasRepository.createOSAguardandoPeca({
-    ordemServicoId: id,
-    ...(observacao !== undefined && { observacao }),
-  });
-
-  return atualizada;
-}
-
-  async retomar(id: string, observacao?: string) {
-  const os = await this.findById(id);
-
-  if (os.status !== "AGUARDANDO_PECA") {
-    throw new AppError({
-      message: "Apenas O.S. com status AGUARDANDO_PECA pode ser retomada",
-      statusCode: 400,
-      errorCode: ErrorCode.VALIDATION_ERROR,
-    });
-  }
-
-  return this.ordensServicoRepository.retomar(id, observacao);
-}
-
-async encerrar(id: string, data: {
-  diagnostico?: string;
-  solucao?: string;
-  observacao?: string;
-  encerradaEm?: string;
-}) {
-  const os = await this.findById(id);
-
-  if (!["EM_EXECUCAO", "AGUARDANDO_PECA"].includes(os.status)) {
-    throw new AppError({
-      message: "Apenas O.S. em execução ou aguardando peça pode ser encerrada",
-      statusCode: 400,
-      errorCode: ErrorCode.VALIDATION_ERROR,
-    });
-  }
-
-  return this.ordensServicoRepository.encerrar(id, {
-    ...(data.diagnostico !== undefined && { diagnostico: data.diagnostico }),
-    ...(data.solucao !== undefined && { solucao: data.solucao }),
-    ...(data.observacao !== undefined && { observacao: data.observacao }),
-    ...(data.encerradaEm !== undefined && { encerradaEm: new Date(data.encerradaEm) }),
-  });
-}
-
-async cancelar(id: string, data: {
-  motivo?: string;
-  canceladaEm?: string;
-}) {
-  const os = await this.findById(id);
-
-  if (os.status === "ENCERRADA" || os.status === "CANCELADA") {
-    throw new AppError({
-      message: "O.S. já encerrada ou cancelada não pode ser cancelada",
-      statusCode: 400,
-      errorCode: ErrorCode.VALIDATION_ERROR,
-    });
-  }
-
-  return this.ordensServicoRepository.cancelar(id, {
-    ...(data.motivo !== undefined && { motivo: data.motivo }),
-    ...(data.canceladaEm !== undefined && { canceladaEm: new Date(data.canceladaEm) }),
-  });
-}
-
-  async update(id: string, data: UpdateOrdemServicoInput) {
-    await this.findById(id);
-
-    return this.ordensServicoRepository.update(id, {
+    return this.ordensServicoRepository.update(id, empresaId, {
       ...(data.localizacaoId !== undefined && { localizacaoId: data.localizacaoId }),
       ...(data.solicitanteId !== undefined && { solicitanteId: data.solicitanteId }),
       ...(data.responsavelId !== undefined && { responsavelId: data.responsavelId }),
@@ -284,4 +275,3 @@ async cancelar(id: string, data: {
     });
   }
 }
-

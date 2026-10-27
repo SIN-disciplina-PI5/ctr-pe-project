@@ -13,7 +13,7 @@ interface CreateLogAuditoriaData {
 }
 
 interface FindAllFilters {
-  empresaId?: string;
+  empresaId: string;
   usuarioId?: string;
   entidade?: string;
   entidadeId?: string;
@@ -64,7 +64,7 @@ export class AuditoriaRepository {
   async findAll(filters: FindAllFilters) {
     return prisma.logAuditoria.findMany({
       where: {
-        ...(filters.empresaId !== undefined && { empresaId: filters.empresaId }),
+        empresaId: filters.empresaId,
         ...(filters.usuarioId !== undefined && { usuarioId: filters.usuarioId }),
         ...(filters.entidade !== undefined && { entidade: filters.entidade }),
         ...(filters.entidadeId !== undefined && { entidadeId: filters.entidadeId }),
@@ -76,9 +76,9 @@ export class AuditoriaRepository {
     });
   }
 
-  async findById(id: string) {
-    return prisma.logAuditoria.findUnique({
-      where: { id },
+  async findById(id: string, empresaId: string) {
+    return prisma.logAuditoria.findFirst({
+      where: { id, empresaId },
       select: auditoriaSelect,
     });
   }

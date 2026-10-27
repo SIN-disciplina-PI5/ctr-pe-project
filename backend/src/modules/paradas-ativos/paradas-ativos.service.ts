@@ -20,7 +20,7 @@ interface UpdateParadaAtivoInput {
 }
 
 interface FindAllFilters {
-  empresaId?: string;
+  empresaId: string;
   ativoId?: string;
   status?: "ABERTA" | "ENCERRADA" | "CANCELADA";
   from?: string;
@@ -33,7 +33,7 @@ export class ParadasAtivosService {
 
   async findAll(filters: FindAllFilters) {
     return this.paradasAtivosRepository.findAll({
-      ...(filters.empresaId !== undefined && { empresaId: filters.empresaId }),
+      empresaId: filters.empresaId,
       ...(filters.ativoId !== undefined && { ativoId: filters.ativoId }),
       ...(filters.status !== undefined && { status: filters.status }),
       ...(filters.from !== undefined && { from: new Date(filters.from) }),
@@ -41,66 +41,63 @@ export class ParadasAtivosService {
     });
   }
 
-  async findById(id: string) {
-    const parada = await this.paradasAtivosRepository.findById(id);
+  async findById(id: string, empresaId: string) {
+    const parada = await this.paradasAtivosRepository.findById(id, empresaId);
 
-    if (!parada) throw new AppError({ message: "Parada não encontrada", statusCode: 404, errorCode: ErrorCode.NOT_FOUND });
-
-    return parada;
-  }
-
-  async create(data: CreateParadaAtivoInput) {
-    const ativo = await this.paradasAtivosRepository.findAtivoById(data.ativoId);
-
-    if (!ativo || !ativo.ativo) {
+    if (!parada) {
       throw new AppError({
-        message: "Ativo nao encontrado ou inativo",
+        message: "Parada não encontrada",
         statusCode: 404,
         errorCode: ErrorCode.NOT_FOUND,
       });
     }
 
-    if (ativo.empresaId !== data.empresaId) {
+    return parada;
+  }
+
+  async create(data: CreateParadaAtivoInput) {
+    const ativo = await this.paradasAtivosRepository.findAtivoById(data.ativoId, data.empresaId);
+
+    if (!ativo || !ativo.ativo) {
       throw new AppError({
-        message: "Ativo nao pertence a empresa informada",
-        statusCode: 400,
-        errorCode: ErrorCode.VALIDATION_ERROR,
+        message: "Ativo não encontrado ou inativo",
+        statusCode: 404,
+        errorCode: ErrorCode.NOT_FOUND,
       });
     }
 
     if (data.ordemServicoId) {
       const ordemServico = await this.paradasAtivosRepository.findOrdemServicoById(
         data.ordemServicoId,
+        data.empresaId,
       );
 
       if (!ordemServico) {
         throw new AppError({
-          message: "Ordem de servico nao encontrada",
+          message: "Ordem de serviço não encontrada",
           statusCode: 404,
           errorCode: ErrorCode.NOT_FOUND,
         });
       }
 
-      if (ordemServico.empresaId !== data.empresaId) {
-        throw new AppError({
-          message: "Ordem de servico nao pertence a empresa informada",
-          statusCode: 400,
-          errorCode: ErrorCode.VALIDATION_ERROR,
-        });
-      }
-
       if (ordemServico.ativoId !== data.ativoId) {
         throw new AppError({
-          message: "Ordem de servico nao pertence ao ativo informado",
+          message: "Ordem de serviço não pertence ao ativo informado",
           statusCode: 400,
           errorCode: ErrorCode.VALIDATION_ERROR,
         });
       }
     }
 
-    const paradaAberta = await this.paradasAtivosRepository.findParadaAbertaByAtivo(data.ativoId);
+    const paradaAberta = await this.paradasAtivosRepository.findParadaAbertaByAtivo(data.ativoId, data.empresaId);
 
-    if (paradaAberta) throw new AppError({ message: "Ativo já possui uma parada aberta", statusCode: 409, errorCode: ErrorCode.CONFLICT });
+    if (paradaAberta) {
+      throw new AppError({
+        message: "Ativo já possui uma parada aberta",
+        statusCode: 409,
+        errorCode: ErrorCode.CONFLICT,
+      });
+    }
 
     const parada = await this.paradasAtivosRepository.create({
       empresaId: data.empresaId,
@@ -121,24 +118,36 @@ export class ParadasAtivosService {
     return parada;
   }
 
-  async update(id: string, data: UpdateParadaAtivoInput) {
-    await this.findById(id);
-    return this.paradasAtivosRepository.update(id, data);
+  async update(id: string, empresaId: string, data: UpdateParadaAtivoInput) {
+    await this.findById(id, empresaId);
+    return this.paradasAtivosRepository.update(id, empresaId, data);
   }
 
-  async encerrar(id: string, fimEm?: string) {
-    const parada = await this.findById(id);
+  async encerrar(id: string, empresaId: string, fimEm?: string) {
+    const parada = await this.findById(id, empresaId);
 
-    if (parada.status !== "ABERTA") throw new AppError({ message: "Apenas paradas abertas podem ser encerradas", statusCode: 400, errorCode: ErrorCode.VALIDATION_ERROR });
+    if (parada.status !== "ABERTA") {
+      throw new AppError({
+        message: "Apenas paradas abertas podem ser encerradas",
+        statusCode: 400,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      });
+    }
 
-    return this.paradasAtivosRepository.encerrar(id, fimEm ? new Date(fimEm) : new Date());
+    return this.paradasAtivosRepository.encerrar(id, empresaId, fimEm ? new Date(fimEm) : new Date());
   }
 
-  async cancelar(id: string, motivo?: string) {
-    const parada = await this.findById(id);
+  async cancelar(id: string, empresaId: string, motivo?: string) {
+    const parada = await this.findById(id, empresaId);
 
-    if (parada.status !== "ABERTA") throw new AppError({ message: "Apenas paradas abertas podem ser canceladas", statusCode: 400, errorCode: ErrorCode.VALIDATION_ERROR });
+    if (parada.status !== "ABERTA") {
+      throw new AppError({
+        message: "Apenas paradas abertas podem ser canceladas",
+        statusCode: 400,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      });
+    }
 
-    return this.paradasAtivosRepository.cancelar(id, motivo);
+    return this.paradasAtivosRepository.cancelar(id, empresaId, motivo);
   }
 }
