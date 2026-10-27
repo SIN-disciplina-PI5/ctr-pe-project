@@ -8,6 +8,10 @@ const alertasService = new AlertasService();
 export async function findAll(req: Request, res: Response, next: NextFunction) {
   try {
     const currentUser = getCurrentUser(req);
+    if (!currentUser?.empresaId) {
+      return res.status(401).json({ error: "Empresa não identificada no token." });
+    }
+
     const { status, tipo, usuarioId } = req.query as {
       status?: string;
       tipo?: string;
@@ -15,7 +19,7 @@ export async function findAll(req: Request, res: Response, next: NextFunction) {
     };
 
     const filters = {
-      empresaId: currentUser.empresaId, // Força a empresa do usuário autenticado
+      empresaId: currentUser.empresaId,
       ...(status !== undefined && { status: status as StatusAlerta }),
       ...(tipo !== undefined && { tipo: tipo as TipoAlerta }),
       ...(usuarioId !== undefined && { usuarioId }),
@@ -31,13 +35,17 @@ export async function findAll(req: Request, res: Response, next: NextFunction) {
 export async function findMe(req: Request, res: Response, next: NextFunction) {
   try {
     const currentUser = getCurrentUser(req);
+    if (!currentUser?.empresaId) {
+      return res.status(401).json({ error: "Empresa não identificada no token." });
+    }
+
     const { status, tipo } = req.query as {
       status?: string;
       tipo?: string;
     };
 
     const filters = {
-      empresaId: currentUser.empresaId, // Força a empresa do usuário autenticado
+      empresaId: currentUser.empresaId,
       ...(status !== undefined && { status: status as StatusAlerta }),
       ...(tipo !== undefined && { tipo: tipo as TipoAlerta }),
     };
@@ -52,6 +60,10 @@ export async function findMe(req: Request, res: Response, next: NextFunction) {
 export async function findById(req: Request, res: Response, next: NextFunction) {
   try {
     const currentUser = getCurrentUser(req);
+    if (!currentUser?.empresaId) {
+      return res.status(401).json({ error: "Empresa não identificada no token." });
+    }
+
     const { id } = req.params as { id: string };
     const result = await alertasService.findById(id, currentUser.empresaId);
     return res.status(200).json(result);
@@ -63,11 +75,15 @@ export async function findById(req: Request, res: Response, next: NextFunction) 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
     const currentUser = getCurrentUser(req);
-    const { empresaId: _, ...bodyData } = req.body; // Remove empresaId vindo do body se existir
+    if (!currentUser?.empresaId) {
+      return res.status(401).json({ error: "Empresa não identificada no token." });
+    }
+
+    const { empresaId: _, ...bodyData } = req.body;
 
     const result = await alertasService.create({
       ...bodyData,
-      empresaId: currentUser.empresaId, // Força a empresa do usuário autenticado
+      empresaId: currentUser.empresaId,
     });
     return res.status(201).json(result);
   } catch (error) {
@@ -78,6 +94,10 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 export async function marcarLido(req: Request, res: Response, next: NextFunction) {
   try {
     const currentUser = getCurrentUser(req);
+    if (!currentUser?.empresaId) {
+      return res.status(401).json({ error: "Empresa não identificada no token." });
+    }
+
     const { id } = req.params as { id: string };
     const result = await alertasService.marcarComoLido(id, currentUser.empresaId);
     return res.status(200).json(result);
@@ -89,6 +109,10 @@ export async function marcarLido(req: Request, res: Response, next: NextFunction
 export async function resolver(req: Request, res: Response, next: NextFunction) {
   try {
     const currentUser = getCurrentUser(req);
+    if (!currentUser?.empresaId) {
+      return res.status(401).json({ error: "Empresa não identificada no token." });
+    }
+
     const { id } = req.params as { id: string };
     const result = await alertasService.resolver(id, currentUser.empresaId);
     return res.status(200).json(result);
@@ -100,6 +124,10 @@ export async function resolver(req: Request, res: Response, next: NextFunction) 
 export async function ignorar(req: Request, res: Response, next: NextFunction) {
   try {
     const currentUser = getCurrentUser(req);
+    if (!currentUser?.empresaId) {
+      return res.status(401).json({ error: "Empresa não identificada no token." });
+    }
+
     const { id } = req.params as { id: string };
     const result = await alertasService.ignorar(id, currentUser.empresaId);
     return res.status(200).json(result);

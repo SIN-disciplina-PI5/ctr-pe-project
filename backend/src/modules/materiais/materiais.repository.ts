@@ -32,6 +32,8 @@ interface FindAllFilters {
 
 export class MateriaisRepository {
   async findAll(filters: FindAllFilters) {
+    if (!filters.empresaId) return [];
+
     const materiais = await prisma.material.findMany({
       where: {
         empresaId: filters.empresaId,
@@ -71,6 +73,8 @@ export class MateriaisRepository {
   }
 
   async findById(id: string, empresaId: string) {
+    if (!id || !empresaId) return null;
+
     return prisma.material.findFirst({
       where: { id, empresaId },
       select: {
@@ -90,6 +94,8 @@ export class MateriaisRepository {
   }
 
   async findByCodigo(empresaId: string, codigo: string) {
+    if (!empresaId || !codigo) return null;
+
     return prisma.material.findUnique({
       where: { empresaId_codigo: { empresaId, codigo } },
       select: { id: true },
@@ -126,6 +132,8 @@ export class MateriaisRepository {
   }
 
   async update(id: string, empresaId: string, data: UpdateMaterialData) {
+    if (!id || !empresaId) return null;
+
     return prisma.material.update({
       where: { id },
       data,
@@ -146,6 +154,8 @@ export class MateriaisRepository {
   }
 
   async updateEstoque(id: string, empresaId: string, estoqueAtual: Prisma.Decimal) {
+    if (!id || !empresaId) return null;
+
     return prisma.material.update({
       where: { id },
       data: { estoqueAtual },
@@ -158,6 +168,8 @@ export class MateriaisRepository {
   }
 
   async delete(id: string, empresaId: string) {
+    if (!id || !empresaId) return null;
+
     return prisma.material.update({
       where: { id },
       data: { ativo: false },

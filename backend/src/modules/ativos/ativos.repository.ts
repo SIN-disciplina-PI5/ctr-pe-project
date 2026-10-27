@@ -46,6 +46,8 @@ interface FindAllFilters {
 
 export class AtivosRepository {
   async findAll(filters: FindAllFilters) {
+    if (!filters.empresaId) return [];
+
     return prisma.ativo.findMany({
       where: {
         empresaId: filters.empresaId,
@@ -83,6 +85,8 @@ export class AtivosRepository {
   }
 
   async findById(id: string, empresaId: string) {
+    if (!id || !empresaId) return null;
+
     return prisma.ativo.findFirst({
       where: { id, empresaId },
       select: {
@@ -108,6 +112,8 @@ export class AtivosRepository {
   }
 
   async findByCodigo(empresaId: string, codigo: string) {
+    if (!empresaId || !codigo) return null;
+
     return prisma.ativo.findUnique({
       where: { empresaId_codigo: { empresaId, codigo } },
       select: { id: true },
@@ -115,6 +121,10 @@ export class AtivosRepository {
   }
 
   async create(data: CreateAtivoData) {
+    if (!data.empresaId) {
+      throw new Error("empresaId é obrigatório para criar um ativo.");
+    }
+
     return prisma.ativo.create({
       data: {
         empresaId: data.empresaId,
@@ -156,6 +166,8 @@ export class AtivosRepository {
   }
 
   async update(id: string, empresaId: string, data: UpdateAtivoData) {
+    if (!id || !empresaId) return null;
+
     return prisma.ativo.update({
       where: { id },
       data,
@@ -182,6 +194,8 @@ export class AtivosRepository {
   }
 
   async updateStatus(id: string, empresaId: string, status: StatusAtivo) {
+    if (!id || !empresaId) return null;
+
     return prisma.ativo.update({
       where: { id },
       data: { status },
@@ -190,6 +204,8 @@ export class AtivosRepository {
   }
 
   async delete(id: string, empresaId: string) {
+    if (!id || !empresaId) return null;
+
     return prisma.ativo.update({
       where: { id },
       data: { ativo: false },
