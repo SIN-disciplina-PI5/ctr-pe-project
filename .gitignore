@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Environment variables (keep .env.example tracked)
+.env
+.env*.local
+
+# Build output
+dist/
+web-build/
+*.tsbuildinfo
+coverage/
+
+# Backend
+backend/generated/prisma
+.vercel
+
+# Frontend (Expo)
+.expo/
+expo-env.d.ts
+.metro-health-check*
+frontend/ios/
+frontend/android/
+.kotlin/
+
+# Native credentials and certificates
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.pem
+*.mobileprovision
+
+# Logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+
+# dev-tools
+.scannerwork/
+dev-tools/zap/reports/
