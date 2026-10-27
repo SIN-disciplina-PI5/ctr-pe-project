@@ -6,9 +6,10 @@ import {
   LOCALIZACAO_POR_TIPO,
   PESO_CRITICIDADE,
   PREFIXO_ID,
-} from "../config";
-import { MODELOS_ATIVOS } from "../data/catalogo-ativos";
-import type { AtivoCriado, Contexto, EmpresaCriada, LocalizacaoCriada } from "../types";
+} from "../config.js";
+import { MODELOS_ATIVOS } from "../data/catalogo-ativos.js";
+import { ATIVO_PROBLEMATICO } from "../data/padroes-plantados.js";
+import type { AtivoCriado, Contexto, EmpresaCriada, LocalizacaoCriada } from "../types.js";
 
 export class AtivosSeeder {
   constructor(private readonly ctx: Contexto) {}
@@ -27,7 +28,9 @@ export class AtivosSeeder {
           const id = ids.proximo(PREFIXO_ID.ativo);
           const codigo = `${modelo.prefixo}-${String(numero).padStart(DIGITOS_CODIGO_ATIVO, "0")}`;
           const ativo = codigo !== CODIGO_ATIVO_DESATIVADO;
-          const criticidade = aleatorio.escolherPonderado(PESO_CRITICIDADE);
+          const nome = `${modelo.nome} ${codigo}`;
+          const criticidade =
+            codigo === ATIVO_PROBLEMATICO.codigo ? ATIVO_PROBLEMATICO.criticidade : aleatorio.escolherPonderado(PESO_CRITICIDADE);
           const { marca, modelo: nomeModelo } = aleatorio.escolher(modelo.marcas);
           const contador = aleatorio.inteiroEm(modelo.faixaContador);
 
@@ -36,7 +39,7 @@ export class AtivosSeeder {
             empresaId: empresa.id,
             localizacaoId: localizacao?.id ?? null,
             codigo,
-            nome: `${modelo.nome} ${codigo}`,
+            nome,
             descricao: `${modelo.nome} da frota ${empresa.nome}.`,
             tipo: modelo.tipo,
             status: ativo ? StatusAtivo.DISPONIVEL : StatusAtivo.DESATIVADO,
@@ -54,6 +57,7 @@ export class AtivosSeeder {
             empresaId: empresa.id,
             localizacaoId: localizacao?.id ?? null,
             codigo,
+            nome,
             tipo: modelo.tipo,
             criticidade,
             ativo,

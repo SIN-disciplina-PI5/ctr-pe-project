@@ -1,4 +1,4 @@
-import { FLAG_FORCE } from "./config";
+import { FLAG_FORCE } from "./config.js";
 
 const HOST_DESCONHECIDO = "desconhecido";
 

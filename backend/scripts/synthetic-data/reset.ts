@@ -1,5 +1,5 @@
 import type { PrismaClient } from "@prisma/client";
-import { TABELAS } from "./config";
+import { TABELAS } from "./config.js";
 
 export class ResetBanco {
   constructor(private readonly prisma: PrismaClient) {}

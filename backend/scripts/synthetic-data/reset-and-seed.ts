@@ -1,17 +1,19 @@
 import "dotenv/config";
-import { EMPRESAS, ESPERA_CONFIRMACAO_MS, SEMENTE, SENHA_PADRAO } from "./config";
-import { Banco } from "./database";
-import { AmbienteGuard } from "./guards";
-import { ResetBanco } from "./reset";
-import { AtivosSeeder } from "./seeders/ativos";
-import { EmpresasSeeder } from "./seeders/empresas";
-import { LocalizacoesSeeder } from "./seeders/localizacoes";
-import { MateriaisSeeder } from "./seeders/materiais";
-import { UsuariosSeeder } from "./seeders/usuarios";
-import type { Contexto } from "./types";
-import { Aleatorio } from "./utils/aleatorio";
-import { GeradorId } from "./utils/gerador-id";
-import { Senha } from "./utils/senha";
+import { EMPRESAS, ESPERA_CONFIRMACAO_MS, SEMENTE, SENHA_PADRAO } from "./config.js";
+import { Banco } from "./database.js";
+import { AmbienteGuard } from "./guards.js";
+import { ResetBanco } from "./reset.js";
+import { AtivosSeeder } from "./seeders/ativos.js";
+import { EmpresasSeeder } from "./seeders/empresas.js";
+import { LocalizacoesSeeder } from "./seeders/localizacoes.js";
+import { MateriaisSeeder } from "./seeders/materiais.js";
+import { OrdensServicoSeeder } from "./seeders/ordens-servico.js";
+import { UsuariosSeeder } from "./seeders/usuarios.js";
+import type { Contexto } from "./types.js";
+import { Aleatorio } from "./utils/aleatorio.js";
+import { GeradorId } from "./utils/gerador-id.js";
+import { Senha } from "./utils/senha.js";
+import { VerificadorConsistencia } from "./verificacoes.js";
 
 async function main(): Promise<void> {
   const { url, host } = AmbienteGuard.validar();
@@ -33,18 +35,21 @@ async function main(): Promise<void> {
     console.log("Limpando tabelas...");
     await new ResetBanco(prisma).executar();
 
-    console.log("Populando o banco...");
+    console.log("Criando empresas, usuários, localizações, ativos e materiais...");
     const empresas = await new EmpresasSeeder(ctx).executar();
     const usuarios = await new UsuariosSeeder(ctx).executar(empresas);
     const localizacoes = await new LocalizacoesSeeder(ctx).executar(empresas);
     const ativos = await new AtivosSeeder(ctx).executar(empresas, localizacoes);
     const materiais = await new MateriaisSeeder(ctx).executar(empresas);
 
-    console.log(
-      `Criados: ${empresas.length} empresas, ${usuarios.length + empresas.length} usuários, ` +
-        `${localizacoes.length} localizações, ${ativos.length} ativos, ${materiais.length} materiais.`,
-    );
-    console.log("\nLogins:");
+    console.log("Simulando o ciclo de vida das ordens de serviço...");
+    await new OrdensServicoSeeder(ctx).executar({ empresas, usuarios, localizacoes, ativos, materiais });
+
+    const verificador = new VerificadorConsistencia(prisma);
+    await verificador.resumo();
+    await verificador.executar();
+
+    console.log("\nLogins criados:");
     for (const empresa of EMPRESAS) {
       console.log(`  ${empresa.admin.email}  (${empresa.codigo})`);
     }

@@ -1,5 +1,5 @@
 import { TipoAtivo } from "@prisma/client";
-import type { Faixa } from "../types";
+import type { Faixa } from "../types.js";
 
 export interface MarcaModelo {
   marca: string;

@@ -1,7 +1,10 @@
 import { fakerPT_BR } from "@faker-js/faker";
-import type { Faixa, Peso } from "../types";
+import type { Faixa, Peso } from "../types.js";
 
+const MENSAGEM_LISTA_VAZIA = "Não é possível sortear de uma lista vazia.";
 const LETRAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const PRECISAO_CHANCE = 10_000;
+const FATOR_DECIMAL = 100;
 const DIGITO: Faixa = [0, 9];
 const SUFIXO_PLACA: Faixa = [10, 99];
 
@@ -18,8 +21,18 @@ export class Aleatorio {
     return this.inteiro(faixa[0], faixa[1]);
   }
 
+  decimal(faixa: Faixa): number {
+    return this.inteiro(Math.round(faixa[0] * FATOR_DECIMAL), Math.round(faixa[1] * FATOR_DECIMAL)) / FATOR_DECIMAL;
+  }
+
+  chance(probabilidade: number): boolean {
+    return this.inteiro(1, PRECISAO_CHANCE) <= probabilidade * PRECISAO_CHANCE;
+  }
+
   escolher<T>(lista: readonly T[]): T {
-    return lista[this.inteiro(0, lista.length - 1)];
+    const item = lista[this.inteiro(0, lista.length - 1)];
+    if (item === undefined) throw new Error(MENSAGEM_LISTA_VAZIA);
+    return item;
   }
 
   escolherPonderado<T>(itens: readonly Peso<T>[]): T {
@@ -29,7 +42,9 @@ export class Aleatorio {
       restante -= item.peso;
       if (restante <= 0) return item.valor;
     }
-    return itens[itens.length - 1].valor;
+    const ultimo = itens[itens.length - 1];
+    if (!ultimo) throw new Error(MENSAGEM_LISTA_VAZIA);
+    return ultimo.valor;
   }
 
   nome(): string {

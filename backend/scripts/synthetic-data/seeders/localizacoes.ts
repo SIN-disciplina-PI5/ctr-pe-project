@@ -1,6 +1,6 @@
 import type { Prisma } from "@prisma/client";
-import { LOCALIZACOES, PREFIXO_ID } from "../config";
-import type { Contexto, EmpresaCriada, LocalizacaoCriada } from "../types";
+import { LOCALIZACOES, PREFIXO_ID } from "../config.js";
+import type { Contexto, EmpresaCriada, LocalizacaoCriada } from "../types.js";
 
 export class LocalizacoesSeeder {
   constructor(private readonly ctx: Contexto) {}

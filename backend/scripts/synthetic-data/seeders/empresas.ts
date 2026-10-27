@@ -1,6 +1,6 @@
 import { PerfilUsuario } from "@prisma/client";
-import { EMPRESAS, PREFIXO_ID } from "../config";
-import type { Contexto, EmpresaCriada } from "../types";
+import { EMPRESAS, PREFIXO_ID } from "../config.js";
+import type { Contexto, EmpresaCriada } from "../types.js";
 
 export class EmpresasSeeder {
   constructor(private readonly ctx: Contexto) {}
