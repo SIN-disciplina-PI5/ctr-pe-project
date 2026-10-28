@@ -694,6 +694,156 @@
           ]
         }
       ]
+    },
+    {
+      "name": "04. Empresas & Multi-Tenancy Router",
+      "item": [
+        {
+          "name": "GET /api/empresas - Listar Empresas com Token Válido",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/empresas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "empresas"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/empresas/:id - Isolamento: Usuário da Empresa A acessando Empresa B (403 ou 404)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_gestor}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/empresas/{{company_id_b}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "empresas", "{{company_id_b}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Isolamento Multi-tenant: Usuário não pode ler dados de outra empresa', function () {",
+                  "    pm.expect([403, 404]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/empresas/:id - Isolamento: Usuário da Empresa A alterando Empresa B (403 ou 404)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_gestor}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Tentativa de alteração não autorizada\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/empresas/{{company_id_b}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "empresas", "{{company_id_b}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Isolamento Multi-tenant: Usuário não pode editar dados de outra empresa', function () {",
+                  "    pm.expect([403, 404]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /api/empresas/:id - Isolamento: Usuário da Empresa A excluindo Empresa B (403 ou 404)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_gestor}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/empresas/{{company_id_b}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "empresas", "{{company_id_b}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Isolamento Multi-tenant: Usuário não pode deletar dados de outra empresa', function () {",
+                  "    pm.expect([403, 404]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/empresas - Validação de Body Inválido (400 Bad Request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cnpj\": \"invalido\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/empresas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "empresas"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Validação de DTO rejeita payload inválido com 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
