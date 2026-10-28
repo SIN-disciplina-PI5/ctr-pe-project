@@ -545,6 +545,155 @@
           ]
         }
       ]
+    },
+    {
+      "name": "03. Ordens de Servico Router",
+      "item": [
+        {
+          "name": "GET /api/ordens-servico - Listar Ordens (Autenticado)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ordens-servico",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ordens-servico"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Resposta retorna array ou objeto paginado', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(Array.isArray(json) || Array.isArray(json.data) || Array.isArray(json.ordens)).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/ordens-servico/:id - Tentativa de Mudar Status Diretamente (Security/Business Rule Gap)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CONCLUIDA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ordens-servico/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ordens-servico", "1"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Regra de Negócio: PATCH genérico não deve aceitar alteração arbitrária de status', function () {",
+                  "    pm.expect([400, 422]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/ordens-servico/:id/iniciar - Transição de Fluxo Válida",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_tecnico}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ordens-servico/1/iniciar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ordens-servico", "1", "iniciar"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Workflow iniciar responde status esperado de transição', function () {",
+                  "    pm.expect([200, 400, 404, 409]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/ordens-servico/:id/cancelar - Como TECNICO (RBAC: 403 Forbidden)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_tecnico}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ordens-servico/1/cancelar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ordens-servico", "1", "cancelar"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('RBAC: TECNICO recebe 403 ao tentar cancelar OS', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/ordens-servico/999999 - ID Inexistente (404 Not Found)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ordens-servico/999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ordens-servico", "999999"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Busca de OS inexistente retorna 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
