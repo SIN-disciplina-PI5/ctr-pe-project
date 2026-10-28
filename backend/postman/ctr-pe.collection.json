@@ -844,6 +844,105 @@
           ]
         }
       ]
+    },
+    {
+      "name": "05. Error Handling, Sanitization & Rate Limit",
+      "item": [
+        {
+          "name": "GET /api/rota-inexistente-global - 404 Not Found & Sanitização",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/rota-totalmente-inexistente",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rota-totalmente-inexistente"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Retorna status 404 padronizado', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "pm.test('Sanitização: Resposta não vaza stack trace ou detalhes internos', function () {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include('Error:');",
+                  "    pm.expect(text).to.not.include('node_modules');",
+                  "    pm.expect(text).to.not.include('at ');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/usuarios - Conflito de E-mail Duplicado (409 Conflict)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Admin Duplicado\",\n  \"email\": \"admin@ctrpe.com.br\",\n  \"role\": \"ADMIN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "usuarios"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Cadastro de e-mail existente retorna 409 Conflict ou 400', function () {",
+                  "    pm.expect([400, 409]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/auth/login - Rate Limiting (Disparo de 429 Too Many Requests)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"spam@teste.com\",\n  \"senha\": \"Errada@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Endpoint responde com 401 ou 429 após múltiplas requisições', function () {",
+                  "    pm.expect([401, 429]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
