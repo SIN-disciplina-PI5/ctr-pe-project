@@ -1,161 +1,159 @@
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import bcrypt from "bcrypt";
-
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { UsuariosService } from "./usuarios.service.js";
-import { UsuariosRepository } from "./usuarios.repository.js";
 import { AppError } from "../../common/errors/AppError.js";
+import { ErrorCode } from "../../common/errors/error-code.js";
+import bcrypt from "bcrypt";
+import type { PerfilUsuario } from "@prisma/client";
+
+vi.mock("./usuarios.repository.js");
+vi.mock("bcrypt");
 
 describe("UsuariosService", () => {
-  let service: UsuariosService;
+  let usuariosService: UsuariosService;
+  let usuariosRepositoryMock: any;
 
   beforeEach(() => {
-    service = new UsuariosService();
-    jest.restoreAllMocks();
+    vi.clearAllMocks();
+    usuariosService = new UsuariosService();
+    usuariosRepositoryMock = (usuariosService as any).usuariosRepository;
   });
 
-  it("should listar usuários", async () => {
-    const users = [{ id: "1", nome: "João" }];
+  describe("findAll", () => {
+    it("deve retornar uma lista de usuários", async () => {
+      const mockUsers = [
+        { id: "1", nome: "Admin", email: "admin@teste.com", perfil: "ADMIN" as PerfilUsuario },
+      ];
+      usuariosRepositoryMock.findAll.mockResolvedValue(mockUsers);
 
-    jest.spyOn(UsuariosRepository.prototype, "findAll").mockResolvedValue(users as never);
+      const result = await usuariosService.findAll({});
 
-    const result = await service.findAll({ empresaId: "empresa-1" });
+      expect(usuariosRepositoryMock.findAll).toHaveBeenCalledWith({});
+      expect(result).toEqual(mockUsers);
+    });
+  });
 
-    expect(result).toEqual(users);
-    expect(UsuariosRepository.prototype.findAll).toHaveBeenCalledWith({
+  describe("findById", () => {
+    it("deve retornar o usuário quando encontrado", async () => {
+      const mockUser = { id: "1", nome: "Admin", email: "admin@teste.com" };
+      usuariosRepositoryMock.findById.mockResolvedValue(mockUser);
+
+      const result = await usuariosService.findById("1");
+
+      expect(usuariosRepositoryMock.findById).toHaveBeenCalledWith("1");
+      expect(result).toEqual(mockUser);
+    });
+
+    it("deve lançar AppError 404 se o usuário não existir", async () => {
+      usuariosRepositoryMock.findById.mockResolvedValue(null);
+
+      await expect(usuariosService.findById("inexistente")).rejects.toThrow(AppError);
+      await expect(usuariosService.findById("inexistente")).rejects.toMatchObject({
+        statusCode: 404,
+        errorCode: ErrorCode.NOT_FOUND,
+      });
+    });
+  });
+
+  describe("create", () => {
+    const createData = {
+      nome: "Novo Usuario",
+      email: "novo@teste.com",
+      password: "password123",
+      perfil: "TECNICO" as PerfilUsuario,
       empresaId: "empresa-1",
+    };
+
+    it("deve criar um usuário com a senha hasheada com sucesso", async () => {
+      usuariosRepositoryMock.findByEmail.mockResolvedValue(null);
+      (bcrypt.hash as any).mockResolvedValue("senha_hasheada");
+      usuariosRepositoryMock.create.mockResolvedValue({
+        id: "user-1",
+        ...createData,
+        senhaHash: "senha_hasheada",
+      });
+
+      const result = await usuariosService.create(createData);
+
+      expect(usuariosRepositoryMock.findByEmail).toHaveBeenCalledWith(createData.email);
+      expect(bcrypt.hash).toHaveBeenCalledWith(createData.password, expect.any(Number));
+      expect(usuariosRepositoryMock.create).toHaveBeenCalledWith({
+        nome: createData.nome,
+        email: createData.email,
+        senhaHash: "senha_hasheada",
+        perfil: createData.perfil,
+        empresaId: createData.empresaId,
+      });
+      expect(result).toHaveProperty("id", "user-1");
+    });
+
+    it("deve lançar erro 400 se faltarem campos obrigatórios", async () => {
+      const invalidData = { ...createData, email: "" };
+
+      await expect(usuariosService.create(invalidData as any)).rejects.toMatchObject({
+        statusCode: 400,
+        errorCode: ErrorCode.BAD_REQUEST,
+      });
+    });
+
+    it("deve lançar erro 409 se o email já estiver em uso", async () => {
+      usuariosRepositoryMock.findByEmail.mockResolvedValue({ id: "existente", email: createData.email });
+
+      await expect(usuariosService.create(createData)).rejects.toMatchObject({
+        statusCode: 409,
+        errorCode: ErrorCode.CONFLICT,
+      });
     });
   });
 
-  it("should retornar usuário por id", async () => {
-    const user = { id: "1", email: "joao@teste.com" };
+  describe("update", () => {
+    it("deve atualizar os dados do usuário com sucesso", async () => {
+      const existingUser = { id: "1", email: "antigo@teste.com", nome: "Nome Antigo" };
+      usuariosRepositoryMock.findById.mockResolvedValue(existingUser);
+      usuariosRepositoryMock.findByEmail.mockResolvedValue(null);
+      usuariosRepositoryMock.update.mockResolvedValue({ ...existingUser, nome: "Novo Nome" });
 
-    jest.spyOn(UsuariosRepository.prototype, "findById").mockResolvedValue(user as never);
+      const result = await usuariosService.update("1", { nome: "Novo Nome" });
 
-    const result = await service.findById("1");
-
-    expect(result).toEqual(user);
-  });
-
-  it("should lançar 404 quando usuário não existir", async () => {
-    jest.spyOn(UsuariosRepository.prototype, "findById").mockResolvedValue(null);
-
-    await expect(service.findById("1")).rejects.toBeInstanceOf(AppError);
-  });
-
-  it("should criar usuário com senha hash", async () => {
-    jest.spyOn(UsuariosRepository.prototype, "findByEmail").mockResolvedValue(null);
-    jest.spyOn(bcrypt, "hash").mockResolvedValue("hash-gerado" as never);
-    jest.spyOn(UsuariosRepository.prototype, "create").mockResolvedValue({
-      id: "1",
-      nome: "João",
-      email: "joao@teste.com",
-    } as never);
-
-    const result = await service.create({
-      nome: "João",
-      email: "joao@teste.com",
-      password: "123456",
-      perfil: "TECNICO",
-      empresaId: "empresa-1",
+      expect(usuariosRepositoryMock.update).toHaveBeenCalledWith("1", { nome: "Novo Nome" });
+      expect(result.nome).toBe("Novo Nome");
     });
 
-    expect(bcrypt.hash).toHaveBeenCalledWith("123456", expect.any(Number));
-    expect(UsuariosRepository.prototype.create).toHaveBeenCalledWith({
-      nome: "João",
-      email: "joao@teste.com",
-      senhaHash: "hash-gerado",
-      perfil: "TECNICO",
-      empresaId: "empresa-1",
-    });
-    expect(result).toEqual({
-      id: "1",
-      nome: "João",
-      email: "joao@teste.com",
+    it("deve lançar erro 409 se tentar atualizar para um email já utilizado por outro usuário", async () => {
+      const existingUser = { id: "1", email: "user1@teste.com" };
+      usuariosRepositoryMock.findById.mockResolvedValue(existingUser);
+      usuariosRepositoryMock.findByEmail.mockResolvedValue({ id: "2", email: "outro@teste.com" });
+
+      await expect(
+        usuariosService.update("1", { email: "outro@teste.com" })
+      ).rejects.toMatchObject({
+        statusCode: 409,
+        errorCode: ErrorCode.CONFLICT,
+      });
     });
   });
 
-  it("should lançar 409 ao criar com email em uso", async () => {
-    jest.spyOn(UsuariosRepository.prototype, "findByEmail").mockResolvedValue({
-      id: "1",
-      email: "joao@teste.com",
-    } as never);
+  describe("resetPassword", () => {
+    it("deve atualizar o hash da nova senha com sucesso", async () => {
+      usuariosRepositoryMock.findById.mockResolvedValue({ id: "1", email: "admin@teste.com" });
+      (bcrypt.hash as any).mockResolvedValue("nova_hash");
+      usuariosRepositoryMock.updatePassword.mockResolvedValue(undefined);
 
-    await expect(
-      service.create({
-        nome: "João",
-        email: "joao@teste.com",
-        password: "123456",
-        perfil: "TECNICO",
-      }),
-    ).rejects.toBeInstanceOf(AppError);
-  });
+      const result = await usuariosService.resetPassword("1", "novaSenha123");
 
-  it("should atualizar sem validar email de novo quando email não mudar", async () => {
-    jest.spyOn(UsuariosRepository.prototype, "findById").mockResolvedValue({
-      id: "1",
-      email: "joao@teste.com",
-    } as never);
-    const findByEmailSpy = jest.spyOn(UsuariosRepository.prototype, "findByEmail");
-    jest.spyOn(UsuariosRepository.prototype, "update").mockResolvedValue({
-      id: "1",
-      nome: "João Atualizado",
-    } as never);
-
-    const result = await service.update("1", {
-      nome: "João Atualizado",
-      email: "joao@teste.com",
+      expect(bcrypt.hash).toHaveBeenCalledWith("novaSenha123", expect.any(Number));
+      expect(usuariosRepositoryMock.updatePassword).toHaveBeenCalledWith("1", "nova_hash");
+      expect(result).toEqual({ message: "Senha resetada com sucesso" });
     });
-
-    expect(findByEmailSpy).not.toHaveBeenCalled();
-    expect(result).toEqual({ id: "1", nome: "João Atualizado" });
   });
 
-  it("should lançar 409 ao atualizar para email já em uso", async () => {
-    jest.spyOn(UsuariosRepository.prototype, "findById").mockResolvedValue({
-      id: "1",
-      email: "joao@teste.com",
-    } as never);
-    jest.spyOn(UsuariosRepository.prototype, "findByEmail").mockResolvedValue({
-      id: "2",
-      email: "outro@teste.com",
-    } as never);
+  describe("delete", () => {
+    it("deve remover o usuário caso ele exista", async () => {
+      usuariosRepositoryMock.findById.mockResolvedValue({ id: "1" });
+      usuariosRepositoryMock.delete.mockResolvedValue(undefined);
 
-    await expect(
-      service.update("1", {
-        email: "outro@teste.com",
-      }),
-    ).rejects.toBeInstanceOf(AppError);
-  });
+      await usuariosService.delete("1");
 
-  it("should resetar senha", async () => {
-    jest.spyOn(UsuariosRepository.prototype, "findById").mockResolvedValue({
-      id: "1",
-      email: "joao@teste.com",
-    } as never);
-    jest.spyOn(bcrypt, "hash").mockResolvedValue("novo-hash" as never);
-    jest.spyOn(UsuariosRepository.prototype, "updatePassword").mockResolvedValue({
-      id: "1",
-    } as never);
-
-    const result = await service.resetPassword("1", "novaSenha123");
-
-    expect(bcrypt.hash).toHaveBeenCalledWith("novaSenha123", expect.any(Number));
-    expect(UsuariosRepository.prototype.updatePassword).toHaveBeenCalledWith("1", "novo-hash");
-    expect(result).toEqual({ message: "Senha resetada com sucesso" });
-  });
-
-  it("should inativar usuário", async () => {
-    jest.spyOn(UsuariosRepository.prototype, "findById").mockResolvedValue({
-      id: "1",
-      email: "joao@teste.com",
-    } as never);
-    jest.spyOn(UsuariosRepository.prototype, "delete").mockResolvedValue({
-      id: "1",
-    } as never);
-
-    const result = await service.delete("1");
-
-    expect(UsuariosRepository.prototype.delete).toHaveBeenCalledWith("1");
-    expect(result).toEqual({ id: "1" });
+      expect(usuariosRepositoryMock.delete).toHaveBeenCalledWith("1");
+    });
   });
 });

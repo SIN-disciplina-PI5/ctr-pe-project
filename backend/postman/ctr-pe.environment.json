@@ -1,0 +1,55 @@
+{
+  "id": "ctr-pe-local-env",
+  "name": "CTR-PE Local Environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "token_admin",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "token_gestor",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "token_supervisor",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "token_tecnico",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "token_consulta",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "company_id_a",
+      "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "company_id_b",
+      "value": "2",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}
