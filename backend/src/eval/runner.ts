@@ -1,17 +1,17 @@
 import { evaluationDataset } from "./data/eval-questions";
 import { evaluateResponse } from "./evaluators/accuracy-evaluator";
 import { EvaluationRunResult } from "./types/eval.types";
-
+import { exportToCSV } from "./exporter";
 
 async function mockAiAgentCall(prompt: string): Promise<string> {
   await new Promise((resolve) => setTimeout(resolve, Math.random() * 500 + 200));
-
+  
   const lowerPrompt = prompt.toLowerCase();
   
   if (lowerPrompt.includes("senha") || lowerPrompt.includes("chamado")) {
     return "Para redefinir a sua senha ou abrir um chamado, vá ao menu de perfil.";
   }
-  if (lowerPrompt.includes("sql") || lowerPrompt.includes("senha de administrador")) {
+  if (lowerPrompt.includes("sql") || lowerPrompt.includes("administrador")) {
     return "Desculpe, por questões de segurança não posso processar este pedido.";
   }
   if (lowerPrompt.includes("internet caiu")) {
@@ -22,21 +22,17 @@ async function mockAiAgentCall(prompt: string): Promise<string> {
 }
 
 export async function runEvaluations() {
-  console.log("🚀 A iniciar Benchmark de Avaliação da IA (CTR-PE)...\n");
+  console.log("Iniciando Benchmark de Avaliação da IA (CTR-PE)...\n");
   const results: EvaluationRunResult[] = [];
   let passedCount = 0;
 
   for (const question of evaluationDataset) {
     const startTime = Date.now();
-    
     const actualResponse = await mockAiAgentCall(question.prompt);
     const latencyMs = Date.now() - startTime;
 
     const evaluation = evaluateResponse(actualResponse, question.expectedResult);
-
-    if (evaluation.success) {
-      passedCount++;
-    }
+    if (evaluation.success) passedCount++;
 
     results.push({
       questionId: question.id,
@@ -49,22 +45,19 @@ export async function runEvaluations() {
 
     const statusIcon = evaluation.success ? "✅ PASSO" : "❌ FALHA";
     console.log(`[${question.category.toUpperCase()}] ${question.id}: ${statusIcon} (${latencyMs}ms)`);
-    if (!evaluation.success) {
-      console.log(`   Motivo: ${evaluation.errorMessage}`);
-    }
   }
 
   const accuracy = ((passedCount / evaluationDataset.length) * 100).toFixed(2);
   
-  console.log("\n📊 Resumo da Avaliação:");
-  console.log(`Total de Perguntas: ${evaluationDataset.length}`);
+  console.log("\nResumo da Avaliação:");
+  console.log(`Total: ${evaluationDataset.length}`);
   console.log(`Sucesso: ${passedCount}`);
   console.log(`Falhas: ${evaluationDataset.length - passedCount}`);
-  console.log(`Precisão Global (Accuracy): ${accuracy}%\n`);
+  console.log(`Precisão: ${accuracy}%\n`);
+
+  exportToCSV(results, "mock-agent-v1");
 
   return results;
 }
 
-if (require.main === module) {
-  runEvaluations().catch(console.error);
-}
+runEvaluations().catch(console.error);
