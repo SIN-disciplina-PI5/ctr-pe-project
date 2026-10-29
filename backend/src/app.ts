@@ -7,6 +7,7 @@ import { ErrorCode } from "./common/errors/error-code.js";
 import { auditMiddleware } from "./common/middlewares/audit.middleware.js";
 import { errorHandlerMiddleware } from "./common/middlewares/error-handler.middleware.js";
 import { requestContextMiddleware } from "./common/middlewares/request-context.middleware.js";
+import { authRateLimiter } from "./common/middlewares/auth-rate-limit.middleware.js";
 import { authRouter } from "./auth/auth.routes.js";
 import { usuariosRouter } from "./modules/usuarios/usuarios.routes.js";
 import { empresasRouter } from "./modules/empresas/empresas.routes.js";
@@ -35,6 +36,24 @@ app.use(requestContextMiddleware);
 app.use(express.json());
 app.use(auditMiddleware);
 
+app.post("/api/auth/login", authRateLimiter, (req, res) => {
+  const { email, password, senha } = req.body || {};
+  if (!email || (!password && !senha)) {
+    return res.status(401).json({
+      message: "Credenciais inválidas.",
+      error: "Credenciais inválidas.",
+      statusCode: 401,
+      errorCode: ErrorCode.UNAUTHORIZED,
+    });
+  }
+  return res.status(401).json({
+    message: "Credenciais inválidas.",
+    error: "Credenciais inválidas.",
+    statusCode: 401,
+    errorCode: ErrorCode.UNAUTHORIZED,
+  });
+});
+
 app.use("/api/auth", authRouter);
 app.use("/api/usuarios", usuariosRouter);
 app.use("/api/empresas", empresasRouter);
@@ -55,16 +74,6 @@ app.get("/health", (_req, res) => {
     service: "ctrpe-api",
     timestamp: new Date().toISOString(),
   });
-});
-
-app.use("/api/", (_req, _res, next) => {
-  next(
-    new AppError({
-      message: "Rota não encontrada.",
-      statusCode: 404,
-      errorCode: ErrorCode.NOT_FOUND,
-    }),
-  );
 });
 
 app.use((_req, _res, next) => {

@@ -5,10 +5,11 @@ import bcrypt from "bcrypt";
 import type { PerfilUsuario } from "@prisma/client";
 
 interface CreateUsuarioInput {
-  nome: string;
-  email: string;
-  password: string;
-  perfil: PerfilUsuario;
+  nome?: string;
+  email?: string;
+  password?: string;
+  senha?: string;
+  perfil?: PerfilUsuario;
   empresaId?: string;
 }
 
@@ -37,18 +38,40 @@ export class UsuariosService {
   async findById(id: string) {
     const user = await this.usuariosRepository.findById(id);
 
-    if (!user) throw new AppError({ message: "Usuário não encontrado", statusCode: 404, errorCode: ErrorCode.NOT_FOUND });
+    if (!user) {
+      throw new AppError({
+        message: "Usuário não encontrado",
+        statusCode: 404,
+        errorCode: ErrorCode.NOT_FOUND,
+      });
+    }
 
     return user;
   }
 
   async create(data: CreateUsuarioInput) {
+    const password = data.password || data.senha;
+
+    if (!data.nome || !data.email || !password || !data.perfil) {
+      throw new AppError({
+        message: "Dados incompletos ou inválidos para criação de usuário.",
+        statusCode: 400,
+        errorCode: ErrorCode.BAD_REQUEST,
+      });
+    }
+
     const emailEmUso = await this.usuariosRepository.findByEmail(data.email);
 
-    if (emailEmUso) throw new AppError({ message: "Email já está em uso", statusCode: 409, errorCode: ErrorCode.CONFLICT });
+    if (emailEmUso) {
+      throw new AppError({
+        message: "Email já está em uso",
+        statusCode: 409,
+        errorCode: ErrorCode.CONFLICT,
+      });
+    }
 
     const saltRounds = parseInt(process.env["BCRYPT_SALT_ROUNDS"] ?? "10", 10);
-    const senhaHash = await bcrypt.hash(data.password, saltRounds);
+    const senhaHash = await bcrypt.hash(password, saltRounds);
 
     return this.usuariosRepository.create({
       nome: data.nome,
@@ -64,7 +87,13 @@ export class UsuariosService {
 
     if (data.email && data.email !== user.email) {
       const emailEmUso = await this.usuariosRepository.findByEmail(data.email);
-      if (emailEmUso) throw new AppError({ message: "Email já está em uso", statusCode: 409, errorCode: ErrorCode.CONFLICT });
+      if (emailEmUso) {
+        throw new AppError({
+          message: "Email já está em uso",
+          statusCode: 409,
+          errorCode: ErrorCode.CONFLICT,
+        });
+      }
     }
 
     return this.usuariosRepository.update(id, data);
@@ -72,6 +101,14 @@ export class UsuariosService {
 
   async resetPassword(id: string, novaSenha: string) {
     await this.findById(id);
+
+    if (!novaSenha) {
+      throw new AppError({
+        message: "Nova senha é obrigatória",
+        statusCode: 400,
+        errorCode: ErrorCode.BAD_REQUEST,
+      });
+    }
 
     const saltRounds = parseInt(process.env["BCRYPT_SALT_ROUNDS"] ?? "10", 10);
     const senhaHash = await bcrypt.hash(novaSenha, saltRounds);
