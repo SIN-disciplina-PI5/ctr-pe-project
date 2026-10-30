@@ -19,12 +19,29 @@ export class AmbienteGuard {
       );
     }
 
-    const url = process.env.DATABASE_URL;
+        const url = process.env.DATABASE_URL;
     if (!url) {
       throw new Error("DATABASE_URL não definida.");
     }
 
-    return { url, host: AmbienteGuard.extrairHost(url) };
+    const host = AmbienteGuard.extrairHost(url);
+    const hostPermitido = process.env.SYNTHETIC_DATABASE_ALLOWED_HOST
+      ?.trim()
+      .toLowerCase();
+
+    if (!hostPermitido) {
+      throw new Error(
+        "SYNTHETIC_DATABASE_ALLOWED_HOST não definido. O reset foi recusado.",
+      );
+    }
+
+    if (host === HOST_DESCONHECIDO || host !== hostPermitido) {
+      throw new Error(
+        `Banco não autorizado. Host recebido: ${host}. Host permitido: ${hostPermitido}.`,
+      );
+    }
+
+    return { url, host };
   }
 
   private static extrairHost(url: string): string {

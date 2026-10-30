@@ -15,7 +15,8 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:seed": "prisma db seed",
     "prisma:studio": "prisma studio",
-    "tokens:cleanup": "tsx src/auth/clean-refresh-tokens.ts"
+"tokens:cleanup": "tsx src/auth/clean-refresh-tokens.ts",
+"db:reset-synthetic": "tsx scripts/synthetic-data/reset-and-seed.ts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
