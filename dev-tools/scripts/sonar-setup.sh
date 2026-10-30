@@ -41,7 +41,10 @@ TOKEN_RESPONSE=$(curl -sf -u "$ADMIN_USER:$NEW_PASS" -X POST "$SONAR_URL/api/use
   -d "name=manutencao_conectada_token")
 TOKEN=$(echo "$TOKEN_RESPONSE" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
 
-echo "SONAR_TOKEN=$TOKEN" > "$DEV_TOOLS/.env"
+if grep -q '^SONAR_TOKEN=' "$DEV_TOOLS/.env" 2>/dev/null; then
+  sed -i.bak "/^SONAR_TOKEN=/d" "$DEV_TOOLS/.env" && rm -f "$DEV_TOOLS/.env.bak"
+fi
+echo "SONAR_TOKEN=$TOKEN" >> "$DEV_TOOLS/.env"
 echo "Token saved to dev-tools/.env"
 
 echo ""
