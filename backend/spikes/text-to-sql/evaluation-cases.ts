@@ -2,12 +2,14 @@ export interface EvaluationCase {
   id: string;
   question: string;
   referenceSql: string;
+  companyCode: "alpha-brazilian" | "alpha-international";
 }
 
 export const EVALUATION_CASES: readonly EvaluationCase[] = [
   {
     id: "ativos-indisponiveis",
     question: "Quais ativos da Alpha Brazilian estão indisponíveis?",
+    companyCode: "alpha-brazilian",
     referenceSql: `
 SELECT a.codigo, a.nome, a.status
 FROM "Ativo" a
@@ -21,6 +23,7 @@ LIMIT 100;`.trim(),
   {
     id: "os-abertas-por-status",
     question: "Quantas O.S. abertas existem por status na Alpha Brazilian?",
+    companyCode: "alpha-brazilian",
     referenceSql: `
 SELECT o.status, COUNT(*)::int AS quantidade
 FROM "OrdemServico" o
@@ -34,6 +37,7 @@ LIMIT 100;`.trim(),
   {
     id: "ativos-mais-corretivas",
     question: "Quais são os cinco ativos com mais manutenções corretivas na Alpha Brazilian?",
+    companyCode: "alpha-brazilian",
     referenceSql: `
 SELECT a.codigo, a.nome, COUNT(*)::int AS quantidade
 FROM "OrdemServico" o
@@ -47,6 +51,7 @@ LIMIT 5;`.trim(),
   {
     id: "materiais-estoque-baixo",
     question: "Quais materiais da Alpha International estão com estoque baixo?",
+    companyCode: "alpha-international",
     referenceSql: `
 SELECT m.codigo, m.nome, m."estoqueAtual", m."estoqueMinimo"
 FROM "Material" m
@@ -60,6 +65,7 @@ LIMIT 100;`.trim(),
   {
     id: "os-atrasadas",
     question: "Quais O.S. da Alpha Brazilian estão atrasadas em 27 de outubro de 2026?",
+    companyCode: "alpha-brazilian",
     referenceSql: `
 SELECT o.numero, o.titulo, o.status, o."prazoEm"
 FROM "OrdemServico" o
@@ -74,6 +80,7 @@ LIMIT 100;`.trim(),
     id: "custo-agosto",
 question:
   "Qual foi o custo total das O.S. que foram abertas durante agosto de 2026 na Alpha Brazilian?",
+    companyCode: "alpha-brazilian",
     referenceSql: `
 SELECT COALESCE(SUM(o."custoTotal"), 0) AS custo_total
 FROM "OrdemServico" o
@@ -87,6 +94,7 @@ LIMIT 100;`.trim(),
     id: "maior-media-parada",
     question:
   "Quais são os cinco ativos com maior duração média de parada na Alpha International?",
+    companyCode: "alpha-international",
     referenceSql: `
 SELECT a.codigo, a.nome, AVG(p."duracaoMinutos") AS media_minutos
 FROM "ParadaAtivo" p
@@ -101,6 +109,7 @@ LIMIT 5;`.trim(),
     id: "materiais-os-aguardando",
     question:
   "Quais materiais e qual quantidade total aparecem nas O.S. aguardando peça da Alpha Brazilian?",
+    companyCode: "alpha-brazilian",
     referenceSql: `
 SELECT m.codigo, m.nome, SUM(osm.quantidade) AS quantidade
 FROM "OrdemServicoMaterial" osm
@@ -115,6 +124,7 @@ LIMIT 100;`.trim(),
   {
     id: "ct07-agosto",
     question: "O que aconteceu com o ativo CT-07 da Alpha Brazilian em agosto de 2026?",
+    companyCode: "alpha-brazilian",
     referenceSql: `
 SELECT o.numero, o.titulo, o.status, o."abertaEm", o."encerradaEm",
        o."tempoAguardandoPecaMinutos", o."custoTotal"
@@ -131,6 +141,7 @@ LIMIT 100;`.trim(),
   {
     id: "alertas-criticos",
     question: "Quais alertas críticos ainda estão abertos na Alpha International?",
+    companyCode: "alpha-international",
     referenceSql: `
 SELECT al.tipo, al.titulo, al.mensagem, al."geradoEm"
 FROM "Alerta" al

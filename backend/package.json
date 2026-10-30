@@ -18,7 +18,8 @@
     "tokens:cleanup": "tsx src/auth/clean-refresh-tokens.ts",
     "db:reset-synthetic": "tsx scripts/synthetic-data/reset-and-seed.ts",
     "spike:provider-smoke": "tsx spikes/text-to-sql/run-provider-smoke.ts",
-    "spike:generate-sql": "tsx spikes/text-to-sql/run-generation.ts"
+    "spike:generate-sql": "tsx spikes/text-to-sql/run-generation.ts",
+    "spike:validate-sql": "tsx spikes/text-to-sql/run-validation.ts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
@@ -40,6 +41,7 @@
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
     "pg": "^8.20.0",
+    "pgsql-parser": "^18.3.1",
     "zod": "^4.4.2"
   },
   "devDependencies": {
