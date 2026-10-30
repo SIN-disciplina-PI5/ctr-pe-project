@@ -1,0 +1,150 @@
+[
+  {
+    "id": "ativos-indisponiveis",
+    "question": "Quais ativos da Alpha Brazilian estão indisponíveis?",
+    "referenceSql": "SELECT a.codigo, a.nome, a.status\nFROM \"Ativo\" a\nJOIN \"Empresa\" e ON e.id = a.\"empresaId\"\nWHERE e.codigo = 'alpha-brazilian'\n  AND a.ativo = true\n  AND a.status IN ('PARADO', 'EM_MANUTENCAO', 'AGUARDANDO_PECA')\nORDER BY a.codigo\nLIMIT 100;",
+    "generatedSql": null,
+    "error": "400 {\"error\":{\"message\":\"Generated JSON does not match the expected schema. Please adjust your prompt. See 'failed_generation' for more details. Error: jsonschema: '' does not validate with /required: missing properties: 'sql'\",\"type\":\"invalid_request_error\",\"code\":\"json_validate_failed\",\"failed_generation\":\"{\\\"explicacao\\\":\\\"Consulta ativos indisponíveis da Alpha Brazilian.\\\",\\\"premissas\\\":[\\\"Ativo indisponível: ativo = true e status em {PARADO, EM_MANUTENCAO, AGUARDANDO_PECA}.\\\",\\\"Filtragem por empresa usando Empresa.codigo = 'alpha-brazilian'.\\\"]}\"}}"
+  },
+  {
+    "id": "os-abertas-por-status",
+    "question": "Quantas O.S. abertas existem por status na Alpha Brazilian?",
+    "referenceSql": "SELECT o.status, COUNT(*)::int AS quantidade\nFROM \"OrdemServico\" o\nJOIN \"Empresa\" e ON e.id = o.\"empresaId\"\nWHERE e.codigo = 'alpha-brazilian'\n  AND o.status IN ('ABERTA', 'EM_EXECUCAO', 'AGUARDANDO_PECA')\nGROUP BY o.status\nORDER BY o.status\nLIMIT 100;",
+    "generatedSql": null,
+    "error": "400 {\"error\":{\"message\":\"Generated JSON does not match the expected schema. Please adjust your prompt. See 'failed_generation' for more details. Error: jsonschema: '' does not validate with /required: missing properties: 'sql'\",\"type\":\"invalid_request_error\",\"code\":\"json_validate_failed\",\"failed_generation\":\"{\\\"explicacao\\\":\\\"Conta o número de ordens de serviço abertas por status na empresa Alpha Brazilian.\\\",\\\"premissas\\\":[\\\"O.S. aberta corresponde aos status ABERTA, EM_EXECUCAO ou AGUARDANDO_PECA.\\\",\\\"A consulta filtra apenas registros da empresa cujo código é 'alpha-brazilian'.\\\",\\\"Todos os identificadores são citados entre aspas duplas conforme a convenção PostgreSQL.\\\",\\\"A cláusula LIMIT garante no máximo 100 linhas retornadas.\\\",\\\"A consulta utiliza apenas as tabelas e colunas fornecidas no esquema.\\\"]}\"}}"
+  },
+  {
+    "id": "ativos-mais-corretivas",
+    "question": "Quais são os cinco ativos com mais manutenções corretivas na Alpha Brazilian?",
+    "referenceSql": "SELECT a.codigo, a.nome, COUNT(*)::int AS quantidade\nFROM \"OrdemServico\" o\nJOIN \"Ativo\" a ON a.id = o.\"ativoId\"\nJOIN \"Empresa\" e ON e.id = o.\"empresaId\"\nWHERE e.codigo = 'alpha-brazilian' AND o.tipo = 'CORRETIVA'\nGROUP BY a.id, a.codigo, a.nome\nORDER BY quantidade DESC, a.codigo\nLIMIT 5;",
+    "generatedSql": "SELECT a.\"codigo\" AS codigo, a.\"nome\" AS nome, COUNT(os.id) AS total_corr FROM \"Ativo\" AS a JOIN \"Empresa\" AS e ON a.\"empresaId\" = e.id LEFT JOIN \"OrdemServico\" AS os ON os.\"ativoId\" = a.id AND os.tipo = 'CORRETIVA' WHERE e.codigo = 'alpha-brazilian' GROUP BY a.id, a.\"codigo\", a.\"nome\" ORDER BY total_corr DESC LIMIT 5;",
+    "explanation": "A consulta retorna os cinco ativos da empresa Alpha Brazilian que tiveram mais ordens de serviço do tipo CORRETIVA, contando todas as ocorrências independentemente do status da ordem. Os resultados são agrupados pelo código e nome do ativo, ordenados pelo número de ordens corretivas em ordem decrescente e limitados a cinco registros.",
+    "assumptions": [
+      "A empresa Alpha Brazilian possui o código 'alpha-brazilian' na tabela \"Empresa\".",
+      "Os tipos de ordem de serviço são armazenados na coluna \"tipo\" da tabela \"OrdemServico\" e o valor para manutenção corretiva é 'CORRETIVA'.",
+      "A relação entre ativos e ordens de serviço é feita pela coluna \"ativoId\" em \"OrdemServico\".",
+      "A consulta considera todas as ordens corretivas, independentemente de seu status atual."
+    ],
+    "metrics": {
+      "model": "openai/gpt-oss-20b",
+      "latencyMs": 1674,
+      "inputTokens": 1198,
+      "outputTokens": 743,
+      "totalTokens": 1941
+    }
+  },
+  {
+    "id": "materiais-estoque-baixo",
+    "question": "Quais materiais da Alpha International estão com estoque baixo?",
+    "referenceSql": "SELECT m.codigo, m.nome, m.\"estoqueAtual\", m.\"estoqueMinimo\"\nFROM \"Material\" m\nJOIN \"Empresa\" e ON e.id = m.\"empresaId\"\nWHERE e.codigo = 'alpha-international'\n  AND m.ativo = true\n  AND m.\"estoqueAtual\" <= m.\"estoqueMinimo\"\nORDER BY m.codigo\nLIMIT 100;",
+    "generatedSql": "SELECT m.\"id\", m.\"codigo\", m.\"nome\", m.\"estoqueAtual\", m.\"estoqueMinimo\" FROM \"Material\" AS m WHERE m.\"empresaId\" = (SELECT \"id\" FROM \"Empresa\" WHERE \"codigo\" = 'alpha-international') AND m.ativo = true AND m.\"estoqueAtual\" <= m.\"estoqueMinimo\" LIMIT 100;",
+    "explanation": "Consulta materiais da Alpha International com estoque baixo, considerando ativos e estoque atual <= estoque mínimo.",
+    "assumptions": [
+      "Material ativo = true",
+      "estoqueAtual <= estoqueMinimo",
+      "Filtrar por empresa 'alpha-international'"
+    ],
+    "metrics": {
+      "model": "openai/gpt-oss-20b",
+      "latencyMs": 1780,
+      "inputTokens": 1192,
+      "outputTokens": 1213,
+      "totalTokens": 2405
+    }
+  },
+  {
+    "id": "os-atrasadas",
+    "question": "Quais O.S. da Alpha Brazilian estão atrasadas em 27 de outubro de 2026?",
+    "referenceSql": "SELECT o.numero, o.titulo, o.status, o.\"prazoEm\"\nFROM \"OrdemServico\" o\nJOIN \"Empresa\" e ON e.id = o.\"empresaId\"\nWHERE e.codigo = 'alpha-brazilian'\n  AND o.status IN ('ABERTA', 'EM_EXECUCAO', 'AGUARDANDO_PECA')\n  AND o.\"prazoEm\" < TIMESTAMPTZ '2026-10-27T12:00:00Z'\nORDER BY o.\"prazoEm\"\nLIMIT 100;",
+    "generatedSql": "SELECT os.* FROM \"OrdemServico\" os JOIN \"Empresa\" e ON os.\"empresaId\" = e.id WHERE e.\"codigo\" = 'alpha-brazilian' AND os.\"status\" IN ('ABERTA','EM_EXECUCAO','AGUARDANDO_PECA') AND os.\"prazoEm\" < '2026-10-27T12:00:00Z' LIMIT 100;",
+    "explanation": "Consulta que retorna todas as ordens de serviço abertas da empresa Alpha Brazilian que já passaram do prazo de entrega em 27 de outubro de 2026.",
+    "assumptions": [
+      "Empresa identificada pelo código 'alpha-brazilian'.",
+      "Status de O.S. considerados abertos são ABERTA, EM_EXECUCAO, AGUARDANDO_PECA.",
+      "PrazoEm menor que a data de referência 2026-10-27T12:00:00Z."
+    ],
+    "metrics": {
+      "model": "openai/gpt-oss-20b",
+      "latencyMs": 1794,
+      "inputTokens": 1202,
+      "outputTokens": 1100,
+      "totalTokens": 2302
+    }
+  },
+  {
+    "id": "custo-agosto",
+    "question": "Qual foi o custo total das O.S. que foram abertas durante agosto de 2026 na Alpha Brazilian?",
+    "referenceSql": "SELECT COALESCE(SUM(o.\"custoTotal\"), 0) AS custo_total\nFROM \"OrdemServico\" o\nJOIN \"Empresa\" e ON e.id = o.\"empresaId\"\nWHERE e.codigo = 'alpha-brazilian'\n  AND o.\"abertaEm\" >= TIMESTAMPTZ '2026-08-01T00:00:00Z'\n  AND o.\"abertaEm\" < TIMESTAMPTZ '2026-09-01T00:00:00Z'\nLIMIT 100;",
+    "generatedSql": "SELECT SUM(\"custoTotal\") AS \"custoTotalOS\" FROM \"OrdemServico\" AS os JOIN \"Empresa\" AS e ON os.\"empresaId\" = e.id WHERE e.codigo = 'alpha-brazilian' AND os.\"abertaEm\" >= '2026-08-01T00:00:00Z' AND os.\"abertaEm\" < '2026-09-01T00:00:00Z' LIMIT 100;",
+    "explanation": "Para calcular o custo total das ordens de serviço (O.S.) que foram abertas em agosto de 2026 na empresa Alpha Brazilian, somamos o campo \"custoTotal\" da tabela \"OrdemServico\" filtrando por data de abertura entre 1º e 31 de agosto de 2026 e restringindo a empresa pelo código \"alpha-brazilian\".",
+    "assumptions": [
+      "A coluna \"abertaEm\" indica a data em que a O.S. foi aberta.",
+      "O filtro de empresa é feito pelo campo \"codigo\" da tabela \"Empresa\".",
+      "A soma de \"custoTotal\" fornece o valor total desejado.",
+      "A consulta utiliza o padrão de datas ISO 8601 com fuso UTC.",
+      "A cláusula LIMIT 100 é incluída conforme a regra de negócio, embora a soma retorne apenas uma linha."
+    ],
+    "metrics": {
+      "model": "openai/gpt-oss-20b",
+      "latencyMs": 1144,
+      "inputTokens": 1203,
+      "outputTokens": 674,
+      "totalTokens": 1877
+    }
+  },
+  {
+    "id": "maior-media-parada",
+    "question": "Quais são os cinco ativos com maior duração média de parada na Alpha International?",
+    "referenceSql": "SELECT a.codigo, a.nome, AVG(p.\"duracaoMinutos\") AS media_minutos\nFROM \"ParadaAtivo\" p\nJOIN \"Ativo\" a ON a.id = p.\"ativoId\"\nJOIN \"Empresa\" e ON e.id = p.\"empresaId\"\nWHERE e.codigo = 'alpha-international' AND p.status = 'ENCERRADA'\nGROUP BY a.id, a.codigo, a.nome\nORDER BY media_minutos DESC\nLIMIT 5;",
+    "generatedSql": null,
+    "error": "400 {\"error\":{\"message\":\"Failed to validate JSON. Please adjust your prompt. See 'failed_generation' for more details.\",\"type\":\"invalid_request_error\",\"code\":\"json_validate_failed\",\"failed_generation\":\"\"}}"
+  },
+  {
+    "id": "materiais-os-aguardando",
+    "question": "Quais materiais e qual quantidade total aparecem nas O.S. aguardando peça da Alpha Brazilian?",
+    "referenceSql": "SELECT m.codigo, m.nome, SUM(osm.quantidade) AS quantidade\nFROM \"OrdemServicoMaterial\" osm\nJOIN \"Material\" m ON m.id = osm.\"materialId\"\nJOIN \"OrdemServico\" o ON o.id = osm.\"ordemServicoId\"\nJOIN \"Empresa\" e ON e.id = o.\"empresaId\"\nWHERE e.codigo = 'alpha-brazilian' AND o.status = 'AGUARDANDO_PECA'\nGROUP BY m.id, m.codigo, m.nome\nORDER BY quantidade DESC\nLIMIT 100;",
+    "generatedSql": "SELECT m.\"codigo\", m.\"nome\", SUM(osm.\"quantidade\") AS total_quantidade FROM \"Material\" AS m JOIN \"OrdemServicoMaterial\" AS osm ON m.id = osm.\"materialId\" JOIN \"OrdemServico\" AS os ON os.id = osm.\"ordemServicoId\" JOIN \"Empresa\" AS e ON e.id = os.\"empresaId\" WHERE e.\"codigo\" = 'alpha-brazilian' AND os.\"status\" = 'AGUARDANDO_PECA' GROUP BY m.\"codigo\", m.\"nome\" LIMIT 100;",
+    "explanation": "A consulta reúne os materiais que aparecem em ordens de serviço (O.S.) com status \"AGUARDANDO_PECA\" da empresa Alpha Brazilian, somando a quantidade total de cada material nas O.S. correspondentes.",
+    "assumptions": [
+      "Filtra apenas O.S. cujo status é AGUARDANDO_PECA.",
+      "Considera apenas materiais associados a essas O.S. via OrdemServicoMaterial.",
+      "Agrupa por código e nome do material para somar a quantidade total.",
+      "Limita os resultados à empresa Alpha Brazilian usando o código da empresa.",
+      "Aplica LIMIT 100 para evitar retorno excessivo.",
+      "Utiliza aspas duplas em todos os identificadores conforme regras de escrita SQL."
+    ],
+    "metrics": {
+      "model": "openai/gpt-oss-20b",
+      "latencyMs": 1349,
+      "inputTokens": 1200,
+      "outputTokens": 778,
+      "totalTokens": 1978
+    }
+  },
+  {
+    "id": "ct07-agosto",
+    "question": "O que aconteceu com o ativo CT-07 da Alpha Brazilian em agosto de 2026?",
+    "referenceSql": "SELECT o.numero, o.titulo, o.status, o.\"abertaEm\", o.\"encerradaEm\",\n       o.\"tempoAguardandoPecaMinutos\", o.\"custoTotal\"\nFROM \"OrdemServico\" o\nJOIN \"Ativo\" a ON a.id = o.\"ativoId\"\nJOIN \"Empresa\" e ON e.id = o.\"empresaId\"\nWHERE e.codigo = 'alpha-brazilian'\n  AND a.codigo = 'CT-07'\n  AND o.\"abertaEm\" >= TIMESTAMPTZ '2026-08-01T00:00:00Z'\n  AND o.\"abertaEm\" < TIMESTAMPTZ '2026-09-01T00:00:00Z'\nORDER BY o.\"abertaEm\"\nLIMIT 100;",
+    "generatedSql": null,
+    "error": "400 {\"error\":{\"message\":\"Failed to validate JSON. Please adjust your prompt. See 'failed_generation' for more details.\",\"type\":\"invalid_request_error\",\"code\":\"json_validate_failed\",\"failed_generation\":\"\"}}"
+  },
+  {
+    "id": "alertas-criticos",
+    "question": "Quais alertas críticos ainda estão abertos na Alpha International?",
+    "referenceSql": "SELECT al.tipo, al.titulo, al.mensagem, al.\"geradoEm\"\nFROM \"Alerta\" al\nJOIN \"Empresa\" e ON e.id = al.\"empresaId\"\nWHERE e.codigo = 'alpha-international'\n  AND al.severidade = 'CRITICA'\n  AND al.status = 'ABERTO'\nORDER BY al.\"geradoEm\" DESC\nLIMIT 100;",
+    "generatedSql": "SELECT a.\"id\", a.\"titulo\", a.\"mensagem\", a.\"geradoEm\" FROM \"Alerta\" AS a JOIN \"Empresa\" AS e ON a.\"empresaId\" = e.id WHERE e.\"codigo\" = 'alpha-international' AND a.\"severidade\" = 'CRITICA' AND a.\"status\" = 'ABERTO' LIMIT 100;",
+    "explanation": "A consulta busca alertas que ainda estão abertos e têm severidade crítica na empresa Alpha International. Para isso, filtramos os registros da tabela \"Alerta\" que têm status \"ABERTO\" e severidade \"CRITICA\", e garantimos que pertencem à empresa cujo código é \"alpha-international\". Isso é feito através de um JOIN com a tabela \"Empresa\" usando a coluna \"empresaId\".",
+    "assumptions": [
+      "A coluna \"empresaId\" em \"Alerta\" referencia a coluna \"id\" em \"Empresa\".",
+      "O código da empresa Alpha International é \"alpha-international\".",
+      "Os valores de status e severidade são exatamente os strings indicados (ABERTO, CRITICA)."
+    ],
+    "metrics": {
+      "model": "openai/gpt-oss-20b",
+      "latencyMs": 1146,
+      "inputTokens": 1194,
+      "outputTokens": 632,
+      "totalTokens": 1826
+    }
+  }
+]

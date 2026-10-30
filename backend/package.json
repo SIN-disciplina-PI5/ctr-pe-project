@@ -17,7 +17,8 @@
     "prisma:studio": "prisma studio",
     "tokens:cleanup": "tsx src/auth/clean-refresh-tokens.ts",
     "db:reset-synthetic": "tsx scripts/synthetic-data/reset-and-seed.ts",
-    "spike:provider-smoke": "tsx spikes/text-to-sql/run-provider-smoke.ts"
+    "spike:provider-smoke": "tsx spikes/text-to-sql/run-provider-smoke.ts",
+    "spike:generate-sql": "tsx spikes/text-to-sql/run-generation.ts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
