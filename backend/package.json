@@ -15,8 +15,9 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:seed": "prisma db seed",
     "prisma:studio": "prisma studio",
-"tokens:cleanup": "tsx src/auth/clean-refresh-tokens.ts",
-"db:reset-synthetic": "tsx scripts/synthetic-data/reset-and-seed.ts"
+    "tokens:cleanup": "tsx src/auth/clean-refresh-tokens.ts",
+    "db:reset-synthetic": "tsx scripts/synthetic-data/reset-and-seed.ts",
+    "spike:provider-smoke": "tsx spikes/text-to-sql/run-provider-smoke.ts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
@@ -33,6 +34,7 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-rate-limit": "^8.5.2",
+    "groq-sdk": "^1.6.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
