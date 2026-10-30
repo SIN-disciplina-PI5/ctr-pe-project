@@ -1,0 +1,372 @@
+[
+  {
+    "id": "ativos-indisponiveis",
+    "skipped": true,
+    "reason": "SQL não foi gerado."
+  },
+  {
+    "id": "os-abertas-por-status",
+    "skipped": true,
+    "reason": "SQL não foi gerado."
+  },
+  {
+    "id": "ativos-mais-corretivas",
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Ativo",
+        "Empresa",
+        "OrdemServico"
+      ],
+      "limit": 5
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 5,
+      "durationMs": 213,
+      "rows": [
+        {
+          "codigo": "CT-07",
+          "nome": "Caminhão basculante CT-07",
+          "quantidade": 22
+        },
+        {
+          "codigo": "CT-01",
+          "nome": "Caminhão basculante CT-01",
+          "quantidade": 11
+        },
+        {
+          "codigo": "EX-01",
+          "nome": "Escavadeira hidráulica EX-01",
+          "quantidade": 10
+        },
+        {
+          "codigo": "GER-01",
+          "nome": "Gerador diesel GER-01",
+          "quantidade": 9
+        },
+        {
+          "codigo": "EX-02",
+          "nome": "Escavadeira hidráulica EX-02",
+          "quantidade": 8
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 5,
+      "durationMs": 209,
+      "rows": [
+        {
+          "codigo": "CT-07",
+          "nome": "Caminhão basculante CT-07",
+          "total_corr": "22"
+        },
+        {
+          "codigo": "CT-01",
+          "nome": "Caminhão basculante CT-01",
+          "total_corr": "11"
+        },
+        {
+          "codigo": "EX-01",
+          "nome": "Escavadeira hidráulica EX-01",
+          "total_corr": "10"
+        },
+        {
+          "codigo": "GER-01",
+          "nome": "Gerador diesel GER-01",
+          "total_corr": "9"
+        },
+        {
+          "codigo": "EX-02",
+          "nome": "Escavadeira hidráulica EX-02",
+          "total_corr": "8"
+        }
+      ],
+      "error": null
+    },
+    "exactMatch": false
+  },
+  {
+    "id": "materiais-estoque-baixo",
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Empresa",
+        "Material"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 5,
+      "durationMs": 207,
+      "rows": [
+        {
+          "codigo": "MAT-007",
+          "nome": "Mangueira hidráulica de alta pressão",
+          "estoqueAtual": "0.000000000000000000000000000000",
+          "estoqueMinimo": "6.000000000000000000000000000000"
+        },
+        {
+          "codigo": "MAT-010",
+          "nome": "Bateria 12V 150Ah",
+          "estoqueAtual": "2.000000000000000000000000000000",
+          "estoqueMinimo": "3.000000000000000000000000000000"
+        },
+        {
+          "codigo": "MAT-012",
+          "nome": "Motor de partida",
+          "estoqueAtual": "1.000000000000000000000000000000",
+          "estoqueMinimo": "1.000000000000000000000000000000"
+        },
+        {
+          "codigo": "MAT-021",
+          "nome": "Radiador",
+          "estoqueAtual": "1.000000000000000000000000000000",
+          "estoqueMinimo": "1.000000000000000000000000000000"
+        },
+        {
+          "codigo": "MAT-022",
+          "nome": "Kit de reparo da caixa de transmissão",
+          "estoqueAtual": "0.000000000000000000000000000000",
+          "estoqueMinimo": "1.000000000000000000000000000000"
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 5,
+      "durationMs": 206,
+      "rows": [
+        {
+          "id": "mat_000010",
+          "codigo": "MAT-010",
+          "nome": "Bateria 12V 150Ah",
+          "estoqueAtual": "2.000000000000000000000000000000",
+          "estoqueMinimo": "3.000000000000000000000000000000"
+        },
+        {
+          "id": "mat_000022",
+          "codigo": "MAT-022",
+          "nome": "Kit de reparo da caixa de transmissão",
+          "estoqueAtual": "0.000000000000000000000000000000",
+          "estoqueMinimo": "1.000000000000000000000000000000"
+        },
+        {
+          "id": "mat_000007",
+          "codigo": "MAT-007",
+          "nome": "Mangueira hidráulica de alta pressão",
+          "estoqueAtual": "0.000000000000000000000000000000",
+          "estoqueMinimo": "6.000000000000000000000000000000"
+        },
+        {
+          "id": "mat_000012",
+          "codigo": "MAT-012",
+          "nome": "Motor de partida",
+          "estoqueAtual": "1.000000000000000000000000000000",
+          "estoqueMinimo": "1.000000000000000000000000000000"
+        },
+        {
+          "id": "mat_000021",
+          "codigo": "MAT-021",
+          "nome": "Radiador",
+          "estoqueAtual": "1.000000000000000000000000000000",
+          "estoqueMinimo": "1.000000000000000000000000000000"
+        }
+      ],
+      "error": null
+    },
+    "exactMatch": false
+  },
+  {
+    "id": "os-atrasadas",
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Empresa",
+        "OrdemServico"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 1,
+      "durationMs": 206,
+      "rows": [
+        {
+          "numero": "OS-2026-0192",
+          "titulo": "Vazamento hidráulico - CT-01",
+          "status": "AGUARDANDO_PECA",
+          "prazoEm": "2026-10-22T15:20:00.000Z"
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 1,
+      "durationMs": 220,
+      "rows": [
+        {
+          "id": "os_000242",
+          "empresaId": "emp_000002",
+          "localizacaoId": "loc_000006",
+          "ativoId": "atv_000023",
+          "solicitanteId": "usr_000014",
+          "responsavelId": "usr_000020",
+          "numero": "OS-2026-0192",
+          "titulo": "Vazamento hidráulico - CT-01",
+          "descricao": "Mancha de óleo hidráulico no piso após a operação do dia.",
+          "tipo": "CORRETIVA",
+          "status": "AGUARDANDO_PECA",
+          "prioridade": "CRITICA",
+          "impactaDisponibilidade": true,
+          "abertaEm": "2026-10-21T15:20:00.000Z",
+          "iniciadaEm": "2026-10-21T17:51:00.000Z",
+          "encerradaEm": null,
+          "canceladaEm": null,
+          "prazoEm": "2026-10-22T15:20:00.000Z",
+          "aguardandoPecaDesde": "2026-10-21T18:53:00.000Z",
+          "tempoAguardandoPecaMinutos": null,
+          "tempoParadoMinutos": null,
+          "tempoExecucaoMinutos": null,
+          "custoMateriais": "0.000000000000000000000000000000",
+          "custoMaoObra": "83.700000000000000000000000000000",
+          "custoTotal": "83.700000000000000000000000000000",
+          "diagnostico": "Mangueira rompida por atrito com a estrutura do chassi.",
+          "solucao": null,
+          "observacao": "Pedido de compra emergencial aberto junto ao fornecedor. Peça: Mangueira hidráulica de alta pressão.",
+          "createdAt": "2026-10-21T15:20:00.000Z",
+          "updatedAt": "2026-10-27T15:00:00.000Z"
+        }
+      ],
+      "error": null
+    },
+    "exactMatch": false
+  },
+  {
+    "id": "custo-agosto",
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Empresa",
+        "OrdemServico"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 1,
+      "durationMs": 207,
+      "rows": [
+        {
+          "custo_total": "59093.710000000000200000000000000000"
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 1,
+      "durationMs": 225,
+      "rows": [
+        {
+          "custoTotalOS": "59093.710000000000200000000000000000"
+        }
+      ],
+      "error": null
+    },
+    "exactMatch": false
+  },
+  {
+    "id": "maior-media-parada",
+    "skipped": true,
+    "reason": "SQL não foi gerado."
+  },
+  {
+    "id": "materiais-os-aguardando",
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Empresa",
+        "Material",
+        "OrdemServico",
+        "OrdemServicoMaterial"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 1,
+      "durationMs": 208,
+      "rows": [
+        {
+          "codigo": "MAT-007",
+          "nome": "Mangueira hidráulica de alta pressão",
+          "quantidade": "2.000000000000000000000000000000"
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 1,
+      "durationMs": 208,
+      "rows": [
+        {
+          "codigo": "MAT-007",
+          "nome": "Mangueira hidráulica de alta pressão",
+          "total_quantidade": "2.000000000000000000000000000000"
+        }
+      ],
+      "error": null
+    },
+    "exactMatch": false
+  },
+  {
+    "id": "ct07-agosto",
+    "skipped": true,
+    "reason": "SQL não foi gerado."
+  },
+  {
+    "id": "alertas-criticos",
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Alerta",
+        "Empresa"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 0,
+      "durationMs": 208,
+      "rows": [],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 0,
+      "durationMs": 208,
+      "rows": [],
+      "error": null
+    },
+    "exactMatch": true
+  }
+]
