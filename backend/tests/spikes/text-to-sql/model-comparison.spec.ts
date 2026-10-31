@@ -24,6 +24,10 @@ function makeReport(
     executionSucceeded: true,
     exactMatch: false,
     referenceProjectionMatch: true,
+    semanticEvaluation: {
+      status: "match",
+      reason: "Resultado semanticamente correto.",
+    },
     ...overrides,
   };
 }
@@ -39,6 +43,10 @@ describe("summarizeModelComparison", () => {
         staticValidationPassed: false,
         executionSucceeded: false,
         referenceProjectionMatch: false,
+        semanticEvaluation: {
+          status: "mismatch",
+          reason: "SQL não gerado.",
+        },
       }),
     ]);
 
@@ -49,10 +57,33 @@ describe("summarizeModelComparison", () => {
       generationSuccessPct: 50,
       matchingCases: 1,
       answerAccuracyPct: 50,
+      semanticEvaluatedCases: 2,
+      semanticMatchingCases: 1,
+      semanticAccuracyPct: 50,
       averageLatencyMs: 1_000,
       inputTokens: 1_000,
       outputTokens: 500,
       estimatedCostUsd: 0.000225,
+    });
+  });
+
+  it("exclui casos inconclusivos da precisão semântica", () => {
+    const summaries = summarizeModelComparison([
+      makeReport(),
+      makeReport({
+        id: "caso-2",
+        semanticEvaluation: {
+          status: "inconclusive",
+          reason: "Referência vazia.",
+        },
+      }),
+    ]);
+
+    expect(summaries[0]).toMatchObject({
+      semanticEvaluatedCases: 1,
+      semanticMatchingCases: 1,
+      semanticInconclusiveCases: 1,
+      semanticAccuracyPct: 100,
     });
   });
 

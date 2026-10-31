@@ -1,3 +1,5 @@
+import type { SemanticEvaluation } from "./result-semantic-comparison.js";
+
 export type ContextVariant = "full" | "relevant";
 
 export interface GenerationMetrics {
@@ -19,6 +21,7 @@ export interface ModelComparisonReport {
   executionSucceeded: boolean;
   exactMatch: boolean;
   referenceProjectionMatch: boolean;
+  semanticEvaluation: SemanticEvaluation;
 }
 
 interface ModelPricing {
@@ -49,6 +52,9 @@ interface ComparisonAccumulator {
   executedCases: number;
   matchingCases: number;
   exactMatchCases: number;
+  semanticEvaluatedCases: number;
+  semanticMatchingCases: number;
+  semanticInconclusiveCases: number;
   latencyTotalMs: number;
   latencyCases: number;
   contextCharactersTotal: number;
@@ -98,6 +104,9 @@ export function summarizeModelComparison(
       executedCases: 0,
       matchingCases: 0,
       exactMatchCases: 0,
+      semanticEvaluatedCases: 0,
+      semanticMatchingCases: 0,
+      semanticInconclusiveCases: 0,
       latencyTotalMs: 0,
       latencyCases: 0,
       contextCharactersTotal: 0,
@@ -115,6 +124,15 @@ export function summarizeModelComparison(
     accumulator.executedCases += Number(report.executionSucceeded);
     accumulator.matchingCases += Number(report.referenceProjectionMatch);
     accumulator.exactMatchCases += Number(report.exactMatch);
+    accumulator.semanticMatchingCases += Number(
+      report.semanticEvaluation.status === "match",
+    );
+    accumulator.semanticInconclusiveCases += Number(
+      report.semanticEvaluation.status === "inconclusive",
+    );
+    accumulator.semanticEvaluatedCases += Number(
+      report.semanticEvaluation.status !== "inconclusive",
+    );
 
     if (report.contextCharacters !== null) {
       accumulator.contextCharactersTotal += report.contextCharacters;
@@ -172,6 +190,13 @@ export function summarizeModelComparison(
       matchingCases: group.matchingCases,
       answerAccuracyPct: percentage(group.matchingCases, group.totalCases),
       exactMatchCases: group.exactMatchCases,
+      semanticEvaluatedCases: group.semanticEvaluatedCases,
+      semanticMatchingCases: group.semanticMatchingCases,
+      semanticInconclusiveCases: group.semanticInconclusiveCases,
+      semanticAccuracyPct: percentage(
+        group.semanticMatchingCases,
+        group.semanticEvaluatedCases,
+      ),
       averageLatencyMs:
         group.latencyCases === 0
           ? null

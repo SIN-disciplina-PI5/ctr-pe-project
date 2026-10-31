@@ -4,8 +4,13 @@ import {
   MODEL_PRICING,
   PRICING_SNAPSHOT_DATE,
   PRICING_SOURCE,
+  type ModelComparisonReport,
   summarizeModelComparison,
 } from "./model-comparison.js";
+import {
+  evaluateSemanticResult,
+  type SemanticEvaluation,
+} from "./result-semantic-comparison.js";
 
 const generationMetricsSchema = z.object({
   model: z.string(),
@@ -13,6 +18,11 @@ const generationMetricsSchema = z.object({
   inputTokens: z.number().nullable(),
   outputTokens: z.number().nullable(),
   totalTokens: z.number().nullable(),
+});
+
+const queryExecutionSchema = z.object({
+  success: z.boolean(),
+  rows: z.array(z.record(z.string(), z.unknown())).nullable(),
 });
 
 const executionReportSchema = z
@@ -27,6 +37,8 @@ const executionReportSchema = z
     executionSucceeded: z.boolean(),
     exactMatch: z.boolean().default(false),
     referenceProjectionMatch: z.boolean().default(false),
+    reference: queryExecutionSchema.optional(),
+    generated: queryExecutionSchema.optional(),
   })
   .passthrough();
 
@@ -35,13 +47,43 @@ if (inputFiles.length < 2) {
   throw new Error("Informe ao menos dois relatórios de execução.");
 }
 
-const reports = [];
+const reports: ModelComparisonReport[] = [];
+
+function evaluateReport(
+  report: z.infer<typeof executionReportSchema>,
+): SemanticEvaluation {
+  if (!report.generationSucceeded) {
+    return { status: "mismatch", reason: "O modelo não gerou SQL." };
+  }
+
+  if (!report.staticValidationPassed) {
+    return {
+      status: "mismatch",
+      reason: "O SQL não passou pela validação estática.",
+    };
+  }
+
+  if (!report.executionSucceeded) {
+    return { status: "mismatch", reason: "O SQL não foi executado." };
+  }
+
+  return evaluateSemanticResult(
+    report.id,
+    report.reference?.success ? report.reference.rows : null,
+    report.generated?.success ? report.generated.rows : null,
+  );
+}
 
 for (const inputFile of inputFiles) {
   const fileReports = z.array(executionReportSchema).parse(
     JSON.parse(await readFile(inputFile, "utf8")),
   );
-  reports.push(...fileReports);
+  reports.push(
+    ...fileReports.map((report) => ({
+      ...report,
+      semanticEvaluation: evaluateReport(report),
+    })),
+  );
 }
 
 console.log(
