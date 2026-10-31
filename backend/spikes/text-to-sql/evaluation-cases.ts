@@ -1,3 +1,4 @@
+import type { SchemaTableName } from "./schema-context.js";
 export interface EvaluationCase {
   id: string;
   question: string;
@@ -153,3 +154,23 @@ ORDER BY al."geradoEm" DESC
 LIMIT 100;`.trim(),
   },
 ];
+
+export const RELEVANT_TABLES_BY_CASE: Readonly<
+  Record<string, readonly SchemaTableName[]>
+> = {
+  "ativos-indisponiveis": ["Empresa", "Ativo"],
+  "os-abertas-por-status": ["Empresa", "OrdemServico"],
+  "ativos-mais-corretivas": ["Empresa", "Ativo", "OrdemServico"],
+  "materiais-estoque-baixo": ["Empresa", "Material"],
+  "os-atrasadas": ["Empresa", "OrdemServico"],
+  "custo-agosto": ["Empresa", "OrdemServico"],
+  "maior-media-parada": ["Empresa", "Ativo", "ParadaAtivo"],
+  "materiais-os-aguardando": [
+    "Empresa",
+    "OrdemServico",
+    "Material",
+    "OrdemServicoMaterial",
+  ],
+  "ct07-agosto": ["Empresa", "Ativo", "OrdemServico"],
+  "alertas-criticos": ["Empresa", "Alerta"],
+};
