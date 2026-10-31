@@ -1,0 +1,91 @@
+{
+  "generatedAt": "2026-10-31T14:36:39.423Z",
+  "pricing": {
+    "snapshotDate": "2026-10-30",
+    "source": "https://console.groq.com/docs/models",
+    "models": {
+      "openai/gpt-oss-20b": {
+        "inputUsdPerMillionTokens": 0.075,
+        "outputUsdPerMillionTokens": 0.3
+      },
+      "openai/gpt-oss-120b": {
+        "inputUsdPerMillionTokens": 0.15,
+        "outputUsdPerMillionTokens": 0.6
+      }
+    }
+  },
+  "inputFiles": [
+    "spikes/text-to-sql/execution-120b-relevant.json",
+    "spikes/text-to-sql/execution-120b-relevant-retry-1.json",
+    "spikes/text-to-sql/execution-120b-relevant-retry-2.json"
+  ],
+  "summaries": [
+    {
+      "attempt": 0,
+      "totalCases": 10,
+      "generatedCases": 10,
+      "staticValidCases": 10,
+      "executedCases": 10,
+      "semanticEvaluatedCases": 9,
+      "semanticMatchingCases": 8,
+      "semanticInconclusiveCases": 1,
+      "semanticAccuracyPct": 88.89,
+      "improvedCases": 0,
+      "regressedCases": 0,
+      "averageLatencyMs": 2577.6,
+      "inputTokens": 6776,
+      "outputTokens": 5946,
+      "totalTokens": 12722,
+      "estimatedCostUsd": 0.004584,
+      "cumulativeInputTokens": 6776,
+      "cumulativeOutputTokens": 5946,
+      "cumulativeTotalTokens": 12722,
+      "cumulativeEstimatedCostUsd": 0.004584
+    },
+    {
+      "attempt": 1,
+      "totalCases": 10,
+      "generatedCases": 10,
+      "staticValidCases": 10,
+      "executedCases": 10,
+      "semanticEvaluatedCases": 9,
+      "semanticMatchingCases": 7,
+      "semanticInconclusiveCases": 1,
+      "semanticAccuracyPct": 77.78,
+      "improvedCases": 0,
+      "regressedCases": 1,
+      "averageLatencyMs": 1711.5,
+      "inputTokens": 8526,
+      "outputTokens": 5483,
+      "totalTokens": 14009,
+      "estimatedCostUsd": 0.004569,
+      "cumulativeInputTokens": 15302,
+      "cumulativeOutputTokens": 11429,
+      "cumulativeTotalTokens": 26731,
+      "cumulativeEstimatedCostUsd": 0.009153
+    },
+    {
+      "attempt": 2,
+      "totalCases": 10,
+      "generatedCases": 10,
+      "staticValidCases": 10,
+      "executedCases": 10,
+      "semanticEvaluatedCases": 9,
+      "semanticMatchingCases": 6,
+      "semanticInconclusiveCases": 1,
+      "semanticAccuracyPct": 66.67,
+      "improvedCases": 0,
+      "regressedCases": 1,
+      "averageLatencyMs": 1689,
+      "inputTokens": 8583,
+      "outputTokens": 5895,
+      "totalTokens": 14478,
+      "estimatedCostUsd": 0.004824,
+      "cumulativeInputTokens": 23885,
+      "cumulativeOutputTokens": 17324,
+      "cumulativeTotalTokens": 41209,
+      "cumulativeEstimatedCostUsd": 0.013977
+    }
+  ],
+  "recommendedAttempt": 0
+}
