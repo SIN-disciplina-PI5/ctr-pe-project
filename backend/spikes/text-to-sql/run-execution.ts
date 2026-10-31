@@ -22,14 +22,28 @@ const generationMetricsSchema = z
   })
   .passthrough();
 
+const retryFeedbackSchema = z
+  .object({
+    generationSucceeded: z.boolean(),
+    staticViolations: z.array(z.string()),
+    executionStatus: z.enum(["succeeded", "failed", "not_executed"]),
+  })
+  .passthrough();
+
 const generationResultSchema = z
   .object({
     id: z.string(),
     generatedSql: z.string().nullable(),
     model: z.string().optional(),
     contextVariant: z.enum(["full", "relevant"]).optional(),
+    contextNaming: z.enum(["prisma", "snake_case"]).optional(),
     relevantTables: z.array(z.string()).optional(),
     contextCharacters: z.number().optional(),
+    retryAttempt: z.union([z.literal(1), z.literal(2)]).optional(),
+    previousRetryAttempt: z
+      .union([z.literal(0), z.literal(1)])
+      .optional(),
+    retryFeedback: retryFeedbackSchema.optional(),
     metrics: generationMetricsSchema.optional(),
   })
   .passthrough();
@@ -93,8 +107,12 @@ function getGenerationMetadata(
   return {
     model: generationResult.model ?? generationResult.metrics?.model ?? null,
     contextVariant: generationResult.contextVariant ?? null,
+    contextNaming: generationResult.contextNaming ?? "prisma",
     relevantTables: generationResult.relevantTables ?? null,
     contextCharacters: generationResult.contextCharacters ?? null,
+    retryAttempt: generationResult.retryAttempt ?? 0,
+    previousRetryAttempt: generationResult.previousRetryAttempt ?? null,
+    retryFeedback: generationResult.retryFeedback ?? null,
     generationMetrics: generationResult.metrics ?? null,
   };
 }
