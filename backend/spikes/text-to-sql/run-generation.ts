@@ -16,6 +16,9 @@ const model = process.env.GROQ_MODEL ?? "openai/gpt-oss-20b";
 const contextVariant = z
   .enum(["full", "relevant"])
   .parse(process.env.SPIKE_CONTEXT_VARIANT ?? "full");
+const contextNaming = z
+  .enum(["prisma", "snake_case"])
+  .parse(process.env.SPIKE_CONTEXT_NAMING ?? "prisma");
 const caseId = process.env.SPIKE_CASE_ID;
 
 const selectedCases = caseId
@@ -51,6 +54,7 @@ for (const [index, evaluationCase] of selectedCases.entries()) {
   const schemaContext = buildSchemaContext({
     variant: contextVariant,
     relevantTables,
+    naming: contextNaming,
   });
 
   try {
@@ -75,6 +79,7 @@ for (const [index, evaluationCase] of selectedCases.entries()) {
       referenceSql: evaluationCase.referenceSql,
       model: result.model,
       contextVariant,
+      contextNaming,
       relevantTables,
       contextCharacters: schemaContext.length,
       generatedSql: result.data.sql,
@@ -95,6 +100,7 @@ for (const [index, evaluationCase] of selectedCases.entries()) {
       referenceSql: evaluationCase.referenceSql,
       model,
       contextVariant,
+      contextNaming,
       relevantTables,
       contextCharacters: schemaContext.length,
       generatedSql: null,
