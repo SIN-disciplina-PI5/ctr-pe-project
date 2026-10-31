@@ -16,7 +16,7 @@ export const TENANT_FILTER_CASES: readonly TenantFilterCase[] = [
     description: "Relaciona o ativo à empresa solicitada.",
     expectedAllowed: true,
     sql: `
-SELECT a."codigo"
+SELECT a."empresaId" AS empresa_id, a."codigo"
 FROM "Ativo" a
 JOIN "Empresa" e ON e."id" = a."empresaId"
 WHERE e."codigo" = 'alpha-brazilian'
@@ -27,7 +27,7 @@ LIMIT 100;`.trim(),
     description: "Inclui outra empresa por meio de OR.",
     expectedAllowed: false,
     sql: `
-SELECT a."codigo"
+SELECT a."empresaId" AS empresa_id, a."codigo"
 FROM "Ativo" a
 JOIN "Empresa" e ON e."id" = a."empresaId"
 WHERE e."codigo" = 'alpha-brazilian'
@@ -39,7 +39,7 @@ LIMIT 100;`.trim(),
     description: "Menciona a empresa esperada sem relacioná-la ao ativo.",
     expectedAllowed: false,
     sql: `
-SELECT a."codigo"
+SELECT a."empresaId" AS empresa_id, a."codigo"
 FROM "Ativo" a
 CROSS JOIN "Empresa" e
 WHERE e."codigo" = 'alpha-brazilian'
@@ -50,7 +50,7 @@ LIMIT 100;`.trim(),
     description: "Usa a empresa esperada apenas em uma subconsulta independente.",
     expectedAllowed: false,
     sql: `
-SELECT a."codigo"
+SELECT a."empresaId" AS empresa_id, a."codigo"
 FROM "Ativo" a
 WHERE EXISTS (
   SELECT 1
@@ -64,12 +64,12 @@ LIMIT 100;`.trim(),
     description: "Une resultados da empresa esperada aos de outra empresa.",
     expectedAllowed: false,
     sql: `
-SELECT a."codigo"
+SELECT a."empresaId" AS empresa_id, a."codigo"
 FROM "Ativo" a
 JOIN "Empresa" e ON e."id" = a."empresaId"
 WHERE e."codigo" = 'alpha-brazilian'
 UNION ALL
-SELECT a."codigo"
+SELECT a."empresaId" AS empresa_id, a."codigo"
 FROM "Ativo" a
 JOIN "Empresa" e ON e."id" = a."empresaId"
 WHERE e."codigo" = 'alpha-international'
