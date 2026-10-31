@@ -24,6 +24,7 @@
     "spike:execute-sql": "tsx spikes/text-to-sql/run-execution.ts",
     "spike:execute-snake-sql": "tsx spikes/text-to-sql/run-snake-case-execution.ts",
     "spike:compare-models": "tsx spikes/text-to-sql/run-model-comparison.ts",
+    "spike:compare-retries": "tsx spikes/text-to-sql/run-retry-comparison.ts",
     "spike:evaluate-tenant-filter": "tsx spikes/text-to-sql/run-tenant-filter-evaluation.ts",
     "spike:evaluate-tenant-rls": "tsx spikes/text-to-sql/run-rls-tenant-isolation.ts"
   },
