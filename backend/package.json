@@ -15,6 +15,7 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:seed": "prisma db seed",
     "prisma:studio": "prisma studio",
+    "ai-role:set-password": "tsx prisma/set-ai-readonly-password.ts",
     "tokens:cleanup": "tsx src/auth/clean-refresh-tokens.ts",
     "db:reset-synthetic": "tsx scripts/synthetic-data/reset-and-seed.ts",
     "spike:provider-smoke": "tsx spikes/text-to-sql/run-provider-smoke.ts",
