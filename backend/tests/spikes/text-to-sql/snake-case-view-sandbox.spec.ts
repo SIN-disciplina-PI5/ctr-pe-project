@@ -98,15 +98,21 @@ describe("runInSnakeCaseViewSandbox", () => {
     expect(statements.at(-1)).toBe("ROLLBACK");
   });
 
-  it("recusa sobrescrever um schema ai existente", async () => {
+  it("preserva um schema ai existente por meio do ROLLBACK", async () => {
     const { client, statements } = createClient({ existingSchema: true });
     const operation = jest.fn(async () => "resultado");
 
-    await expect(
-      runInSnakeCaseViewSandbox(client, "alpha-brazilian", operation),
-    ).rejects.toThrow("o schema ai já existe");
+    const result = await runInSnakeCaseViewSandbox(
+      client,
+      "alpha-brazilian",
+      operation,
+    );
 
-    expect(operation).not.toHaveBeenCalled();
+    expect(result).toBe("resultado");
+    expect(statements.join("\n")).toContain(
+      `ALTER SCHEMA ai RENAME TO "ai_original_${process.pid}"`,
+    );
+    expect(operation).toHaveBeenCalled();
     expect(statements.at(-1)).toBe("ROLLBACK");
   });
 

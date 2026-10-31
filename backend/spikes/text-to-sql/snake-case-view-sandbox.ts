@@ -111,6 +111,7 @@ export async function runInSnakeCaseViewSandbox<T>(
   const suffix = process.pid.toString();
   const roleName = `ctrpe_ai_snake_${suffix}`;
   const policyPrefix = `ctrpe_ai_snake_${suffix}`;
+  const existingSchemaBackup = `ai_original_${suffix}`;
   let transactionStarted = false;
 
   try {
@@ -123,7 +124,9 @@ FROM information_schema.schemata
 WHERE schema_name = 'ai';`);
 
     if (existingSchema.rows.length > 0) {
-      throw new Error("Experimento recusado: o schema ai já existe.");
+      await client.query(
+        `ALTER SCHEMA ai RENAME TO ${quoteIdentifier(existingSchemaBackup)}`,
+      );
     }
 
     const existingRls = await client.query<{ table_name: string }>(`
