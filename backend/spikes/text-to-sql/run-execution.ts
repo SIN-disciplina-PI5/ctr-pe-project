@@ -1,9 +1,10 @@
 import "dotenv/config";
 import { readFile } from "node:fs/promises";
-import pg, { type QueryResultRow } from "pg";
+import pg from "pg";
 import { z } from "zod";
 import { EVALUATION_CASES } from "./evaluation-cases.js";
 import { executeReadOnlyQuery } from "./read-only-query-executor.js";
+import { compareQueryResults } from "./result-comparison.js";
 import {
   SPIKE_ALLOWED_TABLES,
   validateSql,
@@ -11,10 +12,27 @@ import {
 
 const { Client } = pg;
 
-const generationResultSchema = z.object({
-  id: z.string(),
-  generatedSql: z.string().nullable(),
-}).passthrough();
+const generationMetricsSchema = z
+  .object({
+    model: z.string(),
+    latencyMs: z.number(),
+    inputTokens: z.number().nullable(),
+    outputTokens: z.number().nullable(),
+    totalTokens: z.number().nullable(),
+  })
+  .passthrough();
+
+const generationResultSchema = z
+  .object({
+    id: z.string(),
+    generatedSql: z.string().nullable(),
+    model: z.string().optional(),
+    contextVariant: z.enum(["full", "relevant"]).optional(),
+    relevantTables: z.array(z.string()).optional(),
+    contextCharacters: z.number().optional(),
+    metrics: generationMetricsSchema.optional(),
+  })
+  .passthrough();
 
 const inputFile = process.argv[2];
 if (!inputFile) throw new Error("Informe o arquivo de resultados.");
@@ -69,22 +87,16 @@ async function executeWithReport(
   }
 }
 
-function canonicalizeRows(rows: QueryResultRow[] | null): string | null {
-  if (!rows) return null;
-
-  const normalized = rows.map((row) =>
-    Object.fromEntries(
-      Object.entries(row).sort(([left], [right]) =>
-        left.localeCompare(right),
-      ),
-    ),
-  );
-
-  normalized.sort((left, right) =>
-    JSON.stringify(left).localeCompare(JSON.stringify(right)),
-  );
-
-  return JSON.stringify(normalized);
+function getGenerationMetadata(
+  generationResult: z.infer<typeof generationResultSchema>,
+) {
+  return {
+    model: generationResult.model ?? generationResult.metrics?.model ?? null,
+    contextVariant: generationResult.contextVariant ?? null,
+    relevantTables: generationResult.relevantTables ?? null,
+    contextCharacters: generationResult.contextCharacters ?? null,
+    generationMetrics: generationResult.metrics ?? null,
+  };
 }
 
 const client = new Client({ connectionString });
@@ -100,9 +112,15 @@ try {
       throw new Error(`Caso desconhecido: ${generationResult.id}`);
     }
 
+    const metadata = getGenerationMetadata(generationResult);
+
     if (!generationResult.generatedSql) {
       reports.push({
         id: generationResult.id,
+        ...metadata,
+        generationSucceeded: false,
+        staticValidationPassed: false,
+        executionSucceeded: false,
         skipped: true,
         reason: "SQL não foi gerado.",
       });
@@ -121,6 +139,10 @@ try {
     if (!staticValidation.valid) {
       reports.push({
         id: generationResult.id,
+        ...metadata,
+        generationSucceeded: true,
+        staticValidationPassed: false,
+        executionSucceeded: false,
         skipped: true,
         reason: "SQL reprovado na validação estática.",
         staticValidation,
@@ -138,17 +160,22 @@ try {
       generationResult.generatedSql,
     );
 
+    const comparison = compareQueryResults(
+      reference.rows,
+      generated.rows,
+    );
+
     reports.push({
       id: generationResult.id,
+      ...metadata,
+      generationSucceeded: true,
+      staticValidationPassed: true,
+      executionSucceeded: generated.success,
       skipped: false,
       staticValidation,
       reference,
       generated,
-      exactMatch:
-        reference.success &&
-        generated.success &&
-        canonicalizeRows(reference.rows) ===
-          canonicalizeRows(generated.rows),
+      ...comparison,
     });
   }
 } finally {
