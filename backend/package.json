@@ -19,6 +19,7 @@
     "db:reset-synthetic": "tsx scripts/synthetic-data/reset-and-seed.ts",
     "spike:provider-smoke": "tsx spikes/text-to-sql/run-provider-smoke.ts",
     "spike:generate-sql": "tsx spikes/text-to-sql/run-generation.ts",
+    "spike:generate-retry": "tsx spikes/text-to-sql/run-retry-generation.ts",
     "spike:validate-sql": "tsx spikes/text-to-sql/run-validation.ts",
     "spike:execute-sql": "tsx spikes/text-to-sql/run-execution.ts",
     "spike:execute-snake-sql": "tsx spikes/text-to-sql/run-snake-case-execution.ts",
