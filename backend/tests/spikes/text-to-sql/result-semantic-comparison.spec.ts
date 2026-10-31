@@ -12,6 +12,30 @@ describe("evaluateSemanticResult", () => {
     expect(result.status).toBe("match");
   });
 
+  it("aceita aliases snake_case das views analíticas", () => {
+    const result = evaluateSemanticResult(
+      "materiais-estoque-baixo",
+      [
+        {
+          codigo: "MAT-01",
+          nome: "Filtro",
+          estoqueAtual: "2",
+          estoqueMinimo: "5",
+        },
+      ],
+      [
+        {
+          codigo: "MAT-01",
+          nome: "Filtro",
+          estoque_atual: 2,
+          estoque_minimo: 5,
+        },
+      ],
+    );
+
+    expect(result.status).toBe("match");
+  });
+
   it("rejeita valores semanticamente diferentes", () => {
     const result = evaluateSemanticResult(
       "ativos-mais-corretivas",

@@ -44,12 +44,12 @@ const CASE_FIELDS: Readonly<Record<string, readonly SemanticField[]>> = {
     { name: "nome", aliases: ["nome"], numeric: false },
     {
       name: "estoqueAtual",
-      aliases: ["estoqueAtual"],
+      aliases: ["estoqueAtual", "estoque_atual"],
       numeric: true,
     },
     {
       name: "estoqueMinimo",
-      aliases: ["estoqueMinimo"],
+      aliases: ["estoqueMinimo", "estoque_minimo"],
       numeric: true,
     },
   ],
@@ -57,7 +57,7 @@ const CASE_FIELDS: Readonly<Record<string, readonly SemanticField[]>> = {
     { name: "numero", aliases: ["numero"], numeric: false },
     { name: "titulo", aliases: ["titulo"], numeric: false },
     { name: "status", aliases: ["status"], numeric: false },
-    { name: "prazoEm", aliases: ["prazoEm"], numeric: false },
+    { name: "prazoEm", aliases: ["prazoEm", "prazo_em"], numeric: false },
   ],
   "custo-agosto": [
     {
@@ -88,20 +88,23 @@ const CASE_FIELDS: Readonly<Record<string, readonly SemanticField[]>> = {
     { name: "numero", aliases: ["numero"], numeric: false },
     { name: "titulo", aliases: ["titulo"], numeric: false },
     { name: "status", aliases: ["status"], numeric: false },
-    { name: "abertaEm", aliases: ["abertaEm"], numeric: false },
-    { name: "encerradaEm", aliases: ["encerradaEm"], numeric: false },
+    { name: "abertaEm", aliases: ["abertaEm", "aberta_em"], numeric: false },
+    { name: "encerradaEm", aliases: ["encerradaEm", "encerrada_em"], numeric: false },
     {
       name: "tempoAguardandoPecaMinutos",
-      aliases: ["tempoAguardandoPecaMinutos"],
+      aliases: [
+        "tempoAguardandoPecaMinutos",
+        "tempo_aguardando_peca_minutos",
+      ],
       numeric: true,
     },
-    { name: "custoTotal", aliases: ["custoTotal"], numeric: true },
+    { name: "custoTotal", aliases: ["custoTotal", "custo_total"], numeric: true },
   ],
   "alertas-criticos": [
     { name: "tipo", aliases: ["tipo"], numeric: false },
     { name: "titulo", aliases: ["titulo"], numeric: false },
     { name: "mensagem", aliases: ["mensagem"], numeric: false },
-    { name: "geradoEm", aliases: ["geradoEm"], numeric: false },
+    { name: "geradoEm", aliases: ["geradoEm", "gerado_em"], numeric: false },
   ],
 };
 

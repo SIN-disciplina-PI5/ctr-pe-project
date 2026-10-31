@@ -30,6 +30,7 @@ const executionReportSchema = z
     id: z.string(),
     model: z.string().nullable(),
     contextVariant: z.enum(["full", "relevant"]).nullable(),
+    contextNaming: z.enum(["prisma", "snake_case"]).default("prisma"),
     contextCharacters: z.number().nullable(),
     generationMetrics: generationMetricsSchema.nullable(),
     generationSucceeded: z.boolean(),

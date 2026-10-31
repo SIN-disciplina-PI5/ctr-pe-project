@@ -1,4 +1,5 @@
 import {
+  SPIKE_ALLOWED_SNAKE_CASE_VIEWS,
   SPIKE_ALLOWED_TABLES,
   validateSql,
   type SqlValidationOptions,
@@ -27,6 +28,52 @@ describe("validateSql", () => {
       tables: ["Ativo", "Empresa"],
       limit: 100,
     });
+  });
+
+  it("aprova SELECT nas views snake_case do schema ai", async () => {
+    const result = await validateSql(
+      `SELECT a.codigo
+       FROM ai.ativos AS a
+       JOIN ai.empresas AS e ON e.id = a.empresa_id
+       WHERE e.codigo = 'alpha-brazilian'
+       LIMIT 100;`,
+      {
+        allowedTables: SPIKE_ALLOWED_SNAKE_CASE_VIEWS,
+        expectedCompanyCode: "alpha-brazilian",
+        companyTable: "empresas",
+        requiredSchema: "ai",
+        maxRows: 100,
+      },
+    );
+
+    expect(result).toEqual({
+      valid: true,
+      violations: [],
+      tables: ["ativos", "empresas"],
+      limit: 100,
+    });
+  });
+
+  it("rejeita view snake_case fora do schema ai", async () => {
+    const result = await validateSql(
+      `SELECT a.codigo
+       FROM public.ativos AS a
+       JOIN ai.empresas AS e ON e.id = a.empresa_id
+       WHERE e.codigo = 'alpha-brazilian'
+       LIMIT 100;`,
+      {
+        allowedTables: SPIKE_ALLOWED_SNAKE_CASE_VIEWS,
+        expectedCompanyCode: "alpha-brazilian",
+        companyTable: "empresas",
+        requiredSchema: "ai",
+        maxRows: 100,
+      },
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.violations).toContain(
+      "Relação public.ativos deve usar o schema ai.",
+    );
   });
 
   it("rejeita múltiplas instruções", async () => {

@@ -6,6 +6,8 @@ export interface SqlValidationOptions {
   allowedTables: readonly string[];
   expectedCompanyCode: string;
   maxRows: number;
+  companyTable?: string;
+  requiredSchema?: string;
 }
 
 export interface SqlValidationResult {
@@ -23,6 +25,16 @@ export const SPIKE_ALLOWED_TABLES = [
   "Material",
   "OrdemServicoMaterial",
   "Alerta",
+] as const;
+
+export const SPIKE_ALLOWED_SNAKE_CASE_VIEWS = [
+  "empresas",
+  "ativos",
+  "ordens_servico",
+  "paradas",
+  "materiais",
+  "os_materiais",
+  "alertas",
 ] as const;
 
 const FORBIDDEN_NODE_TAGS = [
@@ -73,8 +85,13 @@ function containsNodeTag(ast: unknown, tag: string): boolean {
   return found;
 }
 
-function collectTables(ast: unknown): string[] {
-  const tables = new Set<string>();
+interface RelationReference {
+  table: string;
+  schema: string | null;
+}
+
+function collectRelations(ast: unknown): RelationReference[] {
+  const relations = new Map<string, RelationReference>();
 
   walk(ast, (node) => {
     const rangeVar = node["RangeVar"];
@@ -83,11 +100,20 @@ function collectTables(ast: unknown): string[] {
       isRecord(rangeVar) &&
       typeof rangeVar["relname"] === "string"
     ) {
-      tables.add(rangeVar["relname"]);
+      const table = rangeVar["relname"];
+      const schema =
+        typeof rangeVar["schemaname"] === "string"
+          ? rangeVar["schemaname"]
+          : null;
+      relations.set(`${schema ?? ""}.${table}`, { table, schema });
     }
   });
 
-  return [...tables].sort();
+  return [...relations.values()].sort((left, right) =>
+    `${left.schema ?? ""}.${left.table}`.localeCompare(
+      `${right.schema ?? ""}.${right.table}`,
+    ),
+  );
 }
 
 function collectStringValues(ast: unknown): string[] {
@@ -172,19 +198,31 @@ export async function validateSql(
     violations.add("CTEs ainda não são permitidas neste spike.");
   }
 
-  const tables = collectTables(ast);
+  const relations = collectRelations(ast);
+  const tables = [...new Set(relations.map((relation) => relation.table))].sort();
   const allowedTables = new Set(options.allowedTables);
 
-  for (const table of tables) {
+  for (const relation of relations) {
+    const table = relation.table;
     if (!allowedTables.has(table)) {
       violations.add(`Tabela não autorizada: ${table}.`);
+    }
+
+    if (
+      options.requiredSchema &&
+      relation.schema !== options.requiredSchema
+    ) {
+      violations.add(
+        `Relação ${relation.schema ? `${relation.schema}.` : ""}${table} deve usar o schema ${options.requiredSchema}.`,
+      );
     }
   }
 
   const stringValues = collectStringValues(ast);
+  const companyTable = options.companyTable ?? "Empresa";
 
   if (
-    !tables.includes("Empresa") ||
+    !tables.includes(companyTable) ||
     !stringValues.includes(options.expectedCompanyCode)
   ) {
     violations.add("Filtro obrigatório de empresa não identificado.");

@@ -1,6 +1,7 @@
 import type { SemanticEvaluation } from "./result-semantic-comparison.js";
 
 export type ContextVariant = "full" | "relevant";
+export type ContextNaming = "prisma" | "snake_case";
 
 export interface GenerationMetrics {
   model: string;
@@ -14,6 +15,7 @@ export interface ModelComparisonReport {
   id: string;
   model: string | null;
   contextVariant: ContextVariant | null;
+  contextNaming: ContextNaming;
   contextCharacters: number | null;
   generationMetrics: GenerationMetrics | null;
   generationSucceeded: boolean;
@@ -46,6 +48,7 @@ export const PRICING_SOURCE = "https://console.groq.com/docs/models";
 interface ComparisonAccumulator {
   model: string;
   contextVariant: ContextVariant;
+  contextNaming: ContextNaming;
   totalCases: number;
   generatedCases: number;
   staticValidCases: number;
@@ -88,16 +91,17 @@ export function summarizeModelComparison(
       );
     }
 
-    const caseKey = `${report.model}:${report.contextVariant}:${report.id}`;
+    const caseKey = `${report.model}:${report.contextVariant}:${report.contextNaming}:${report.id}`;
     if (seenCases.has(caseKey)) {
       throw new Error(`Caso duplicado na comparação: ${caseKey}`);
     }
     seenCases.add(caseKey);
 
-    const groupKey = `${report.model}:${report.contextVariant}`;
+    const groupKey = `${report.model}:${report.contextVariant}:${report.contextNaming}`;
     const accumulator = groups.get(groupKey) ?? {
       model: report.model,
       contextVariant: report.contextVariant,
+      contextNaming: report.contextNaming,
       totalCases: 0,
       generatedCases: 0,
       staticValidCases: 0,
@@ -171,6 +175,7 @@ export function summarizeModelComparison(
     .map((group) => ({
       model: group.model,
       contextVariant: group.contextVariant,
+      contextNaming: group.contextNaming,
       totalCases: group.totalCases,
       generatedCases: group.generatedCases,
       generationSuccessPct: percentage(
@@ -216,8 +221,8 @@ export function summarizeModelComparison(
         : null,
     }))
     .sort((left, right) =>
-      `${left.model}:${left.contextVariant}`.localeCompare(
-        `${right.model}:${right.contextVariant}`,
+      `${left.model}:${left.contextVariant}:${left.contextNaming}`.localeCompare(
+        `${right.model}:${right.contextVariant}:${right.contextNaming}`,
       ),
     );
 }

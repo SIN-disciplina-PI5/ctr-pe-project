@@ -11,6 +11,7 @@ function makeReport(
     id: "caso-1",
     model: "openai/gpt-oss-20b",
     contextVariant: "full",
+    contextNaming: "prisma",
     contextCharacters: 1_000,
     generationMetrics: {
       model: "openai/gpt-oss-20b",
@@ -104,6 +105,19 @@ describe("summarizeModelComparison", () => {
     ]);
 
     expect(summaries).toHaveLength(2);
+  });
+
+  it("separa as nomenclaturas Prisma e snake_case", () => {
+    const summaries = summarizeModelComparison([
+      makeReport(),
+      makeReport({ contextNaming: "snake_case" }),
+    ]);
+
+    expect(summaries).toHaveLength(2);
+    expect(summaries.map((summary) => summary.contextNaming).sort()).toEqual([
+      "prisma",
+      "snake_case",
+    ]);
   });
 
   it("rejeita relatório sem metadados da configuração", () => {
