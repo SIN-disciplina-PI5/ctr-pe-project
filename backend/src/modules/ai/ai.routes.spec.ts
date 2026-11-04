@@ -19,7 +19,7 @@ function token(): string {
   );
 }
 
-describe("rotas internas de geração de consulta", () => {
+describe("rotas internas de consulta da IA", () => {
   beforeAll(() => {
     process.env["JWT_SECRET"] = testSecret;
   });
@@ -29,24 +29,30 @@ describe("rotas internas de geração de consulta", () => {
     else process.env["JWT_SECRET"] = originalSecret;
   });
 
-  it("exige autenticação", async () => {
-    const response = await api
-      .post("/api/ai/query/generate")
-      .send({ question: "Quais ativos estão parados?" });
+  it.each(["/api/ai/query", "/api/ai/query/generate"])(
+    "exige autenticação em %s",
+    async (path) => {
+      const response = await api
+        .post(path)
+        .send({ question: "Quais ativos estão parados?" });
 
-    expect(response.status).toBe(401);
-  });
+      expect(response.status).toBe(401);
+    },
+  );
 
-  it("valida o payload antes de acionar o provedor", async () => {
-    const response = await api
-      .post("/api/ai/query/generate")
-      .set("Authorization", `Bearer ${token()}`)
-      .send({ question: "" });
+  it.each(["/api/ai/query", "/api/ai/query/generate"])(
+    "valida o payload antes de acionar serviços em %s",
+    async (path) => {
+      const response = await api
+        .post(path)
+        .set("Authorization", `Bearer ${token()}`)
+        .send({ question: "" });
 
-    expect(response.status).toBe(400);
-    expect(response.body).toMatchObject({
-      error: "Dados inválidos.",
-      errorCode: "VALIDATION_ERROR",
-    });
-  });
+      expect(response.status).toBe(400);
+      expect(response.body).toMatchObject({
+        error: "Dados inválidos.",
+        errorCode: "VALIDATION_ERROR",
+      });
+    },
+  );
 });
