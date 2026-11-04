@@ -1,22 +1,28 @@
 import type { NextFunction, Request, Response } from "express";
 import { getCurrentUser } from "../../common/utils/get-current-user.js";
 import type { GenerateQueryDto } from "./dto/generate-query.dto.js";
-import { createLlmProvider } from "./llm-config.js";
+import { ConsoleLlmObserver } from "./llm-console-observer.js";
+import { createLlmProvider, loadLlmConfig } from "./llm-config.js";
 import { QueryAgentService } from "./query-agent.service.js";
 import { createQueryExecutor } from "./query-executor.js";
 import { QueryGenerationService } from "./query-generation.service.js";
 
 let service: QueryGenerationService | undefined;
 let agentService: QueryAgentService | undefined;
+const llmObserver = new ConsoleLlmObserver();
+
+function createObservedLlmProvider() {
+  return createLlmProvider(loadLlmConfig(), llmObserver);
+}
 
 function getService(): QueryGenerationService {
-  service ??= new QueryGenerationService(createLlmProvider());
+  service ??= new QueryGenerationService(createObservedLlmProvider());
   return service;
 }
 
 function getAgentService(): QueryAgentService {
   agentService ??= new QueryAgentService(
-    new QueryGenerationService(createLlmProvider()),
+    new QueryGenerationService(createObservedLlmProvider()),
     createQueryExecutor(),
   );
   return agentService;
