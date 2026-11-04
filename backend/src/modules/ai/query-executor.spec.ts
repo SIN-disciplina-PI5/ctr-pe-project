@@ -78,6 +78,18 @@ describe("PgReadOnlyQueryExecutor", () => {
     ).rejects.toMatchObject({ statusCode: 504 });
   });
 
+  it("classifica apenas falhas técnicas corrigíveis para uma nova tentativa", async () => {
+    const { executor } = setup([], { code: "42703", message: "segredo" });
+
+    await expect(
+      executor.execute(`SELECT * FROM ai."Ativo" LIMIT 1`, "empresa-1"),
+    ).rejects.toMatchObject({
+      queryFailureCode: "INVALID_COLUMN",
+      retryable: true,
+      safeFeedback: "A consulta referencia uma coluna inexistente.",
+    });
+  });
+
   it("bloqueia defesa em profundidade acima de 100 linhas", async () => {
     const { executor } = setup(
       Array.from({ length: 101 }, (_, id) => ({ id })),

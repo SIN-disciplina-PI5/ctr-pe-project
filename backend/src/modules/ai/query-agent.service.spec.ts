@@ -1,7 +1,7 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it, jest } from "@jest/globals";
 import type { QueryGenerationService } from "./query-generation.service.js";
 import { QueryAgentService } from "./query-agent.service.js";
-import type { QueryExecutor } from "./query-executor.js";
+import { QueryExecutionError, type QueryExecutor } from "./query-executor.js";
 
 const input = {
   question: "Quais ativos estão parados?",
@@ -111,5 +111,194 @@ describe("QueryAgentService", () => {
       answer: "Nenhum dado foi encontrado para a pergunta nesta empresa.",
       rowsUsed: [],
     });
+  });
+
+  it("faz uma única correção após falha técnica corrigível", async () => {
+    const initialSql = `SELECT "inexistente" FROM ai."Ativo" LIMIT 100`;
+    const correctedSql = `SELECT "codigo" FROM ai."Ativo" LIMIT 100`;
+    const correct = jest.fn(async () => ({
+      sql: correctedSql,
+      explanation: "Coluna corrigida.",
+      validation: { valid: true, violations: [], views: ["Ativo"], limit: 100 },
+      metrics: {
+        provider: "fake",
+        model: "fake-model",
+        latencyMs: 2,
+        inputTokens: 3,
+        outputTokens: 4,
+        totalTokens: 7,
+      },
+    }));
+    const generationService = {
+      generate: async () => ({
+        status: "generated" as const,
+        sql: initialSql,
+        explanation: "Consulta inicial.",
+        assumptions: [],
+        relevantViews: ["Ativo" as const],
+        validation: {
+          valid: true,
+          violations: [],
+          views: ["Ativo"],
+          limit: 100,
+        },
+        metrics: {
+          provider: "fake",
+          model: "fake-model",
+          latencyMs: 1,
+          inputTokens: 1,
+          outputTokens: 1,
+          totalTokens: 2,
+        },
+      }),
+      correct,
+    } as unknown as QueryGenerationService;
+    let attempts = 0;
+    const executor: QueryExecutor = {
+      execute: async (sql) => {
+        attempts += 1;
+        if (attempts === 1) {
+          throw new QueryExecutionError(
+            "INVALID_COLUMN",
+            "A consulta referencia uma coluna inexistente.",
+            true,
+            422,
+          );
+        }
+        expect(sql).toBe(correctedSql);
+        return { rows: [{ codigo: "AT-001" }], rowCount: 1, latencyMs: 3 };
+      },
+    };
+
+    await expect(
+      new QueryAgentService(generationService, executor).query(input),
+    ).resolves.toMatchObject({
+      status: "answered",
+      mode: "single",
+      sql: correctedSql,
+      correctionApplied: true,
+    });
+    expect(attempts).toBe(2);
+    expect(correct).toHaveBeenCalledTimes(1);
+  });
+
+  it("encerra com erro seguro quando a consulta corrigida também falha", async () => {
+    const generationService = {
+      generate: async () => ({
+        status: "generated" as const,
+        sql: `SELECT "x" FROM ai."Ativo" LIMIT 100`,
+        explanation: "Inicial.",
+        assumptions: [],
+        relevantViews: ["Ativo" as const],
+        validation: {
+          valid: true,
+          violations: [],
+          views: ["Ativo"],
+          limit: 100,
+        },
+        metrics: {
+          provider: "fake",
+          model: "fake-model",
+          latencyMs: 1,
+          inputTokens: null,
+          outputTokens: null,
+          totalTokens: null,
+        },
+      }),
+      correct: async () => ({
+        sql: `SELECT "y" FROM ai."Ativo" LIMIT 100`,
+        explanation: "Corrigida.",
+        validation: {
+          valid: true,
+          violations: [],
+          views: ["Ativo"],
+          limit: 100,
+        },
+        metrics: {
+          provider: "fake",
+          model: "fake-model",
+          latencyMs: 1,
+          inputTokens: null,
+          outputTokens: null,
+          totalTokens: null,
+        },
+      }),
+    } as unknown as QueryGenerationService;
+    const executor: QueryExecutor = {
+      execute: async () => {
+        throw new QueryExecutionError(
+          "INVALID_COLUMN",
+          "A consulta referencia uma coluna inexistente.",
+          true,
+          422,
+        );
+      },
+    };
+
+    await expect(
+      new QueryAgentService(generationService, executor).query(input),
+    ).rejects.toMatchObject({
+      statusCode: 422,
+      message: "A consulta continuou inválida após uma única correção.",
+    });
+  });
+
+  it("executa de duas a três consultas apenas quando recebe um plano", async () => {
+    const generationService = {
+      generate: async () => ({
+        status: "planned" as const,
+        steps: [
+          {
+            id: "ativos",
+            purpose: "Consultar ativos.",
+            sql: `SELECT "codigo" FROM ai."Ativo" LIMIT 100`,
+            validation: {
+              valid: true,
+              violations: [],
+              views: ["Ativo"],
+              limit: 100,
+            },
+          },
+          {
+            id: "materiais",
+            purpose: "Consultar materiais.",
+            sql: `SELECT "codigo" FROM ai."Material" LIMIT 100`,
+            validation: {
+              valid: true,
+              violations: [],
+              views: ["Material"],
+              limit: 100,
+            },
+          },
+        ],
+        explanation: "Duas consultas necessárias.",
+        assumptions: [],
+        relevantViews: ["Ativo" as const, "Material" as const],
+        metrics: {
+          provider: "fake",
+          model: "fake-model",
+          latencyMs: 1,
+          inputTokens: null,
+          outputTokens: null,
+          totalTokens: null,
+        },
+      }),
+    } as unknown as QueryGenerationService;
+    const executed: string[] = [];
+    const executor: QueryExecutor = {
+      execute: async (sql) => {
+        executed.push(sql);
+        return { rows: [{ codigo: "X" }], rowCount: 1, latencyMs: 1 };
+      },
+    };
+
+    await expect(
+      new QueryAgentService(generationService, executor).query(input),
+    ).resolves.toMatchObject({
+      status: "answered",
+      mode: "plan",
+      steps: [{ id: "ativos" }, { id: "materiais" }],
+    });
+    expect(executed).toHaveLength(2);
   });
 });

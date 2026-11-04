@@ -37,23 +37,108 @@ interface DatabaseFailure {
   readonly code?: string;
 }
 
+export const QUERY_EXECUTION_FAILURE_CODES = [
+  "AMBIGUOUS_COLUMN",
+  "INVALID_COLUMN",
+  "INVALID_DATETIME",
+  "INVALID_GROUPING",
+  "INVALID_RELATION",
+  "INVALID_VALUE",
+  "UNDEFINED_OPERATION",
+  "TIMEOUT",
+  "DATABASE_ERROR",
+] as const;
+
+export type QueryExecutionFailureCode =
+  (typeof QUERY_EXECUTION_FAILURE_CODES)[number];
+
+const CORRECTABLE_FAILURES: Readonly<
+  Record<string, { code: QueryExecutionFailureCode; feedback: string }>
+> = {
+  "42702": {
+    code: "AMBIGUOUS_COLUMN",
+    feedback: "A consulta possui uma referência de coluna ambígua.",
+  },
+  "42703": {
+    code: "INVALID_COLUMN",
+    feedback: "A consulta referencia uma coluna inexistente.",
+  },
+  "42P01": {
+    code: "INVALID_RELATION",
+    feedback: "A consulta referencia uma relação inexistente.",
+  },
+  "42803": {
+    code: "INVALID_GROUPING",
+    feedback: "A consulta possui uma regra de agrupamento inválida.",
+  },
+  "22P02": {
+    code: "INVALID_VALUE",
+    feedback: "A consulta usa um valor incompatível com o tipo da coluna.",
+  },
+  "22007": {
+    code: "INVALID_DATETIME",
+    feedback: "A consulta usa uma data ou horário inválido.",
+  },
+  "42883": {
+    code: "UNDEFINED_OPERATION",
+    feedback:
+      "A consulta usa uma operação incompatível com os tipos envolvidos.",
+  },
+};
+
+export class QueryExecutionError extends AppError {
+  constructor(
+    public readonly queryFailureCode: QueryExecutionFailureCode,
+    public readonly safeFeedback: string,
+    public readonly retryable: boolean,
+    statusCode: number,
+  ) {
+    super({
+      message: safeFeedback,
+      statusCode,
+      errorCode: ErrorCode.INTERNAL_SERVER_ERROR,
+      details: { queryErrorCode: queryFailureCode },
+    });
+    this.name = "QueryExecutionError";
+  }
+}
+
+export function isRetryableQueryExecutionError(
+  error: unknown,
+): error is QueryExecutionError {
+  return error instanceof QueryExecutionError && error.retryable;
+}
+
 function toAppError(error: unknown): AppError {
   if (error instanceof AppError) return error;
 
   const failure = error as DatabaseFailure;
+  const correctable = failure.code
+    ? CORRECTABLE_FAILURES[failure.code]
+    : undefined;
+  if (correctable) {
+    return new QueryExecutionError(
+      correctable.code,
+      correctable.feedback,
+      true,
+      422,
+    );
+  }
   if (failure.code === "57014") {
-    return new AppError({
-      message: "A consulta excedeu o tempo limite.",
-      statusCode: 504,
-      errorCode: ErrorCode.INTERNAL_SERVER_ERROR,
-    });
+    return new QueryExecutionError(
+      "TIMEOUT",
+      "A consulta excedeu o tempo limite.",
+      false,
+      504,
+    );
   }
 
-  return new AppError({
-    message: "Não foi possível consultar os dados com segurança.",
-    statusCode: 502,
-    errorCode: ErrorCode.INTERNAL_SERVER_ERROR,
-  });
+  return new QueryExecutionError(
+    "DATABASE_ERROR",
+    "Não foi possível consultar os dados com segurança.",
+    false,
+    502,
+  );
 }
 
 export class PgReadOnlyQueryExecutor implements QueryExecutor {

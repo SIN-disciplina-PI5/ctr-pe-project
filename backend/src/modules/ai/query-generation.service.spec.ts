@@ -174,4 +174,97 @@ describe("QueryGenerationService", () => {
       new QueryGenerationService(provider).generate(input),
     ).rejects.toBeInstanceOf(AppError);
   });
+
+  it("aceita um plano curto somente após validar todas as etapas", async () => {
+    const provider = new FakeProvider({
+      type: "query_plan",
+      explanation: "Consulta ativos e materiais separadamente.",
+      assumptions: [],
+      steps: [
+        {
+          id: "ativos_parados",
+          purpose: "Listar ativos parados.",
+          sql: `SELECT "codigo" FROM ai."Ativo" WHERE "status" = 'PARADO' LIMIT 100`,
+        },
+        {
+          id: "materiais_baixos",
+          purpose: "Listar materiais com estoque baixo.",
+          sql: `SELECT "codigo" FROM ai."Material" WHERE "estoqueAtual" < "estoqueMinimo" LIMIT 100`,
+        },
+      ],
+    });
+
+    await expect(
+      new QueryGenerationService(provider).generate({
+        question:
+          "Quais ativos estão parados e quais materiais estão com estoque baixo?",
+        empresaId: "empresa-1",
+      }),
+    ).resolves.toMatchObject({
+      status: "planned",
+      steps: [
+        { id: "ativos_parados", validation: { valid: true } },
+        { id: "materiais_baixos", validation: { valid: true } },
+      ],
+    });
+  });
+
+  it("recusa plano com identificadores duplicados", async () => {
+    const provider = new FakeProvider({
+      type: "query_plan",
+      explanation: "Plano inválido.",
+      assumptions: [],
+      steps: [
+        {
+          id: "consulta",
+          purpose: "Primeira consulta.",
+          sql: `SELECT "codigo" FROM ai."Ativo" LIMIT 100`,
+        },
+        {
+          id: "consulta",
+          purpose: "Segunda consulta.",
+          sql: `SELECT "nome" FROM ai."Ativo" LIMIT 100`,
+        },
+      ],
+    });
+
+    await expect(
+      new QueryGenerationService(provider).generate(input),
+    ).rejects.toMatchObject({ statusCode: 422 });
+  });
+
+  it("corrige uma consulta uma vez e revalida o novo SQL", async () => {
+    const provider = new FakeProvider({
+      sql: `SELECT "codigo" FROM ai."Ativo" LIMIT 100`,
+      explanation: "Usa uma coluna existente.",
+    });
+
+    const result = await new QueryGenerationService(provider).correct({
+      question: input.question,
+      empresaId: "empresa-1",
+      failedSql: `SELECT "coluna_inexistente" FROM ai."Ativo" LIMIT 100`,
+      safeFeedback: "A consulta referencia\u0000 uma coluna inexistente.",
+      relevantViews: ["Ativo"],
+    });
+
+    expect(result).toMatchObject({ validation: { valid: true } });
+    expect(provider.request?.userPrompt).not.toContain("\u0000");
+  });
+
+  it("recusa a correção quando o novo SQL continua inseguro", async () => {
+    const provider = new FakeProvider({
+      sql: `SELECT * FROM public."Usuario" LIMIT 100`,
+      explanation: "Consulta incorreta.",
+    });
+
+    await expect(
+      new QueryGenerationService(provider).correct({
+        question: input.question,
+        empresaId: "empresa-1",
+        failedSql: `SELECT "x" FROM ai."Ativo" LIMIT 100`,
+        safeFeedback: "A consulta referencia uma coluna inexistente.",
+        relevantViews: ["Ativo"],
+      }),
+    ).rejects.toMatchObject({ statusCode: 422 });
+  });
 });
