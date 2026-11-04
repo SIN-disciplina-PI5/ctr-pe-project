@@ -11,8 +11,9 @@ import {
   type QueryCorrectionOutput,
   type QueryGenerationOutput,
 } from "./query-generation.js";
+import { buildQueryContext } from "./query-context.js";
 import { inferRelevantViews } from "./relevant-views.js";
-import { buildSchemaContext, type AiViewName } from "./schema-context.js";
+import type { AiViewName } from "./schema-context.js";
 import { validateSql, type SqlValidationResult } from "./sql-validator.js";
 
 export interface GenerateQueryInput {
@@ -115,7 +116,10 @@ export class QueryGenerationService {
       };
     }
 
-    const context = buildSchemaContext({ relevantViews });
+    const context = buildQueryContext({
+      question: input.question,
+      relevantViews,
+    });
     let generation: StructuredGenerationResult<QueryGenerationOutput>;
     try {
       generation = await this.provider.generateStructured({
@@ -243,7 +247,10 @@ export class QueryGenerationService {
       });
     }
 
-    const context = buildSchemaContext({ relevantViews: input.relevantViews });
+    const context = buildQueryContext({
+      question: input.question,
+      relevantViews: input.relevantViews,
+    });
     const failedSql = input.failedSql
       .replace(/[\u0000-\u001f\u007f]/g, " ")
       .slice(0, 4_000);

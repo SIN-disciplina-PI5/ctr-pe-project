@@ -58,6 +58,9 @@ describe("QueryGenerationService", () => {
       metrics: { provider: "fake", totalTokens: 30 },
     });
     expect(provider.request?.userPrompt).toContain('ai."Ativo"');
+    expect(provider.request?.userPrompt).toContain(
+      "Exemplos confiáveis de pergunta e SQL:",
+    );
     expect(provider.request?.userPrompt).not.toContain('ai."Usuario"');
     expect(provider.request?.userPrompt).not.toContain('ai."Material"');
   });
@@ -249,6 +252,9 @@ describe("QueryGenerationService", () => {
 
     expect(result).toMatchObject({ validation: { valid: true } });
     expect(provider.request?.userPrompt).not.toContain("\u0000");
+    expect(provider.request?.userPrompt).toContain(
+      "Exemplos confiáveis de pergunta e SQL:",
+    );
   });
 
   it("recusa a correção quando o novo SQL continua inseguro", async () => {
