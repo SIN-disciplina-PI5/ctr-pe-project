@@ -578,7 +578,7 @@ LIMIT 100`,
 FROM ai."OrdemServico" os
 JOIN ai."Ativo" a ON a."id" = os."ativoId"
 WHERE a."codigo" = 'CT-07'
-  AND os."titulo" = 'Falha na caixa de transmissão'
+  AND os."titulo" = 'Falha na caixa de transmissão - CT-07'
   AND os."abertaEm" >= TIMESTAMPTZ '2026-08-01T00:00:00.000Z'
   AND os."abertaEm" < TIMESTAMPTZ '2026-09-01T00:00:00.000Z'
 LIMIT 1`,
