@@ -33,7 +33,7 @@ describe("QueryAgentService", () => {
           totalTokens: 30,
         },
       }),
-    } as QueryGenerationService;
+    } as unknown as QueryGenerationService;
     const executor: QueryExecutor = {
       execute: async () => ({
         rows: [{ codigo: "AT-001" }],
@@ -99,7 +99,7 @@ describe("QueryAgentService", () => {
           totalTokens: null,
         },
       }),
-    } as QueryGenerationService;
+    } as unknown as QueryGenerationService;
     const executor: QueryExecutor = {
       execute: async () => ({ rows: [], rowCount: 0, latencyMs: 2 }),
     };
