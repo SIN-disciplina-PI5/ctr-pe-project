@@ -12,6 +12,8 @@
     "test:watch": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --watch",
     "test:synthetic-data": "DATABASE_URL=${DATABASE_URL:-postgresql://test:test@127.0.0.1:5432/test} npm test -- --runTestsByPath tests/unit/synthetic-data-consistency.spec.ts",
     "test:ai-evaluation-dataset": "DATABASE_URL=${DATABASE_URL:-postgresql://test:test@127.0.0.1:5432/test} npm test -- --runTestsByPath tests/evaluation/query-evaluation-dataset.spec.ts",
+    "test:ai-evaluation": "DATABASE_URL=${DATABASE_URL:-postgresql://test:test@127.0.0.1:5432/test} npm test -- --runTestsByPath tests/evaluation/query-evaluation-dataset.spec.ts tests/evaluation/query-evaluation-runner.spec.ts",
+    "evaluate:ai": "tsx evaluation/run-query-evaluation.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
