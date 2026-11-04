@@ -42,6 +42,67 @@ function classifyError(error: unknown): LlmProviderErrorCode {
   return "PROVIDER_ERROR";
 }
 
+function normalizeJsonSchemaForGroq<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map(normalizeJsonSchemaForGroq) as T;
+  }
+  if (value === null || typeof value !== "object") return value;
+
+  return Object.fromEntries(
+    Object.entries(value).map(([key, nestedValue]) => [
+      key === "oneOf" ? "anyOf" : key,
+      normalizeJsonSchemaForGroq(nestedValue),
+    ]),
+  ) as T;
+}
+
+function prepareJsonSchemaForGroq<T>(value: T): {
+  readonly schema: T;
+  readonly usesEnvelope: boolean;
+} {
+  const normalized = normalizeJsonSchemaForGroq(value);
+  if (
+    normalized !== null &&
+    typeof normalized === "object" &&
+    !Array.isArray(normalized)
+  ) {
+    const root = normalized as Record<string, unknown>;
+    const hasUnsupportedRootComposition = [
+      "anyOf",
+      "oneOf",
+      "enum",
+      "not",
+    ].some((keyword) => keyword in root);
+
+    if (root["type"] === "object" && !hasUnsupportedRootComposition) {
+      return { schema: normalized, usesEnvelope: false };
+    }
+
+    const { $schema, $defs, ...innerSchema } = root;
+    return {
+      schema: {
+        ...($schema === undefined ? {} : { $schema }),
+        ...($defs === undefined ? {} : { $defs }),
+        type: "object",
+        properties: { result: innerSchema },
+        required: ["result"],
+        additionalProperties: false,
+      } as unknown as T,
+      usesEnvelope: true,
+    };
+  }
+
+  return {
+    schema: {
+      type: "object",
+      properties: { result: normalized },
+      required: ["result"],
+      additionalProperties: false,
+    } as unknown as T,
+    usesEnvelope: true,
+  };
+}
+
 export class GroqProvider implements LlmProvider {
   private readonly client: GroqClient;
   private readonly observer: LlmObserver | undefined;
@@ -75,6 +136,9 @@ export class GroqProvider implements LlmProvider {
     const startedAt = this.now();
 
     try {
+      const preparedSchema = prepareJsonSchemaForGroq(
+        z.toJSONSchema(request.schema),
+      );
       const completion = await this.client.chat.completions.create(
         {
           model: this.options.model,
@@ -88,7 +152,7 @@ export class GroqProvider implements LlmProvider {
             json_schema: {
               name: request.schemaName,
               strict: true,
-              schema: z.toJSONSchema(request.schema),
+              schema: preparedSchema.schema,
             },
           },
         },
@@ -106,8 +170,16 @@ export class GroqProvider implements LlmProvider {
         );
       }
 
+      const parsedContent: unknown = JSON.parse(content);
+      const responseData =
+        preparedSchema.usesEnvelope &&
+        parsedContent !== null &&
+        typeof parsedContent === "object" &&
+        !Array.isArray(parsedContent)
+          ? (parsedContent as Record<string, unknown>)["result"]
+          : parsedContent;
       const result: StructuredGenerationResult<output<TSchema>> = {
-        data: request.schema.parse(JSON.parse(content)),
+        data: request.schema.parse(responseData),
         provider: "groq",
         model: this.options.model,
         latencyMs: Math.max(0, Math.round(this.now() - startedAt)),

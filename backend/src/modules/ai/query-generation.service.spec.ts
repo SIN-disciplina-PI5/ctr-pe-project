@@ -8,6 +8,10 @@ import {
   type StructuredGenerationResult,
 } from "./llm-provider.js";
 import { QueryGenerationService } from "./query-generation.service.js";
+import {
+  QUERY_CORRECTION_SYSTEM_PROMPT,
+  QUERY_GENERATION_SYSTEM_PROMPT,
+} from "./query-prompts.config.js";
 
 class FakeProvider implements LlmProvider {
   public request: StructuredGenerationRequest<ZodType> | null = null;
@@ -63,6 +67,9 @@ describe("QueryGenerationService", () => {
     );
     expect(provider.request?.userPrompt).not.toContain('ai."Usuario"');
     expect(provider.request?.userPrompt).not.toContain('ai."Material"');
+    expect(provider.request?.systemPrompt).toBe(
+      QUERY_GENERATION_SYSTEM_PROMPT,
+    );
   });
 
   it("recusa assunto externo sem chamar o provedor", async () => {
@@ -254,6 +261,9 @@ describe("QueryGenerationService", () => {
     expect(provider.request?.userPrompt).not.toContain("\u0000");
     expect(provider.request?.userPrompt).toContain(
       "Exemplos confiáveis de pergunta e SQL:",
+    );
+    expect(provider.request?.systemPrompt).toBe(
+      QUERY_CORRECTION_SYSTEM_PROMPT,
     );
   });
 

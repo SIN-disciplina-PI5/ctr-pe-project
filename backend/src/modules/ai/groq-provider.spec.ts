@@ -42,9 +42,13 @@ function completion(content: string | null) {
 
 function mockClient(result: unknown): {
   client: GroqClient;
-  create: jest.Mock;
+  create: jest.Mock<
+    (body: unknown, options?: unknown) => Promise<unknown>
+  >;
 } {
-  const create = jest.fn<() => Promise<unknown>>();
+  const create = jest.fn<
+    (body: unknown, options?: unknown) => Promise<unknown>
+  >();
   if (result instanceof Error) create.mockRejectedValue(result);
   else create.mockResolvedValue(result);
 
@@ -112,6 +116,45 @@ describe("GroqProvider", () => {
         totalTokens: 30,
       }),
     );
+  });
+
+  it("adapta união de raiz ao schema aceito pela Groq", async () => {
+    const unionSchema = z.discriminatedUnion("type", [
+      z.object({ type: z.literal("query"), sql: z.string() }).strict(),
+      z.object({ type: z.literal("refusal"), reason: z.string() }).strict(),
+    ]);
+    const { client, create } = mockClient(
+      completion(
+        JSON.stringify({
+          result: { type: "refusal", reason: "Sem contexto" },
+        }),
+      ),
+    );
+
+    const result = await provider(client).generateStructured({
+      ...request,
+      schema: unionSchema,
+    });
+
+    const sentRequest = create.mock.calls[0]?.[0] as {
+      response_format?: {
+        json_schema?: { schema?: Record<string, unknown> };
+      };
+    };
+    const sentSchema = sentRequest.response_format?.json_schema?.schema;
+
+    expect(sentSchema).toMatchObject({
+      type: "object",
+      properties: { result: { anyOf: expect.any(Array) } },
+      required: ["result"],
+      additionalProperties: false,
+    });
+    expect(sentSchema).not.toHaveProperty("anyOf");
+    expect(sentSchema).not.toHaveProperty("oneOf");
+    expect(result.data).toEqual({
+      type: "refusal",
+      reason: "Sem contexto",
+    });
   });
 
   it("converte timeout do SDK em erro seguro", async () => {
