@@ -39,6 +39,7 @@ function setupAnswerer(): {
 describe("QueryAgentService", () => {
   it("executa SQL validado e devolve somente a resposta fundamentada nas linhas", async () => {
     const sql = `SELECT "codigo" FROM ai."Ativo" WHERE "status" = 'PARADO' LIMIT 100`;
+    const correct = jest.fn();
     const generationService = {
       generate: async () => ({
         status: "generated" as const,
@@ -61,6 +62,7 @@ describe("QueryAgentService", () => {
           totalTokens: 30,
         },
       }),
+      correct,
     } as unknown as QueryGenerationService;
     const executor: QueryExecutor = {
       execute: async () => ({
@@ -92,6 +94,7 @@ describe("QueryAgentService", () => {
         ],
       },
     ]);
+    expect(correct).not.toHaveBeenCalled();
   });
 
   it("não consulta o banco quando a geração é recusada", async () => {
@@ -233,6 +236,58 @@ describe("QueryAgentService", () => {
     });
     expect(attempts).toBe(2);
     expect(correct).toHaveBeenCalledTimes(1);
+  });
+
+  it("não tenta corrigir uma falha não corrigível", async () => {
+    const correct = jest.fn(async () => {
+      throw new Error("não deveria corrigir");
+    });
+    const generationService = {
+      generate: async () => ({
+        status: "generated" as const,
+        sql: `SELECT "codigo" FROM ai."Ativo" LIMIT 100`,
+        explanation: "Consulta inicial.",
+        assumptions: [],
+        relevantViews: ["Ativo" as const],
+        validation: {
+          valid: true,
+          violations: [],
+          views: ["Ativo"],
+          limit: 100,
+        },
+        metrics: {
+          provider: "fake",
+          model: "fake-model",
+          latencyMs: 1,
+          inputTokens: null,
+          outputTokens: null,
+          totalTokens: null,
+        },
+      }),
+      correct,
+    } as unknown as QueryGenerationService;
+    const executor: QueryExecutor = {
+      execute: async () => {
+        throw new QueryExecutionError(
+          "TIMEOUT",
+          "A consulta excedeu o tempo limite.",
+          false,
+          504,
+        );
+      },
+    };
+
+    await expect(
+      new QueryAgentService(
+        generationService,
+        executor,
+        setupAnswerer().answerer,
+      ).query(input),
+    ).rejects.toMatchObject({
+      statusCode: 504,
+      message: "A consulta excedeu o tempo limite.",
+    });
+    expect(correct).not.toHaveBeenCalled();
   });
 
   it("encerra com erro seguro quando a consulta corrigida também falha", async () => {

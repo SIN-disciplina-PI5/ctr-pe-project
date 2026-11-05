@@ -17,13 +17,21 @@ import {
 const { Client, Pool } = pg;
 
 class StaticProvider implements LlmProvider {
-  constructor(private readonly data: unknown) {}
+  private responseIndex = 0;
+
+  constructor(private readonly responses: readonly unknown[]) {}
 
   async generateStructured<TSchema extends ZodType>(
     request: StructuredGenerationRequest<TSchema>,
   ): Promise<StructuredGenerationResult<output<TSchema>>> {
+    const data = this.responses[this.responseIndex];
+    if (data === undefined) {
+      throw new Error("Resposta estática não configurada para esta chamada.");
+    }
+    this.responseIndex += 1;
+
     return {
-      data: request.schema.parse(this.data),
+      data: request.schema.parse(data),
       provider: "e2e-static",
       model: "e2e-static",
       latencyMs: 0,
@@ -38,20 +46,28 @@ let owner: pg.Client;
 let aiPool: pg.Pool;
 const tenantIds = new Map<SyntheticTenantCode, string>();
 
-function createAgent(sql: string): QueryAgentService {
-  const provider = new StaticProvider({
-    type: "query",
-    sql,
-    explanation: "SQL estático validado para o teste E2E.",
-    assumptions: [],
-  });
+function createAgentFromResponses(
+  responses: readonly unknown[],
+): QueryAgentService {
+  const provider = new StaticProvider(responses);
   return new QueryAgentService(
     new QueryGenerationService(provider),
     new PgReadOnlyQueryExecutor(aiPool),
     new QueryAnswerService(
-      new StaticProvider({ answer: "Resposta fundamentada nas linhas." }),
+      new StaticProvider([{ answer: "Resposta fundamentada nas linhas." }]),
     ),
   );
+}
+
+function createAgent(sql: string): QueryAgentService {
+  return createAgentFromResponses([
+    {
+      type: "query",
+      sql,
+      explanation: "SQL estático validado para o teste E2E.",
+      assumptions: [],
+    },
+  ]);
 }
 
 const describeWithAiDatabase =
@@ -163,6 +179,88 @@ describeWithAiDatabase(
       } finally {
         client.release();
       }
+    });
+
+    it("corrige uma coluna inexistente uma única vez e executa o novo SQL", async () => {
+      const empresaId = tenantIds.get("alpha-brazilian");
+      if (!empresaId) throw new Error("Empresa alpha-brazilian ausente.");
+      const correctedSql = `SELECT "codigo"
+       FROM ai."Ativo"
+       ORDER BY "codigo"
+       LIMIT 3`;
+      const agent = createAgentFromResponses([
+        {
+          type: "query",
+          sql: `SELECT "coluna_inexistente" FROM ai."Ativo" LIMIT 3`,
+          explanation: "Consulta inicial com coluna inválida.",
+          assumptions: [],
+        },
+        {
+          sql: correctedSql,
+          explanation: "Consulta corrigida com coluna existente.",
+        },
+      ]);
+
+      const result = await agent.query({
+        question: "Quais são os códigos dos primeiros ativos?",
+        empresaId,
+      });
+
+      expect(result).toMatchObject({
+        status: "answered",
+        mode: "single",
+        sql: correctedSql,
+        correctionApplied: true,
+        correctionMetrics: { provider: "e2e-static" },
+      });
+      if (result.status !== "answered" || result.mode !== "single") return;
+      expect(result.rowsUsed).toHaveLength(3);
+    });
+
+    it("executa e consolida um plano com duas consultas reais", async () => {
+      const empresaId = tenantIds.get("alpha-international");
+      if (!empresaId) throw new Error("Empresa alpha-international ausente.");
+      const agent = createAgentFromResponses([
+        {
+          type: "query_plan",
+          explanation: "Consulta ativos e materiais separadamente.",
+          assumptions: [],
+          steps: [
+            {
+              id: "total_ativos",
+              purpose: "Contar ativos cadastrados como ativos.",
+              sql: `SELECT COUNT(*)::int AS "total"
+               FROM ai."Ativo"
+               WHERE "ativo" = true
+               LIMIT 1`,
+            },
+            {
+              id: "materiais_baixos",
+              purpose: "Contar materiais abaixo do estoque mínimo.",
+              sql: `SELECT COUNT(*)::int AS "total"
+               FROM ai."Material"
+               WHERE "estoqueAtual" < "estoqueMinimo"
+               LIMIT 1`,
+            },
+          ],
+        },
+      ]);
+
+      const result = await agent.query({
+        question:
+          "Quantos ativos estão cadastrados como ativos e quantos materiais estão abaixo do estoque mínimo?",
+        empresaId,
+      });
+
+      expect(result).toMatchObject({
+        status: "answered",
+        mode: "plan",
+        answer: "Resposta fundamentada nas linhas.",
+        steps: [
+          { id: "total_ativos", rowsUsed: [expect.objectContaining({ total: expect.any(Number) })] },
+          { id: "materiais_baixos", rowsUsed: [expect.objectContaining({ total: expect.any(Number) })] },
+        ],
+      });
     });
   },
 );
