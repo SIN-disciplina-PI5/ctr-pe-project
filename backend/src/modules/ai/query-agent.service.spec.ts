@@ -1,12 +1,40 @@
 import { describe, expect, it, jest } from "@jest/globals";
 import type { QueryGenerationService } from "./query-generation.service.js";
 import { QueryAgentService } from "./query-agent.service.js";
+import type {
+  QueryAnswerInput,
+  QueryAnswerer,
+} from "./query-answer.service.js";
 import { QueryExecutionError, type QueryExecutor } from "./query-executor.js";
 
 const input = {
   question: "Quais ativos estão parados?",
   empresaId: "empresa-1",
 };
+
+function setupAnswerer(): {
+  answerer: QueryAnswerer;
+  calls: QueryAnswerInput[];
+} {
+  const calls: QueryAnswerInput[] = [];
+  return {
+    calls,
+    answerer: {
+      async answer(answerInput) {
+        calls.push(answerInput);
+        const hasRows = answerInput.sources.some(
+          (source) => source.rows.length > 0,
+        );
+        return {
+          answer: hasRows
+            ? "O ativo AT-001 está parado."
+            : "Nenhum dado foi encontrado para a pergunta nesta empresa.",
+          metrics: null,
+        };
+      },
+    },
+  };
+}
 
 describe("QueryAgentService", () => {
   it("executa SQL validado e devolve somente a resposta fundamentada nas linhas", async () => {
@@ -41,16 +69,29 @@ describe("QueryAgentService", () => {
         latencyMs: 4,
       }),
     };
+    const { answerer, calls } = setupAnswerer();
 
     await expect(
-      new QueryAgentService(generationService, executor).query(input),
+      new QueryAgentService(generationService, executor, answerer).query(input),
     ).resolves.toMatchObject({
       status: "answered",
-      answer: expect.stringContaining("1 registro"),
+      answer: "O ativo AT-001 está parado.",
+      answerMetrics: null,
       sql,
       rowsUsed: [{ codigo: "AT-001" }],
       execution: { rowCount: 1, latencyMs: 4 },
     });
+    expect(calls).toEqual([
+      {
+        question: input.question,
+        sources: [
+          {
+            purpose: "Ativos parados.",
+            rows: [{ codigo: "AT-001" }],
+          },
+        ],
+      },
+    ]);
   });
 
   it("não consulta o banco quando a geração é recusada", async () => {
@@ -68,7 +109,11 @@ describe("QueryAgentService", () => {
     };
 
     await expect(
-      new QueryAgentService(generationService, executor).query(input),
+      new QueryAgentService(
+        generationService,
+        executor,
+        setupAnswerer().answerer,
+      ).query(input),
     ).resolves.toEqual({
       status: "refused",
       reason: "Pergunta fora do domínio.",
@@ -105,7 +150,11 @@ describe("QueryAgentService", () => {
     };
 
     await expect(
-      new QueryAgentService(generationService, executor).query(input),
+      new QueryAgentService(
+        generationService,
+        executor,
+        setupAnswerer().answerer,
+      ).query(input),
     ).resolves.toMatchObject({
       status: "answered",
       answer: "Nenhum dado foi encontrado para a pergunta nesta empresa.",
@@ -171,7 +220,11 @@ describe("QueryAgentService", () => {
     };
 
     await expect(
-      new QueryAgentService(generationService, executor).query(input),
+      new QueryAgentService(
+        generationService,
+        executor,
+        setupAnswerer().answerer,
+      ).query(input),
     ).resolves.toMatchObject({
       status: "answered",
       mode: "single",
@@ -236,7 +289,11 @@ describe("QueryAgentService", () => {
     };
 
     await expect(
-      new QueryAgentService(generationService, executor).query(input),
+      new QueryAgentService(
+        generationService,
+        executor,
+        setupAnswerer().answerer,
+      ).query(input),
     ).rejects.toMatchObject({
       statusCode: 422,
       message: "A consulta continuou inválida após uma única correção.",
@@ -291,14 +348,24 @@ describe("QueryAgentService", () => {
         return { rows: [{ codigo: "X" }], rowCount: 1, latencyMs: 1 };
       },
     };
+    const { answerer, calls } = setupAnswerer();
 
     await expect(
-      new QueryAgentService(generationService, executor).query(input),
+      new QueryAgentService(generationService, executor, answerer).query(input),
     ).resolves.toMatchObject({
       status: "answered",
       mode: "plan",
       steps: [{ id: "ativos" }, { id: "materiais" }],
     });
     expect(executed).toHaveLength(2);
+    expect(calls).toEqual([
+      {
+        question: input.question,
+        sources: [
+          { purpose: "Consultar ativos.", rows: [{ codigo: "X" }] },
+          { purpose: "Consultar materiais.", rows: [{ codigo: "X" }] },
+        ],
+      },
+    ]);
   });
 });

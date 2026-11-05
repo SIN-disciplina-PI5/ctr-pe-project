@@ -12,6 +12,7 @@ import {
   type QueryExecutor,
   type QueryRow,
 } from "./query-executor.js";
+import type { QueryAnswerer } from "./query-answer.service.js";
 
 type GeneratedQuery = Extract<QueryGenerationResult, { status: "generated" }>;
 type PlannedQuery = Extract<QueryGenerationResult, { status: "planned" }>;
@@ -29,6 +30,7 @@ interface AnsweredSingleQueryResult extends ExecutedQuery {
   readonly status: "answered";
   readonly mode: "single";
   readonly answer: string;
+  readonly answerMetrics: GenerationMetrics | null;
   readonly relevantViews: RelevantViews;
   readonly generation: GenerationMetrics;
 }
@@ -42,6 +44,7 @@ interface AnsweredQueryPlanResult {
   readonly status: "answered";
   readonly mode: "plan";
   readonly answer: string;
+  readonly answerMetrics: GenerationMetrics | null;
   readonly steps: readonly ExecutedPlanStep[];
   readonly relevantViews: PlannedQuery["relevantViews"];
   readonly generation: GenerationMetrics;
@@ -52,22 +55,11 @@ export type QueryAgentResult =
   | AnsweredSingleQueryResult
   | AnsweredQueryPlanResult;
 
-function buildGroundedAnswer(rowCount: number, queryCount = 1): string {
-  if (rowCount === 0) {
-    return "Nenhum dado foi encontrado para a pergunta nesta empresa.";
-  }
-
-  const records = rowCount === 1 ? "1 registro" : `${rowCount} registros`;
-  if (queryCount === 1) {
-    return `A consulta encontrou ${records}. A resposta está integralmente apresentada em rowsUsed.`;
-  }
-  return `O plano executou ${queryCount} consultas e encontrou ${records}. A resposta está integralmente apresentada nas linhas de cada etapa.`;
-}
-
 export class QueryAgentService {
   constructor(
     private readonly generationService: QueryGenerationService,
     private readonly executor: QueryExecutor,
+    private readonly answerer: QueryAnswerer,
   ) {}
 
   async query(input: GenerateQueryInput): Promise<QueryAgentResult> {
@@ -83,11 +75,18 @@ export class QueryAgentService {
       generation.sql,
       generation.relevantViews,
     );
+    const answer = await this.answerer.answer({
+      question: input.question,
+      sources: [
+        { purpose: generation.explanation, rows: executed.rowsUsed },
+      ],
+    });
 
     return {
       status: "answered",
       mode: "single",
-      answer: buildGroundedAnswer(executed.execution.rowCount),
+      answer: answer.answer,
+      answerMetrics: answer.metrics,
       ...executed,
       relevantViews: generation.relevantViews,
       generation: generation.metrics,
@@ -109,14 +108,18 @@ export class QueryAgentService {
       steps.push({ id: step.id, purpose: step.purpose, ...executed });
     }
 
-    const totalRows = steps.reduce(
-      (total, step) => total + step.execution.rowCount,
-      0,
-    );
+    const answer = await this.answerer.answer({
+      question: input.question,
+      sources: steps.map((step) => ({
+        purpose: step.purpose,
+        rows: step.rowsUsed,
+      })),
+    });
     return {
       status: "answered",
       mode: "plan",
-      answer: buildGroundedAnswer(totalRows, steps.length),
+      answer: answer.answer,
+      answerMetrics: answer.metrics,
       steps,
       relevantViews: generation.relevantViews,
       generation: generation.metrics,

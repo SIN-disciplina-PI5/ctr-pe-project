@@ -22,7 +22,13 @@ function usageOf(
         : result.steps
             .map((step) => step.correctionMetrics)
             .filter((metric): metric is GenerationMetrics => metric !== null);
-  const metrics = generation ? [generation, ...corrections] : corrections;
+  const answer =
+    result.status === "answered" && result.answerMetrics
+      ? [result.answerMetrics]
+      : [];
+  const metrics = generation
+    ? [generation, ...corrections, ...answer]
+    : [...corrections, ...answer];
   const executionLatency =
     result.status !== "answered"
       ? 0

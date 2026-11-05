@@ -1,6 +1,7 @@
 import pg from "pg";
 import { z, type output, type ZodType } from "zod";
 import { QueryAgentService } from "../../src/modules/ai/query-agent.service.js";
+import { QueryAnswerService } from "../../src/modules/ai/query-answer.service.js";
 import { PgReadOnlyQueryExecutor } from "../../src/modules/ai/query-executor.js";
 import { QueryGenerationService } from "../../src/modules/ai/query-generation.service.js";
 import type {
@@ -47,6 +48,9 @@ function createAgent(sql: string): QueryAgentService {
   return new QueryAgentService(
     new QueryGenerationService(provider),
     new PgReadOnlyQueryExecutor(aiPool),
+    new QueryAnswerService(
+      new StaticProvider({ answer: "Resposta fundamentada nas linhas." }),
+    ),
   );
 }
 

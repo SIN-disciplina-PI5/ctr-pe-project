@@ -105,7 +105,7 @@ describe("QueryEvaluationRunner", () => {
 });
 
 describe("QueryAgentEvaluationAdapter", () => {
-  it("agrega métricas reais de geração, correção e execução", async () => {
+  it("agrega métricas reais de geração, correção, resposta e execução", async () => {
     const agent = {
       query: async () => ({
         status: "answered" as const,
@@ -122,6 +122,14 @@ describe("QueryAgentEvaluationAdapter", () => {
           inputTokens: 2,
           outputTokens: 1,
           totalTokens: 3,
+        },
+        answerMetrics: {
+          provider: "groq",
+          model: "modelo",
+          latencyMs: 2,
+          inputTokens: 4,
+          outputTokens: 2,
+          totalTokens: 6,
         },
         relevantViews: ["Ativo" as const],
         generation: {
@@ -142,10 +150,10 @@ describe("QueryAgentEvaluationAdapter", () => {
         usage: {
           provider: "groq",
           model: "modelo",
-          latencyMs: 15,
-          inputTokens: 12,
-          outputTokens: 6,
-          totalTokens: 18,
+          latencyMs: 17,
+          inputTokens: 16,
+          outputTokens: 8,
+          totalTokens: 24,
         },
       });
   });

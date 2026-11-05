@@ -4,6 +4,7 @@ import type { GenerateQueryDto } from "./dto/generate-query.dto.js";
 import { ConsoleLlmObserver } from "./llm-console-observer.js";
 import { createLlmProvider, loadLlmConfig } from "./llm-config.js";
 import { QueryAgentService } from "./query-agent.service.js";
+import { QueryAnswerService } from "./query-answer.service.js";
 import { createQueryExecutor } from "./query-executor.js";
 import { QueryGenerationService } from "./query-generation.service.js";
 
@@ -21,10 +22,14 @@ function getService(): QueryGenerationService {
 }
 
 function getAgentService(): QueryAgentService {
-  agentService ??= new QueryAgentService(
-    new QueryGenerationService(createObservedLlmProvider()),
-    createQueryExecutor(),
-  );
+  if (!agentService) {
+    const provider = createObservedLlmProvider();
+    agentService = new QueryAgentService(
+      new QueryGenerationService(provider),
+      createQueryExecutor(),
+      new QueryAnswerService(provider),
+    );
+  }
   return agentService;
 }
 

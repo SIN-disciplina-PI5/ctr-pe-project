@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import pg from "pg";
 import { QueryAgentService } from "../src/modules/ai/query-agent.service.js";
+import { QueryAnswerService } from "../src/modules/ai/query-answer.service.js";
 import { loadLlmConfig, createLlmProvider } from "../src/modules/ai/llm-config.js";
 import { QueryGenerationService } from "../src/modules/ai/query-generation.service.js";
 import { PgReadOnlyQueryExecutor } from "../src/modules/ai/query-executor.js";
@@ -36,9 +37,11 @@ async function main(): Promise<void> {
   const safeTimestamp = executedAt.replaceAll(":", "-");
 
   try {
+    const provider = createLlmProvider(config);
     const agent = new QueryAgentService(
-      new QueryGenerationService(createLlmProvider(config)),
+      new QueryGenerationService(provider),
       new PgReadOnlyQueryExecutor(pool),
+      new QueryAnswerService(provider),
     );
     const adapter = new QueryAgentEvaluationAdapter(agent, { provider: "groq", model: config.model });
     const runner = new QueryEvaluationRunner({
