@@ -21,6 +21,7 @@ import {
 } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { Logo } from "@/components/brand/logo";
 import { EmpresaCompactSelect } from "@/components/domain/empresa-compact-select";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
@@ -120,6 +121,10 @@ export function ProtectedShell({ children }: { children: ReactNode }) {
       <View className="flex-1 bg-background">
         <View className="border-b border-border bg-background">
           <View className="flex-row items-center px-4 py-3">
+            <View className="mr-3 shrink-0">
+              <Logo />
+            </View>
+
             <View className="min-w-0 flex-1 max-w-[220px]">
               <EmpresaCompactSelect />
             </View>
