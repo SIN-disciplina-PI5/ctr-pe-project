@@ -1,8 +1,10 @@
 import { useMemo } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 
-import { BarChart, type BarDatum } from "@/components/charts/bar-chart";
+import type { BarDatum } from "@/components/charts/bar-chart";
 import { ChartCard } from "@/components/charts/chart-card";
+import { ColumnChart } from "@/components/charts/column-chart";
+import { DonutChart } from "@/components/charts/donut-chart";
 import { StatCard } from "@/components/charts/stat-card";
 import { Text } from "@/components/ui/text";
 import {
@@ -83,21 +85,33 @@ export default function IndicadoresScreen() {
           <StatCard label="Ordens de serviço" value={totalOs} />
         </View>
 
-        <ChartCard title="Ativos por status">
-          <BarChart data={porStatus} />
-        </ChartCard>
+        <View className="flex-row flex-wrap gap-4">
+          <View className="min-w-[300px] flex-1">
+            <ChartCard title="Ativos por status" subtitle="Situação atual dos ativos">
+              <DonutChart data={porStatus} centerValue={totalAtivos} centerLabel="ativos" />
+            </ChartCard>
+          </View>
 
-        <ChartCard title="Ativos por criticidade">
-          <BarChart data={porCriticidade} />
-        </ChartCard>
+          <View className="min-w-[300px] flex-1">
+            <ChartCard title="O.S. por tipo" subtitle="Tipos de manutenção">
+              <DonutChart data={porTipo} centerValue={totalOs} centerLabel="ordens" />
+            </ChartCard>
+          </View>
+        </View>
 
-        <ChartCard title="O.S. por prioridade">
-          <BarChart data={porPrioridade} />
-        </ChartCard>
+        <View className="flex-row flex-wrap gap-4">
+          <View className="min-w-[300px] flex-1">
+            <ChartCard title="Ativos por criticidade">
+              <ColumnChart data={porCriticidade} />
+            </ChartCard>
+          </View>
 
-        <ChartCard title="O.S. por tipo">
-          <BarChart data={porTipo} />
-        </ChartCard>
+          <View className="min-w-[300px] flex-1">
+            <ChartCard title="O.S. por prioridade">
+              <ColumnChart data={porPrioridade} />
+            </ChartCard>
+          </View>
+        </View>
       </View>
     </ScrollView>
   );
