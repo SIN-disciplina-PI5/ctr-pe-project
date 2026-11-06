@@ -1,8 +1,11 @@
 import { useMemo } from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { Pressable, RefreshControl, ScrollView, View } from "react-native";
+import { Boxes, ClipboardList } from "lucide-react-native";
 
 import type { BarDatum } from "@/components/charts/bar-chart";
+import { BotaoAtualizar } from "@/components/charts/botao-atualizar";
 import { ChartCard } from "@/components/charts/chart-card";
+import { ChartSkeleton } from "@/components/charts/chart-skeleton";
 import { ColumnChart } from "@/components/charts/column-chart";
 import { DonutChart } from "@/components/charts/donut-chart";
 import { StatCard } from "@/components/charts/stat-card";
@@ -11,6 +14,7 @@ import {
   useDashboardAtivos,
   useDashboardOrdensServico,
 } from "@/features/dashboard/dashboard.hooks";
+import { useAutoRefresh } from "@/hooks/use-auto-refresh";
 import { useSelectedEmpresaId } from "@/hooks/use-selected-empresa";
 import { formatRotulo } from "@/lib/formatters";
 
@@ -24,14 +28,23 @@ export default function IndicadoresScreen() {
   const ativos = useDashboardAtivos(params);
   const ordens = useDashboardOrdensServico(params);
 
+  function atualizar() {
+    ativos.refetch();
+    ordens.refetch();
+  }
+
+  useAutoRefresh(atualizar);
+
   const isLoading = ativos.isLoading || ordens.isLoading;
   const isError = ativos.isError || ordens.isError;
+  const atualizando = ativos.isRefetching || ordens.isRefetching;
+  const ultima = Math.max(ativos.dataUpdatedAt ?? 0, ordens.dataUpdatedAt ?? 0);
+  const atualizadoEm = ultima > 0 ? new Date(ultima) : null;
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-background px-6">
-        <ActivityIndicator />
-        <Text className="mt-3 text-muted-foreground">Carregando indicadores...</Text>
+      <View className="flex-1 bg-background">
+        <ChartSkeleton />
       </View>
     );
   }
@@ -45,6 +58,14 @@ export default function IndicadoresScreen() {
         <Text className="mt-2 text-center text-muted-foreground">
           Não foi possível buscar os indicadores.
         </Text>
+        <Pressable
+          onPress={atualizar}
+          className="mt-4 h-10 items-center justify-center rounded-md bg-primary px-5"
+        >
+          <Text className="font-medium text-primary-foreground">
+            Tentar novamente
+          </Text>
+        </Pressable>
       </View>
     );
   }
@@ -71,18 +92,28 @@ export default function IndicadoresScreen() {
     <ScrollView
       className="flex-1 bg-background"
       contentContainerClassName="gap-4 px-4 py-6"
+      refreshControl={
+        <RefreshControl refreshing={atualizando} onRefresh={atualizar} />
+      }
     >
       <View className="mx-auto w-full max-w-5xl gap-4">
-        <View className="gap-1">
-          <Text className="text-2xl font-bold text-foreground">Indicadores</Text>
-          <Text className="text-sm text-muted-foreground">
-            Distribuição de ativos e ordens de serviço.
-          </Text>
+        <View className="flex-row flex-wrap items-start justify-between gap-3">
+          <View className="gap-1">
+            <Text className="text-2xl font-bold text-foreground">Indicadores</Text>
+            <Text className="text-sm text-muted-foreground">
+              Distribuição de ativos e ordens de serviço.
+            </Text>
+          </View>
+          <BotaoAtualizar
+            onPress={atualizar}
+            carregando={atualizando}
+            atualizadoEm={atualizadoEm}
+          />
         </View>
 
         <View className="flex-row flex-wrap gap-3">
-          <StatCard label="Ativos cadastrados" value={totalAtivos} />
-          <StatCard label="Ordens de serviço" value={totalOs} />
+          <StatCard label="Ativos cadastrados" value={totalAtivos} icon={Boxes} />
+          <StatCard label="Ordens de serviço" value={totalOs} icon={ClipboardList} />
         </View>
 
         <View className="flex-row flex-wrap gap-4">
