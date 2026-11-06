@@ -1,8 +1,8 @@
 import { View } from "react-native";
 
 import type { BarDatum } from "@/components/charts/bar-chart";
-import { CORES_GRAFICO } from "@/components/charts/donut-chart";
 import { Text } from "@/components/ui/text";
+import { corDoRotulo } from "@/lib/chart-colors";
 
 type ColumnChartProps = {
   data: BarDatum[];
@@ -37,7 +37,7 @@ export function ColumnChart({
               className="w-full max-w-[56px] rounded-t-md"
               style={{
                 height: altura,
-                backgroundColor: CORES_GRAFICO[indice % CORES_GRAFICO.length],
+                backgroundColor: corDoRotulo(item.label, indice),
               }}
             />
             <Text numberOfLines={1} className="text-center text-xs text-muted-foreground">

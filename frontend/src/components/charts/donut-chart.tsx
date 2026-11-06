@@ -3,15 +3,7 @@ import Svg, { Circle, G } from "react-native-svg";
 
 import type { BarDatum } from "@/components/charts/bar-chart";
 import { Text } from "@/components/ui/text";
-
-export const CORES_GRAFICO = [
-  "#1E3A8A",
-  "#3B82F6",
-  "#14B8A6",
-  "#F59E0B",
-  "#8B5CF6",
-  "#64748B",
-];
+import { corDoRotulo } from "@/lib/chart-colors";
 
 type DonutChartProps = {
   data: BarDatum[];
@@ -58,7 +50,8 @@ export function DonutChart({
               cx={centro}
               cy={centro}
               r={raio}
-              stroke="#E5E7EB"
+              stroke="#94A3B8"
+              strokeOpacity={0.25}
               strokeWidth={espessura}
               fill="none"
             />
@@ -72,7 +65,7 @@ export function DonutChart({
                   cx={centro}
                   cy={centro}
                   r={raio}
-                  stroke={CORES_GRAFICO[indice % CORES_GRAFICO.length]}
+                  stroke={corDoRotulo(item.label, indice)}
                   strokeWidth={espessura}
                   fill="none"
                   strokeDasharray={`${tamanho} ${circunferencia - tamanho}`}
@@ -107,7 +100,7 @@ export function DonutChart({
                 width: 10,
                 height: 10,
                 borderRadius: 5,
-                backgroundColor: CORES_GRAFICO[indice % CORES_GRAFICO.length],
+                backgroundColor: corDoRotulo(item.label, indice),
               }}
             />
             <Text className="flex-1 text-sm text-foreground">{item.label}</Text>
