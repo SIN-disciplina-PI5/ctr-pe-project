@@ -1,8 +1,9 @@
 import { useMemo } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 
-import { BarChart, type BarDatum } from "@/components/charts/bar-chart";
+import type { BarDatum } from "@/components/charts/bar-chart";
 import { ChartCard } from "@/components/charts/chart-card";
+import { DonutChart } from "@/components/charts/donut-chart";
 import { StatCard } from "@/components/charts/stat-card";
 import { Text } from "@/components/ui/text";
 import {
@@ -87,9 +88,14 @@ export default function DesempenhoScreen() {
 
         <ChartCard
           title="Composição de custos"
-          subtitle={`Total: ${formatBRL(custos.data?.custoTotal ?? 0)}`}
+          subtitle="Materiais x mão de obra"
         >
-          <BarChart data={custosData} formatValue={formatBRL} />
+          <DonutChart
+            data={custosData}
+            formatValue={formatBRL}
+            centerValue={formatBRL(custos.data?.custoTotal ?? 0)}
+            centerLabel="custo total"
+          />
         </ChartCard>
 
         <ChartCard title="Materiais com estoque crítico">
