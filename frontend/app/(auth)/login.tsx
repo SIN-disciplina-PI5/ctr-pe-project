@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { View, TextInput, Pressable, ActivityIndicator, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { Logo, LogoIcon } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { authService } from "@/infrastructure/auth/auth.service";
@@ -67,12 +68,10 @@ export default function LoginScreen() {
         <View className="hidden md:flex flex-1 bg-blue-950 p-12 justify-between relative">
           <View className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-transparent to-black/50" />
 
-          <View className="z-10 gap-1">
-            <Text className="text-blue-400 font-black tracking-widest text-xs uppercase">
+          <View className="z-10 gap-4">
+            <Logo claro size={52} showName />
+            <Text className="text-blue-300 font-semibold tracking-widest text-xs uppercase">
               Plataforma Operacional
-            </Text>
-            <Text className="text-white text-4xl font-black tracking-tight mt-1">
-              CTR-PE
             </Text>
           </View>
 
@@ -94,6 +93,13 @@ export default function LoginScreen() {
         <View className="w-full md:w-[420px] bg-white justify-center px-6 md:px-10 py-8">
           <View className="w-full min-h-[440px] flex-col justify-between">
             <View className="gap-6">
+              <View className="items-center gap-2 md:hidden">
+                <LogoIcon size={64} />
+                <Text className="text-xl font-black tracking-widest text-blue-950">
+                  MAQCONTROL
+                </Text>
+              </View>
+
               <View className="gap-1 md:items-start items-center">
                 <Text className="text-2xl font-black tracking-tight text-slate-800">
                   Acessar Sistema
