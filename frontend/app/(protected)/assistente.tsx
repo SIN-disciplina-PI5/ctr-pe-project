@@ -7,32 +7,38 @@ import {
   ScrollView,
   View,
 } from "react-native";
-import { Send, Sparkles } from "lucide-react-native";
+import { Check, Copy, Plus, Send, Sparkles } from "lucide-react-native";
 
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useAssistente } from "@/features/ai/ai.hooks";
-
-type Mensagem = {
-  id: string;
-  autor: "user" | "assistente";
-  texto: string;
-};
+import {
+  useAssistenteStore,
+  type MensagemAssistente,
+} from "@/store/assistente-store";
 
 const SUGESTOES = [
   "Quantas máquinas estão paradas?",
   "Qual o custo total de manutenção?",
   "Quantas ordens de serviço estão abertas?",
+  "Quais materiais estão com estoque crítico?",
 ];
+
+const AVISO_RECUSA =
+  "Tente perguntar sobre ativos, ordens de serviço, custos ou materiais.";
 
 function gerarId() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
 export default function AssistenteScreen() {
-  const [mensagens, setMensagens] = useState<Mensagem[]>([]);
+  const mensagens = useAssistenteStore((estado) => estado.mensagens);
+  const adicionar = useAssistenteStore((estado) => estado.adicionar);
+  const limpar = useAssistenteStore((estado) => estado.limpar);
+
   const [texto, setTexto] = useState("");
+  const [copiadoId, setCopiadoId] = useState<string | null>(null);
   const assistente = useAssistente();
   const scrollRef = useRef<ScrollView>(null);
 
@@ -50,30 +56,41 @@ export default function AssistenteScreen() {
     if (limpa.length < 3 || assistente.isPending) return;
 
     setTexto("");
-    setMensagens((atual) => [
-      ...atual,
-      { id: gerarId(), autor: "user", texto: limpa },
-    ]);
+    adicionar({ id: gerarId(), autor: "user", texto: limpa });
 
     assistente.mutate(limpa, {
       onSuccess: (resposta) => {
-        const conteudo =
-          resposta.status === "answered" ? resposta.answer : resposta.reason;
-        setMensagens((atual) => [
-          ...atual,
-          { id: gerarId(), autor: "assistente", texto: conteudo },
-        ]);
+        if (resposta.status === "answered") {
+          adicionar({ id: gerarId(), autor: "assistente", texto: resposta.answer });
+          return;
+        }
+        adicionar({
+          id: gerarId(),
+          autor: "assistente",
+          texto: `Não consegui responder a essa pergunta. ${resposta.reason}\n\n${AVISO_RECUSA}`,
+          recusada: true,
+        });
       },
       onError: () => {
-        setMensagens((atual) => [
-          ...atual,
-          {
-            id: gerarId(),
-            autor: "assistente",
-            texto: "Tive um problema ao consultar os dados. Tente novamente.",
-          },
-        ]);
+        adicionar({
+          id: gerarId(),
+          autor: "assistente",
+          texto: "Tive um problema ao consultar os dados. Tente novamente.",
+          recusada: true,
+        });
       },
+    });
+  }
+
+  // Copiar só está disponível na web (no celular exigiria outra biblioteca).
+  const areaTransferencia =
+    Platform.OS === "web" ? (globalThis as any).navigator?.clipboard : null;
+
+  function copiar(mensagem: MensagemAssistente) {
+    if (!areaTransferencia) return;
+    areaTransferencia.writeText(mensagem.texto).then(() => {
+      setCopiadoId(mensagem.id);
+      setTimeout(() => setCopiadoId(null), 1500);
     });
   }
 
@@ -85,6 +102,23 @@ export default function AssistenteScreen() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <View className="mx-auto w-full max-w-3xl flex-1">
+        {!conversaVazia ? (
+          <View className="flex-row items-center justify-between px-4 pt-4">
+            <Text className="text-sm text-muted-foreground">
+              {mensagens.length} mensagens
+            </Text>
+            <Pressable
+              onPress={limpar}
+              className="h-9 flex-row items-center gap-2 rounded-md border border-border bg-card px-3"
+            >
+              <Icon as={Plus} size={14} className="text-foreground" />
+              <Text className="text-sm font-medium text-foreground">
+                Nova conversa
+              </Text>
+            </Pressable>
+          </View>
+        ) : null}
+
         <ScrollView
           ref={scrollRef}
           className="flex-1"
@@ -116,32 +150,51 @@ export default function AssistenteScreen() {
               </View>
             </View>
           ) : (
-            mensagens.map((mensagem) => (
-              <View
-                key={mensagem.id}
-                className={
-                  mensagem.autor === "user" ? "items-end" : "items-start"
-                }
-              >
+            mensagens.map((mensagem) => {
+              const doUsuario = mensagem.autor === "user";
+              return (
                 <View
-                  className={
-                    mensagem.autor === "user"
-                      ? "max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-3"
-                      : "max-w-[85%] rounded-2xl rounded-bl-sm border border-border bg-card px-4 py-3"
-                  }
+                  key={mensagem.id}
+                  className={doUsuario ? "items-end" : "items-start"}
                 >
-                  <Text
+                  <View
                     className={
-                      mensagem.autor === "user"
-                        ? "text-sm text-primary-foreground"
-                        : "text-sm text-foreground"
+                      doUsuario
+                        ? "max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-3"
+                        : mensagem.recusada
+                          ? "max-w-[85%] gap-2 rounded-2xl rounded-bl-sm border border-amber-500/50 bg-amber-500/10 px-4 py-3"
+                          : "max-w-[85%] gap-2 rounded-2xl rounded-bl-sm border border-border bg-card px-4 py-3"
                     }
                   >
-                    {mensagem.texto}
-                  </Text>
+                    <Text
+                      className={
+                        doUsuario
+                          ? "text-sm text-primary-foreground"
+                          : "text-sm text-foreground"
+                      }
+                    >
+                      {mensagem.texto}
+                    </Text>
+
+                    {!doUsuario && !mensagem.recusada && areaTransferencia ? (
+                      <Pressable
+                        onPress={() => copiar(mensagem)}
+                        className="flex-row items-center gap-1 self-start"
+                      >
+                        <Icon
+                          as={copiadoId === mensagem.id ? Check : Copy}
+                          size={12}
+                          className="text-muted-foreground"
+                        />
+                        <Text className="text-xs text-muted-foreground">
+                          {copiadoId === mensagem.id ? "Copiado" : "Copiar"}
+                        </Text>
+                      </Pressable>
+                    ) : null}
+                  </View>
                 </View>
-              </View>
-            ))
+              );
+            })
           )}
 
           {assistente.isPending ? (
