@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Pressable, View, Alert } from "react-native";
+import { Pressable, ScrollView, View, Alert } from "react-native";
 import { usePathname, useRouter } from "expo-router";
 import type { LucideIcon } from "lucide-react-native";
 import {
@@ -73,7 +73,7 @@ function TopItem({
     <Pressable
       onPress={onPress}
       className={cn(
-        "h-10 flex-1 items-center justify-center rounded-md border",
+        "h-10 w-11 items-center justify-center rounded-md border md:w-auto md:flex-1",
         active ? "border-primary bg-primary" : "border-border bg-card",
       )}
     >
@@ -118,7 +118,7 @@ export function ProtectedShell({ children }: { children: ReactNode }) {
 );
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <View className="flex-1 bg-background">
+      <View className="flex-1 overflow-hidden bg-background">
         <View className="border-b border-border bg-background">
           <View className="flex-row items-center px-4 py-3">
             <View className="mr-3 shrink-0">
@@ -137,7 +137,7 @@ export function ProtectedShell({ children }: { children: ReactNode }) {
                 <Icon as={Bell} size={16} className="text-foreground" />
               </Pressable>
 
-              <View className="w-[120px] items-end">
+              <View className="hidden w-[120px] items-end md:flex">
                 <Text numberOfLines={1} className="text-sm font-medium text-foreground">
                   {user?.nome ?? "Usuario"}
                 </Text>
@@ -155,7 +155,12 @@ export function ProtectedShell({ children }: { children: ReactNode }) {
             </View>
           </View>
 
-          <View className="flex-row items-center gap-1 px-4 pb-3">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ flexGrow: 1 }}
+            contentContainerClassName="gap-1 px-4 pb-3"
+          >
             {visibleNavItems.map((item) => (
               <TopItem
                 key={item.href}
@@ -164,7 +169,7 @@ export function ProtectedShell({ children }: { children: ReactNode }) {
                 onPress={() => router.push(item.href)}
               />
             ))}
-          </View>
+          </ScrollView>
         </View>
 
         <View className="flex-1 bg-background">{children}</View>
