@@ -13,6 +13,7 @@ import {
   LogOut,
   MapPinned,
   Package,
+  Sparkles,
   UserCircle2,
   Users,
 } from "lucide-react-native";
@@ -37,6 +38,7 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/assistente", label: "Assistente", icon: Sparkles },
   { href: "/ordens-servico", label: "Ordens", icon: ClipboardList },
   { href: "/ativos", label: "Ativos", icon: Boxes },
   { href: "/materiais", label: "Materiais", icon: Package },
