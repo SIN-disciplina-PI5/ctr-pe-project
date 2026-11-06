@@ -3,6 +3,7 @@ import { Pressable, View, Alert } from "react-native";
 import { usePathname, useRouter } from "expo-router";
 import type { LucideIcon } from "lucide-react-native";
 import {
+  BarChart3,
   Bell,
   Boxes,
   Building2,
@@ -39,6 +40,7 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/assistente", label: "Assistente", icon: Sparkles },
+  { href: "/indicadores", label: "Indicadores", icon: BarChart3 },
   { href: "/ordens-servico", label: "Ordens", icon: ClipboardList },
   { href: "/ativos", label: "Ativos", icon: Boxes },
   { href: "/materiais", label: "Materiais", icon: Package },
