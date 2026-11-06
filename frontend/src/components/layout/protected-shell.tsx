@@ -15,6 +15,7 @@ import {
   MapPinned,
   Package,
   Sparkles,
+  TrendingUp,
   UserCircle2,
   Users,
 } from "lucide-react-native";
@@ -41,6 +42,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/assistente", label: "Assistente", icon: Sparkles },
   { href: "/indicadores", label: "Indicadores", icon: BarChart3 },
+  { href: "/desempenho", label: "Desempenho", icon: TrendingUp },
   { href: "/ordens-servico", label: "Ordens", icon: ClipboardList },
   { href: "/ativos", label: "Ativos", icon: Boxes },
   { href: "/materiais", label: "Materiais", icon: Package },
