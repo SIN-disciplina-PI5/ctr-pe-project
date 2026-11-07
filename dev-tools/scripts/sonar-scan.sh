@@ -1,20 +1,29 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 DEV_TOOLS="$ROOT/dev-tools"
 BACKEND="$ROOT/backend"
+FRONTEND="$ROOT/frontend"
 
 if [ -f "$DEV_TOOLS/.env" ]; then
-  set -a; source "$DEV_TOOLS/.env"; set +a
+  set -a
+  source "$DEV_TOOLS/.env"
+  set +a
 fi
 
-if [ -z "$SONAR_TOKEN" ]; then
+if [ -f "$BACKEND/.env" ]; then
+  set -a
+  source "$BACKEND/.env"
+  set +a
+fi
+
+if [ -z "${SONAR_TOKEN:-}" ]; then
   echo "SONAR_TOKEN not set. Run sonar-setup.sh first."
   exit 1
 fi
 
-echo "[1/5] Starting SonarQube..."
+echo "[1/6] Starting SonarQube..."
 cd "$DEV_TOOLS"
 docker compose up -d sonarqube
 
@@ -24,15 +33,28 @@ until curl -sf http://localhost:9000/api/system/status | grep -q '"status":"UP"'
 done
 echo ""
 
-echo "[2/5] Installing dependencies..."
-cd "$ROOT/backend" && [ -d node_modules ] || npm install --ignore-scripts
-cd "$ROOT/frontend" && [ -d node_modules ] || npm install --ignore-scripts
+echo "[2/6] Installing dependencies..."
+cd "$BACKEND" && [ -d node_modules ] || npm ci
+cd "$FRONTEND" && [ -d node_modules ] || npm ci
 
-echo "[3/5] Generating backend test coverage..."
+echo "[3/6] Generating backend test coverage..."
 cd "$BACKEND"
-npm test -- --coverage --coverageReporters=lcov --testPathPattern=tests/unit 2>/dev/null || true
+npm test -- \
+  --coverage \
+  --coverageReporters=lcov \
+  --coverageReporters=text-summary \
+  --runInBand \
+  --testPathPatterns='tests/unit|src/modules/ai'
 
-echo "[4/5] Scanning backend..."
+echo "[4/6] Generating frontend test coverage..."
+cd "$FRONTEND"
+npm test -- \
+  --coverage \
+  --coverageReporters=lcov \
+  --coverageReporters=text-summary \
+  --runInBand
+
+echo "[5/6] Scanning backend..."
 cd "$ROOT"
 docker run --rm \
   --network host \
@@ -42,7 +64,7 @@ docker run --rm \
   -Dproject.settings=/usr/src/dev-tools/sonar/backend.properties \
   -Dsonar.projectBaseDir=/usr/src
 
-echo "[5/5] Scanning frontend..."
+echo "[6/6] Scanning frontend..."
 docker run --rm \
   --network host \
   -e SONAR_TOKEN="$SONAR_TOKEN" \

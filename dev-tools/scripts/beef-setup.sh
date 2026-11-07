@@ -1,34 +1,32 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 DEV_TOOLS="$ROOT/dev-tools"
+ENV_FILE="$DEV_TOOLS/.env"
 
-BEEF_USER="beef"
+umask 077
 
-NEW_PASS="${1:-}"
-if [ -z "$NEW_PASS" ]; then
-  read -rsp "BeEF password: " NEW_PASS
+new_password="${BEEF_PASS:-}"
+if [ -z "$new_password" ]; then
+  read -rsp "BeEF local password (12+ safe characters): " new_password
   echo ""
 fi
 
-if grep -q '^BEEF_PASS=' "$DEV_TOOLS/.env" 2>/dev/null; then
-  sed -i.bak "/^BEEF_PASS=/d" "$DEV_TOOLS/.env" && rm -f "$DEV_TOOLS/.env.bak"
+if [[ ! "$new_password" =~ ^[A-Za-z0-9_@%+=:,!.\-]{12,128}$ ]]; then
+  echo "Use 12-128 characters from: letters, numbers, _ @ % + = : , ! . -"
+  exit 1
 fi
-echo "BEEF_PASS=$NEW_PASS" >> "$DEV_TOOLS/.env"
-echo "Password saved to dev-tools/.env"
 
-echo "[1/2] Starting BeEF..."
-cd "$DEV_TOOLS"
-set -a; source .env; set +a
-docker compose up -d beef
+touch "$ENV_FILE"
+chmod 600 "$ENV_FILE"
+temporary_file="$(mktemp "$DEV_TOOLS/.env.beef.XXXXXX")"
+trap 'rm -f "$temporary_file"' EXIT
 
-echo "Waiting for BeEF to be ready..."
-until curl -sf http://localhost:3000/ui/panel >/dev/null 2>&1; do
-  sleep 2; printf "."
-done
-echo ""
+grep -vE '^BEEF_(PASS|LOCAL_ENABLED)=' "$ENV_FILE" > "$temporary_file" || true
+printf 'BEEF_LOCAL_ENABLED=true\nBEEF_PASS=%s\n' "$new_password" >> "$temporary_file"
+mv "$temporary_file" "$ENV_FILE"
+trap - EXIT
 
-echo "[2/2] Done."
-echo "  Panel: http://localhost:3000/ui/panel (user: $BEEF_USER)"
-echo "  Hook:  http://localhost:6789/hook.js"
+echo "Local opt-in saved to dev-tools/.env."
+exec "$DEV_TOOLS/scripts/beef-start.sh"

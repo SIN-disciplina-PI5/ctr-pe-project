@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 DEV_TOOLS="$ROOT/dev-tools"
@@ -31,9 +31,9 @@ echo "Password updated."
 
 echo "[3/4] Creating projects..."
 curl -sf -u "$ADMIN_USER:$NEW_PASS" -X POST "$SONAR_URL/api/projects/create" \
-  -d "project=manutencao_conectada_backend&name=Manutencao Conectada - Backend" > /dev/null
+  -d "project=manutencao-conectada-backend&name=Manutencao Conectada - Backend" > /dev/null
 curl -sf -u "$ADMIN_USER:$NEW_PASS" -X POST "$SONAR_URL/api/projects/create" \
-  -d "project=manutencao_conectada_frontend&name=Manutencao Conectada - Frontend" > /dev/null
+  -d "project=manutencao-conectada-frontend&name=Manutencao Conectada - Frontend" > /dev/null
 echo "Projects created."
 
 echo "[4/4] Generating token and saving to dev-tools/.env..."

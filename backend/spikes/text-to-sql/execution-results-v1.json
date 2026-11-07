@@ -1,0 +1,444 @@
+[
+  {
+    "id": "ativos-indisponiveis",
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Ativo",
+        "Empresa"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 5,
+      "durationMs": 213,
+      "rows": [
+        {
+          "codigo": "CT-01",
+          "nome": "Caminhão basculante CT-01",
+          "status": "AGUARDANDO_PECA"
+        },
+        {
+          "codigo": "CT-07",
+          "nome": "Caminhão basculante CT-07",
+          "status": "PARADO"
+        },
+        {
+          "codigo": "EX-03",
+          "nome": "Escavadeira hidráulica EX-03",
+          "status": "PARADO"
+        },
+        {
+          "codigo": "GER-02",
+          "nome": "Gerador diesel GER-02",
+          "status": "EM_MANUTENCAO"
+        },
+        {
+          "codigo": "GER-03",
+          "nome": "Gerador diesel GER-03",
+          "status": "PARADO"
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 5,
+      "durationMs": 216,
+      "rows": [
+        {
+          "id": "atv_000021",
+          "codigo": "EX-03",
+          "nome": "Escavadeira hidráulica EX-03",
+          "status": "PARADO"
+        },
+        {
+          "id": "atv_000023",
+          "codigo": "CT-01",
+          "nome": "Caminhão basculante CT-01",
+          "status": "AGUARDANDO_PECA"
+        },
+        {
+          "id": "atv_000029",
+          "codigo": "CT-07",
+          "nome": "Caminhão basculante CT-07",
+          "status": "PARADO"
+        },
+        {
+          "id": "atv_000032",
+          "codigo": "GER-02",
+          "nome": "Gerador diesel GER-02",
+          "status": "EM_MANUTENCAO"
+        },
+        {
+          "id": "atv_000033",
+          "codigo": "GER-03",
+          "nome": "Gerador diesel GER-03",
+          "status": "PARADO"
+        }
+      ],
+      "error": null
+    },
+    "exactMatch": false
+  },
+  {
+    "id": "os-abertas-por-status",
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Empresa",
+        "OrdemServico"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 3,
+      "durationMs": 222,
+      "rows": [
+        {
+          "status": "ABERTA",
+          "quantidade": 3
+        },
+        {
+          "status": "EM_EXECUCAO",
+          "quantidade": 1
+        },
+        {
+          "status": "AGUARDANDO_PECA",
+          "quantidade": 1
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 3,
+      "durationMs": 210,
+      "rows": [
+        {
+          "status": "ABERTA",
+          "quantidade": "3"
+        },
+        {
+          "status": "EM_EXECUCAO",
+          "quantidade": "1"
+        },
+        {
+          "status": "AGUARDANDO_PECA",
+          "quantidade": "1"
+        }
+      ],
+      "error": null
+    },
+    "exactMatch": false
+  },
+  {
+    "id": "ativos-mais-corretivas",
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Ativo",
+        "Empresa",
+        "OrdemServico"
+      ],
+      "limit": 5
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 5,
+      "durationMs": 215,
+      "rows": [
+        {
+          "codigo": "CT-07",
+          "nome": "Caminhão basculante CT-07",
+          "quantidade": 22
+        },
+        {
+          "codigo": "CT-01",
+          "nome": "Caminhão basculante CT-01",
+          "quantidade": 11
+        },
+        {
+          "codigo": "EX-01",
+          "nome": "Escavadeira hidráulica EX-01",
+          "quantidade": 10
+        },
+        {
+          "codigo": "GER-01",
+          "nome": "Gerador diesel GER-01",
+          "quantidade": 9
+        },
+        {
+          "codigo": "EX-02",
+          "nome": "Escavadeira hidráulica EX-02",
+          "quantidade": 8
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 5,
+      "durationMs": 217,
+      "rows": [
+        {
+          "id": "atv_000029",
+          "codigo": "CT-07",
+          "nome": "Caminhão basculante CT-07",
+          "num_corr": "22"
+        },
+        {
+          "id": "atv_000023",
+          "codigo": "CT-01",
+          "nome": "Caminhão basculante CT-01",
+          "num_corr": "11"
+        },
+        {
+          "id": "atv_000019",
+          "codigo": "EX-01",
+          "nome": "Escavadeira hidráulica EX-01",
+          "num_corr": "10"
+        },
+        {
+          "id": "atv_000031",
+          "codigo": "GER-01",
+          "nome": "Gerador diesel GER-01",
+          "num_corr": "9"
+        },
+        {
+          "id": "atv_000020",
+          "codigo": "EX-02",
+          "nome": "Escavadeira hidráulica EX-02",
+          "num_corr": "8"
+        }
+      ],
+      "error": null
+    },
+    "exactMatch": false
+  },
+  {
+    "id": "materiais-estoque-baixo",
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Empresa",
+        "Material"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 5,
+      "durationMs": 220,
+      "rows": [
+        {
+          "codigo": "MAT-007",
+          "nome": "Mangueira hidráulica de alta pressão",
+          "estoqueAtual": "0.000000000000000000000000000000",
+          "estoqueMinimo": "6.000000000000000000000000000000"
+        },
+        {
+          "codigo": "MAT-010",
+          "nome": "Bateria 12V 150Ah",
+          "estoqueAtual": "2.000000000000000000000000000000",
+          "estoqueMinimo": "3.000000000000000000000000000000"
+        },
+        {
+          "codigo": "MAT-012",
+          "nome": "Motor de partida",
+          "estoqueAtual": "1.000000000000000000000000000000",
+          "estoqueMinimo": "1.000000000000000000000000000000"
+        },
+        {
+          "codigo": "MAT-021",
+          "nome": "Radiador",
+          "estoqueAtual": "1.000000000000000000000000000000",
+          "estoqueMinimo": "1.000000000000000000000000000000"
+        },
+        {
+          "codigo": "MAT-022",
+          "nome": "Kit de reparo da caixa de transmissão",
+          "estoqueAtual": "0.000000000000000000000000000000",
+          "estoqueMinimo": "1.000000000000000000000000000000"
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": false,
+      "rowCount": null,
+      "durationMs": 215,
+      "rows": null,
+      "error": "column Material.estoqueatual does not exist"
+    },
+    "exactMatch": false
+  },
+  {
+    "id": "os-atrasadas",
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Empresa",
+        "OrdemServico"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 1,
+      "durationMs": 247,
+      "rows": [
+        {
+          "numero": "OS-2026-0192",
+          "titulo": "Vazamento hidráulico - CT-01",
+          "status": "AGUARDANDO_PECA",
+          "prazoEm": "2026-10-22T15:20:00.000Z"
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": false,
+      "rowCount": null,
+      "durationMs": 212,
+      "rows": null,
+      "error": "column OrdemServico.prazoem does not exist"
+    },
+    "exactMatch": false
+  },
+  {
+    "id": "custo-agosto",
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Empresa",
+        "OrdemServico"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 1,
+      "durationMs": 216,
+      "rows": [
+        {
+          "custo_total": "59093.710000000000200000000000000000"
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 1,
+      "durationMs": 226,
+      "rows": [
+        {
+          "total_custo": null
+        }
+      ],
+      "error": null
+    },
+    "exactMatch": false
+  },
+  {
+    "id": "maior-media-parada",
+    "skipped": true,
+    "reason": "SQL reprovado na validação estática.",
+    "staticValidation": {
+      "valid": false,
+      "violations": [
+        "SQL sintaticamente inválido."
+      ],
+      "tables": [],
+      "limit": null
+    }
+  },
+  {
+    "id": "materiais-os-aguardando",
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Empresa",
+        "Material",
+        "OrdemServico",
+        "OrdemServicoMaterial"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 1,
+      "durationMs": 246,
+      "rows": [
+        {
+          "codigo": "MAT-007",
+          "nome": "Mangueira hidráulica de alta pressão",
+          "quantidade": "2.000000000000000000000000000000"
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 1,
+      "durationMs": 214,
+      "rows": [
+        {
+          "id": "mat_000029",
+          "nome": "Mangueira hidráulica de alta pressão"
+        }
+      ],
+      "error": null
+    },
+    "exactMatch": false
+  },
+  {
+    "id": "ct07-agosto",
+    "skipped": true,
+    "reason": "SQL não foi gerado."
+  },
+  {
+    "id": "alertas-criticos",
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Alerta",
+        "Empresa"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 0,
+      "durationMs": 219,
+      "rows": [],
+      "error": null
+    },
+    "generated": {
+      "success": false,
+      "rowCount": null,
+      "durationMs": 217,
+      "rows": null,
+      "error": "column Alerta.geradoem does not exist"
+    },
+    "exactMatch": false
+  }
+]
