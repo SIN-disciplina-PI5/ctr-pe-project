@@ -3,11 +3,16 @@ import { GroqProvider } from "./groq-provider.js";
 import type { LlmObserver, LlmProvider } from "./llm-provider.js";
 
 export const DEFAULT_GROQ_MODEL = "openai/gpt-oss-120b";
+export const DEFAULT_ORCHESTRATOR_MODEL = "openai/gpt-oss-20b";
 export const DEFAULT_LLM_TIMEOUT_MS = 30_000;
 
 const llmEnvironmentSchema = z.object({
   GROQ_API_KEY: z.string().trim().min(1, "GROQ_API_KEY não definida."),
   GROQ_MODEL: z.string().trim().min(1).default(DEFAULT_GROQ_MODEL),
+  GROQ_ORCHESTRATOR_MODEL: z.string()
+    .trim()
+    .min(1)
+    .default(DEFAULT_ORCHESTRATOR_MODEL),
   AI_LLM_TIMEOUT_MS: z.coerce
     .number()
     .int()
@@ -19,6 +24,7 @@ const llmEnvironmentSchema = z.object({
 export interface LlmConfig {
   readonly apiKey: string;
   readonly model: string;
+  readonly orchestratorModel: string;
   readonly timeoutMs: number;
 }
 
@@ -33,8 +39,10 @@ export function loadLlmConfig(
   return {
     apiKey: parsed.GROQ_API_KEY,
     model: parsed.GROQ_MODEL,
+    orchestratorModel: parsed.GROQ_ORCHESTRATOR_MODEL,
     timeoutMs: parsed.AI_LLM_TIMEOUT_MS,
   };
+
 }
 
 export function createLlmProvider(
@@ -43,6 +51,17 @@ export function createLlmProvider(
 ): LlmProvider {
   return new GroqProvider({
     ...config,
+    ...(observer === undefined ? {} : { observer }),
+  });
+}
+
+export function createOrchestratorProvider(
+  config: LlmConfig = loadLlmConfig(),
+  observer?: LlmObserver,
+): LlmProvider {
+  return new GroqProvider({
+    ...config,
+    model: config.orchestratorModel,
     ...(observer === undefined ? {} : { observer }),
   });
 }
