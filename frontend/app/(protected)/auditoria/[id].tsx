@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
+import { AntesDepois } from "@/features/auditoria/antes-depois";
 import { useAuditoria } from "@/features/auditoria/auditoria.hooks";
 import {
   ACAO_LABELS,
@@ -88,6 +89,15 @@ function AuditoriaDetalhe({ id }: { id: string }) {
             ) : null}
             <Campo label="ID da entidade" value={log.entidadeId} />
             <Campo label="ID do registro" value={log.id} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Antes e depois</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <AntesDepois antes={log.antes} depois={log.depois} />
           </CardContent>
         </Card>
       </View>
