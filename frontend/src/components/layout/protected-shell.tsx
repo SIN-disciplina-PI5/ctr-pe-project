@@ -1,94 +1,23 @@
-import type { ReactNode } from "react";
-import { Pressable, ScrollView, View, Alert } from "react-native";
+import { useState, type ReactNode } from "react";
+import { Alert, Pressable, View, useWindowDimensions } from "react-native";
 import { usePathname, useRouter } from "expo-router";
-import type { LucideIcon } from "lucide-react-native";
-import {
-  BarChart3,
-  Bell,
-  Boxes,
-  Building2,
-  CirclePause,
-  ClipboardList,
-  FileText,
-  LayoutDashboard,
-  LogOut,
-  MapPinned,
-  Package,
-  Sparkles,
-  TrendingUp,
-  UserCircle2,
-  Users,
-} from "lucide-react-native";
+import { Bell, Menu } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Logo } from "@/components/brand/logo";
-import { EmpresaCompactSelect } from "@/components/domain/empresa-compact-select";
+import { Sidebar } from "@/components/layout/sidebar";
 import { Icon } from "@/components/ui/icon";
-import { Text } from "@/components/ui/text";
-import { cn } from "@/lib/utils";
 import { authService } from "@/infrastructure/auth/auth.service";
 import { clearSession, getRefreshToken } from "@/infrastructure/storage/token-storage";
 import { useAuthStore } from "@/store/auth-store";
 import { useEmpresaStore } from "@/store/empresa-store";
-import type { PerfilUsuario } from "@/features/usuarios/usuarios.types";
-
-type NavItem = {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  perfis?: PerfilUsuario[];
-};
-
-const NAV_ITEMS: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/assistente", label: "Assistente", icon: Sparkles },
-  { href: "/indicadores", label: "Indicadores", icon: BarChart3 },
-  { href: "/desempenho", label: "Desempenho", icon: TrendingUp },
-  { href: "/ordens-servico", label: "Ordens", icon: ClipboardList },
-  { href: "/ativos", label: "Ativos", icon: Boxes },
-  { href: "/materiais", label: "Materiais", icon: Package },
-  { href: "/paradas", label: "Paradas", icon: CirclePause },
-  { href: "/alertas", label: "Alertas", icon: Bell },
-  { href: "/auditoria", label: "Auditoria", icon: FileText, perfis: ["ADMIN", "GESTOR"],},
-  { href: "/cadastros/empresas", label: "Empresas", icon: Building2 },
-  { href: "/cadastros/localizacoes", label: "Localizacoes", icon: MapPinned },
-  { href: "/cadastros/usuarios", label: "Usuarios", icon: Users },
-  { href: "/perfil", label: "Perfil", icon: UserCircle2 },
-];
-
-function matchesPath(pathname: string, href: string) {
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
-function TopItem({
-  item,
-  active,
-  onPress,
-}: {
-  item: NavItem;
-  active: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      className={cn(
-        "h-10 w-11 items-center justify-center rounded-md border md:w-auto md:flex-1",
-        active ? "border-primary bg-primary" : "border-border bg-card",
-      )}
-    >
-      <Icon
-        as={item.icon}
-        size={16}
-        className={active ? "text-primary-foreground" : "text-muted-foreground"}
-      />
-    </Pressable>
-  );
-}
 
 export function ProtectedShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const desktop = width >= 768;
+  const [menuAberto, setMenuAberto] = useState(false);
 
   const user = useAuthStore((state) => state.user);
   const clearAuth = useAuthStore((state) => state.clearAuth);
@@ -111,68 +40,64 @@ export function ProtectedShell({ children }: { children: ReactNode }) {
     }
   }
 
-  const visibleNavItems = NAV_ITEMS.filter(
-  (item) =>
-    !item.perfis ||
-    (user && item.perfis.includes(user.perfil)),
-);
+  function irPara(href: string) {
+    setMenuAberto(false);
+    router.push(href);
+  }
+
+  const sidebar = (
+    <Sidebar
+      pathname={pathname}
+      nomeUsuario={user?.nome}
+      perfilUsuario={user?.perfil}
+      onNavigate={irPara}
+      onLogout={handleLogout}
+    />
+  );
+
+  if (desktop) {
+    return (
+      <SafeAreaView className="flex-1 bg-background">
+        <View className="flex-1 flex-row overflow-hidden bg-background">
+          <View className="w-[264px]">{sidebar}</View>
+          <View className="flex-1 bg-background">{children}</View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <View className="flex-1 overflow-hidden bg-background">
-        <View className="border-b border-border bg-background">
-          <View className="flex-row items-center px-4 py-3">
-            <View className="mr-3 shrink-0">
-              <Logo />
-            </View>
-
-            <View className="min-w-0 flex-1 max-w-[220px]">
-              <EmpresaCompactSelect />
-            </View>
-
-            <View className="ml-auto flex-row items-center gap-3 pl-3 shrink-0">
-              <Pressable
-                onPress={() => router.push("/alertas/me")}
-                className="h-9 w-9 items-center justify-center rounded-md border border-border bg-card"
-              >
-                <Icon as={Bell} size={16} className="text-foreground" />
-              </Pressable>
-
-              <View className="hidden w-[120px] items-end md:flex">
-                <Text numberOfLines={1} className="text-sm font-medium text-foreground">
-                  {user?.nome ?? "Usuario"}
-                </Text>
-                <Text numberOfLines={1} className="text-xs text-muted-foreground">
-                  {user?.perfil ?? "Sem perfil"}
-                </Text>
-              </View>
-
-              <Pressable
-                onPress={handleLogout}
-                className="h-9 w-9 items-center justify-center rounded-md border border-border bg-card"
-              >
-                <Icon as={LogOut} size={16} className="text-foreground" />
-              </Pressable>
-            </View>
+    <SafeAreaView className="flex-1 bg-[#131316]">
+      <View className="flex-1 overflow-hidden">
+        <View className="h-14 flex-row items-center justify-between bg-[#131316] px-4">
+          <View className="flex-row items-center gap-3">
+            <Pressable
+              onPress={() => setMenuAberto(true)}
+              className="h-9 w-9 items-center justify-center rounded-xl bg-white/5"
+            >
+              <Icon as={Menu} size={18} className="text-zinc-200" />
+            </Pressable>
+            <Logo claro showName size={28} />
           </View>
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ flexGrow: 1 }}
-            contentContainerClassName="gap-1 px-4 pb-3"
+          <Pressable
+            onPress={() => irPara("/alertas/me")}
+            className="h-9 w-9 items-center justify-center rounded-xl bg-white/5"
           >
-            {visibleNavItems.map((item) => (
-              <TopItem
-                key={item.href}
-                item={item}
-                active={matchesPath(pathname, item.href)}
-                onPress={() => router.push(item.href)}
-              />
-            ))}
-          </ScrollView>
+            <Icon as={Bell} size={16} className="text-zinc-200" />
+          </Pressable>
         </View>
 
         <View className="flex-1 bg-background">{children}</View>
+
+        {menuAberto ? (
+          <View
+            className="absolute bottom-0 left-0 right-0 top-0 flex-row"
+            style={{ zIndex: 40 }}
+          >
+            <View className="w-[288px] max-w-[85%]">{sidebar}</View>
+            <Pressable className="flex-1 bg-black/60" onPress={() => setMenuAberto(false)} />
+          </View>
+        ) : null}
       </View>
     </SafeAreaView>
   );

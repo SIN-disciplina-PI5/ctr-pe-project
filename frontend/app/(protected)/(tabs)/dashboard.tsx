@@ -2,8 +2,12 @@ import { router } from "expo-router";
 import { useMemo } from "react";
 import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 
+import { Boxes, ClipboardList, CirclePause, PackageSearch } from "lucide-react-native";
+
+import { ChartCard } from "@/components/charts/chart-card";
+import { GaugeChart } from "@/components/charts/gauge-chart";
+import { StatCard } from "@/components/charts/stat-card";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { useAlertas } from "@/features/alertas/alertas.hooks";
 import { useAtivos } from "@/features/ativos/ativos.hooks";
@@ -15,35 +19,39 @@ import {
 import { useOrdensServico } from "@/features/ordens-servico/ordens-servico.hooks";
 import { useSelectedEmpresaId } from "@/hooks/use-selected-empresa";
 
-function IndicadorCard({
-  label,
-  value,
+function ListaVazia({ texto }: { texto: string }) {
+  return <Text className="text-sm text-muted-foreground">{texto}</Text>;
+}
+
+function LinhaItem({
+  titulo,
+  detalhe,
+  badge,
+  badgeVariant = "secondary",
   onPress,
 }: {
-  label: string;
-  value: string;
-  onPress?: () => void;
+  titulo: string;
+  detalhe: string;
+  badge: string;
+  badgeVariant?: "secondary" | "destructive" | "default";
+  onPress: () => void;
 }) {
-  const card = (
-    <Card className="border-border bg-card">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {label}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Text className="text-3xl font-semibold text-foreground">{value}</Text>
-      </CardContent>
-    </Card>
-  );
-
-  if (!onPress) {
-    return <View className="min-w-[47%] flex-1">{card}</View>;
-  }
-
   return (
-    <Pressable className="min-w-[47%] flex-1" onPress={onPress}>
-      {card}
+    <Pressable
+      onPress={onPress}
+      className="rounded-xl bg-muted/60 px-3.5 py-3 hover:bg-muted active:bg-muted"
+    >
+      <View className="flex-row items-center justify-between gap-3">
+        <Text numberOfLines={1} className="flex-1 text-sm font-medium text-foreground">
+          {titulo}
+        </Text>
+        <Badge variant={badgeVariant}>
+          <Text>{badge}</Text>
+        </Badge>
+      </View>
+      <Text numberOfLines={1} className="mt-0.5 text-xs text-muted-foreground">
+        {detalhe}
+      </Text>
     </Pressable>
   );
 }
@@ -125,168 +133,154 @@ export default function DashboardScreen() {
   const listaOrdensCriticas = ordensCriticas.data?.slice(0, 5) ?? [];
   const listaAlertasRecentes = alertasRecentes.data?.slice(0, 5) ?? [];
 
+  const emOperacao =
+    ativosTotais > 0
+      ? ((ativosTotais - (indicadores?.maquinasParadas ?? 0)) / ativosTotais) * 100
+      : 0;
+
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-4 px-4 py-6 pb-6">
+    <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-5 p-5 md:p-8">
       <View className="gap-1">
-        <Text className="text-2xl font-bold text-foreground">Dashboard</Text>
+        <Text className="text-3xl font-bold tracking-tight text-foreground">Dashboard</Text>
         <Text className="text-sm text-muted-foreground">
           Visão geral da operação de manutenção.
         </Text>
       </View>
 
-      <View className="flex-row flex-wrap gap-3">
-        <IndicadorCard label="Ativos totais" value={String(ativosTotais)} />
-        <IndicadorCard
-          label="Maquinas paradas"
-          value={String(indicadores?.maquinasParadas ?? 0)}
-          onPress={() => router.push("/(protected)/(tabs)/ativos?status=PARADO")}
-        />
-        <IndicadorCard
-          label="O.S. abertas"
-          value={String(indicadores?.osAbertas ?? 0)}
-          onPress={() => router.push("/(protected)/(tabs)/ordens-servico?status=ABERTA")}
-        />
-        <IndicadorCard
-          label="O.S. aguardando peca"
-          value={String(indicadores?.osAguardandoPeca ?? 0)}
-          onPress={() =>
-            router.push("/(protected)/(tabs)/ordens-servico?status=AGUARDANDO_PECA")
-          }
-        />
+      <View className="flex-row flex-wrap gap-4">
+        <View className="min-w-[46%] flex-1 md:min-w-[22%]">
+          <StatCard label="Ativos totais" value={ativosTotais} icon={Boxes} />
+        </View>
+        <View className="min-w-[46%] flex-1 md:min-w-[22%]">
+          <StatCard
+            label="Máquinas paradas"
+            value={indicadores?.maquinasParadas ?? 0}
+            icon={CirclePause}
+            alerta={(indicadores?.maquinasParadas ?? 0) > 0}
+            onPress={() => router.push("/(protected)/(tabs)/ativos?status=PARADO")}
+          />
+        </View>
+        <View className="min-w-[46%] flex-1 md:min-w-[22%]">
+          <StatCard
+            label="O.S. abertas"
+            value={indicadores?.osAbertas ?? 0}
+            icon={ClipboardList}
+            onPress={() => router.push("/(protected)/(tabs)/ordens-servico?status=ABERTA")}
+          />
+        </View>
+        <View className="min-w-[46%] flex-1 md:min-w-[22%]">
+          <StatCard
+            label="O.S. aguardando peça"
+            value={indicadores?.osAguardandoPeca ?? 0}
+            icon={PackageSearch}
+            onPress={() =>
+              router.push("/(protected)/(tabs)/ordens-servico?status=AGUARDANDO_PECA")
+            }
+          />
+        </View>
       </View>
 
-      <Card className="border-border bg-card">
-        <CardHeader>
-          <CardTitle className="text-base text-foreground">Alertas recentes</CardTitle>
-        </CardHeader>
-        <CardContent className="gap-3">
-          {listaAlertasRecentes.length === 0 ? (
-            <Text className="text-sm text-muted-foreground">
-              Nenhum alerta recente.
-            </Text>
-          ) : (
-            listaAlertasRecentes.map((alerta) => (
-              <Pressable
-                key={alerta.id}
-                onPress={() => {
-                  if (alerta.ordemServicoId) {
-                    router.push(`/(protected)/ordens-servico/${alerta.ordemServicoId}`);
-                    return;
-                  }
+      <View className="flex-row flex-wrap gap-4">
+        <View className="min-w-[300px] flex-1">
+          <ChartCard title="Ativos em operação" subtitle="Percentual de ativos que não estão parados">
+            <View className="items-center">
+              <GaugeChart value={emOperacao} label="em operação" />
+            </View>
+          </ChartCard>
+        </View>
 
-                  if (alerta.ativoId) {
-                    router.push(`/(protected)/ativos/${alerta.ativoId}`);
-                  }
-                }}
-                className="rounded-md border border-border bg-background px-3 py-3"
-              >
-                <View className="mb-1 flex-row items-center justify-between gap-3">
-                  <Text className="flex-1 font-medium text-foreground">{alerta.titulo}</Text>
-                  <Badge variant="secondary">
-                    <Text>{alerta.severidade}</Text>
-                  </Badge>
-                </View>
-                <Text className="text-sm text-muted-foreground">{alerta.mensagem}</Text>
-              </Pressable>
-            ))
-          )}
-        </CardContent>
-      </Card>
+        <View className="min-w-[300px] flex-[2]">
+          <ChartCard title="Alertas recentes" subtitle="Alertas em aberto, do mais novo ao mais antigo">
+            <View className="gap-2">
+              {listaAlertasRecentes.length === 0 ? (
+                <ListaVazia texto="Nenhum alerta recente." />
+              ) : (
+                listaAlertasRecentes.map((alerta) => (
+                  <LinhaItem
+                    key={alerta.id}
+                    titulo={alerta.titulo}
+                    detalhe={alerta.mensagem}
+                    badge={alerta.severidade}
+                    onPress={() => {
+                      if (alerta.ordemServicoId) {
+                        router.push(`/(protected)/ordens-servico/${alerta.ordemServicoId}`);
+                        return;
+                      }
+                      if (alerta.ativoId) {
+                        router.push(`/(protected)/ativos/${alerta.ativoId}`);
+                      }
+                    }}
+                  />
+                ))
+              )}
+            </View>
+          </ChartCard>
+        </View>
+      </View>
 
-      <Card className="border-border bg-card">
-        <CardHeader>
-          <CardTitle className="text-base text-foreground">Ativos parados</CardTitle>
-        </CardHeader>
-        <CardContent className="gap-3">
-          {listaAtivosParados.length === 0 ? (
-            <Text className="text-sm text-muted-foreground">
-              Nenhum ativo parado.
-            </Text>
-          ) : (
-            listaAtivosParados.map((ativo) => (
-              <Pressable
-                key={ativo.id}
-                onPress={() => router.push(`/(protected)/ativos/${ativo.id}`)}
-                className="rounded-md border border-border bg-background px-3 py-3"
-              >
-                <View className="mb-1 flex-row items-center justify-between gap-3">
-                  <Text className="font-medium text-foreground">
-                    {ativo.codigo} - {ativo.nome}
-                  </Text>
-                  <Badge variant="secondary">
-                    <Text>{ativo.status}</Text>
-                  </Badge>
-                </View>
-                <Text className="text-sm text-muted-foreground">
-                  {ativo.tipo} · {ativo.criticidade}
-                </Text>
-              </Pressable>
-            ))
-          )}
-        </CardContent>
-      </Card>
+      <View className="flex-row flex-wrap gap-4">
+        <View className="min-w-[300px] flex-1">
+          <ChartCard title="Ativos parados">
+            <View className="gap-2">
+              {listaAtivosParados.length === 0 ? (
+                <ListaVazia texto="Nenhum ativo parado." />
+              ) : (
+                listaAtivosParados.map((ativo) => (
+                  <LinhaItem
+                    key={ativo.id}
+                    titulo={`${ativo.codigo} - ${ativo.nome}`}
+                    detalhe={`${ativo.tipo} · ${ativo.criticidade}`}
+                    badge={ativo.status}
+                    onPress={() => router.push(`/(protected)/ativos/${ativo.id}`)}
+                  />
+                ))
+              )}
+            </View>
+          </ChartCard>
+        </View>
 
-      <Card className="border-border bg-card">
-        <CardHeader>
-          <CardTitle className="text-base text-foreground">O.S. criticas</CardTitle>
-        </CardHeader>
-        <CardContent className="gap-3">
-          {listaOrdensCriticas.length === 0 ? (
-            <Text className="text-sm text-muted-foreground">
-              Nenhuma O.S. critica.
-            </Text>
-          ) : (
-            listaOrdensCriticas.map((ordem) => (
-              <Pressable
-                key={ordem.id}
-                onPress={() => router.push(`/(protected)/ordens-servico/${ordem.id}`)}
-                className="rounded-md border border-border bg-background px-3 py-3"
-              >
-                <View className="mb-1 flex-row items-center justify-between gap-3">
-                  <Text className="font-medium text-foreground">{ordem.numero}</Text>
-                  <Badge>
-                    <Text>{ordem.prioridade}</Text>
-                  </Badge>
-                </View>
-                <Text className="text-sm text-muted-foreground">{ordem.titulo}</Text>
-              </Pressable>
-            ))
-          )}
-        </CardContent>
-      </Card>
+        <View className="min-w-[300px] flex-1">
+          <ChartCard title="O.S. críticas">
+            <View className="gap-2">
+              {listaOrdensCriticas.length === 0 ? (
+                <ListaVazia texto="Nenhuma O.S. crítica." />
+              ) : (
+                listaOrdensCriticas.map((ordem) => (
+                  <LinhaItem
+                    key={ordem.id}
+                    titulo={ordem.numero}
+                    detalhe={ordem.titulo}
+                    badge={ordem.prioridade}
+                    badgeVariant="default"
+                    onPress={() => router.push(`/(protected)/ordens-servico/${ordem.id}`)}
+                  />
+                ))
+              )}
+            </View>
+          </ChartCard>
+        </View>
 
-      <Card className="border-border bg-card">
-        <CardHeader>
-          <CardTitle className="text-base text-foreground">Materiais criticos</CardTitle>
-        </CardHeader>
-        <CardContent className="gap-3">
-          {materiaisCriticos.length === 0 ? (
-            <Text className="text-sm text-muted-foreground">
-              Nenhum material com estoque baixo.
-            </Text>
-          ) : (
-            materiaisCriticos.map((material) => (
-              <Pressable
-                key={material.id}
-                onPress={() => router.push(`/materiais/${material.id}`)}
-                className="rounded-md border border-border bg-background px-3 py-3"
-              >
-                <View className="mb-1 flex-row items-center justify-between gap-3">
-                  <Text className="font-medium text-foreground">
-                    {material.codigo} - {material.nome}
-                  </Text>
-                  <Badge variant="destructive">
-                    <Text>Baixo</Text>
-                  </Badge>
-                </View>
-                <Text className="text-sm text-muted-foreground">
-                  Estoque: {material.estoqueAtual} / Minimo: {material.estoqueMinimo}
-                </Text>
-              </Pressable>
-            ))
-          )}
-        </CardContent>
-      </Card>
+        <View className="min-w-[300px] flex-1">
+          <ChartCard title="Materiais críticos">
+            <View className="gap-2">
+              {materiaisCriticos.length === 0 ? (
+                <ListaVazia texto="Nenhum material com estoque baixo." />
+              ) : (
+                materiaisCriticos.map((material) => (
+                  <LinhaItem
+                    key={material.id}
+                    titulo={`${material.codigo} - ${material.nome}`}
+                    detalhe={`Estoque: ${material.estoqueAtual} / Mínimo: ${material.estoqueMinimo}`}
+                    badge="Baixo"
+                    badgeVariant="destructive"
+                    onPress={() => router.push(`/materiais/${material.id}`)}
+                  />
+                ))
+              )}
+            </View>
+          </ChartCard>
+        </View>
+      </View>
     </ScrollView>
   );
 }
