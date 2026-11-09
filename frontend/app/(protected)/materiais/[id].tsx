@@ -9,6 +9,8 @@ import {
   useMaterial,
   useUpdateMaterialEstoque,
 } from "@/features/materiais/materiais.hooks";
+import { RoleGate } from "@/components/domain/role-gate";
+import { PERFIS_CADASTRO } from "@/constants/permissoes";
 
 export default function MaterialDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -81,9 +83,11 @@ export default function MaterialDetailScreen() {
           </Text>
         </View>
 
-        <Button onPress={() => router.push(`/materiais/${material.id}-editar`)}>
-          <Text>Editar</Text>
-        </Button>
+        <RoleGate perfis={PERFIS_CADASTRO}>
+          <Button onPress={() => router.push(`/materiais/${material.id}-editar`)}>
+            <Text>Editar</Text>
+          </Button>
+        </RoleGate>
       </View>
 
       <View className="gap-3 rounded-xl border border-border bg-card p-4">
@@ -95,6 +99,7 @@ export default function MaterialDetailScreen() {
         <Text>Descrição: {material.descricao ?? "-"}</Text>
       </View>
 
+      <RoleGate perfis={PERFIS_CADASTRO}>
       <View className="mt-6 gap-4 rounded-xl border border-border bg-card p-4">
         <Text className="text-lg font-semibold">Controle de estoque</Text>
 
@@ -143,6 +148,7 @@ export default function MaterialDetailScreen() {
           <Text>Ajustar estoque</Text>
         </Button>
       </View>
+      </RoleGate>
     </View>
   );
 }

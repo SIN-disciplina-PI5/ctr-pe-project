@@ -1,7 +1,9 @@
 import { router } from "expo-router";
+import { SearchX } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, Pressable, View } from "react-native";
 
+import { EmptyState } from "@/components/feedback/empty-state";
 import { PrioridadeBadge } from "@/components/domain/prioridade-badge";
 import { StatusBadge } from "@/components/domain/status-badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +15,8 @@ import { useOrdensServico } from "@/features/ordens-servico/ordens-servico.hooks
 import { useSelectedEmpresaId } from "@/hooks/use-selected-empresa";
 import { formatDateTime } from "@/lib/dates";
 import type { OrdemServico } from "@/types/ordem-servico";
+import { RoleGate } from "@/components/domain/role-gate";
+import { OS_ACTION_ROLES } from "@/constants/roles";
 
 function OrdemServicoCard({ ordem }: { ordem: OrdemServico }) {
   return (
@@ -112,9 +116,11 @@ export default function OrdensServicoScreen() {
           </Text>
         </View>
 
-        <Button onPress={() => router.push("/ordens-servico/nova")}>
-          <Text>Nova</Text>
-        </Button>
+        <RoleGate perfis={OS_ACTION_ROLES}>
+          <Button onPress={() => router.push("/ordens-servico/nova")}>
+            <Text>Nova</Text>
+          </Button>
+        </RoleGate>
       </View>
 
       <View className="mb-4">
@@ -131,14 +137,20 @@ export default function OrdensServicoScreen() {
         contentContainerClassName="gap-3 pb-8"
         renderItem={({ item }) => <OrdemServicoCard ordem={item} />}
         ListEmptyComponent={
-          <View className="items-center justify-center rounded-xl border border-dashed border-border p-8">
-            <Text className="text-lg font-semibold">
-              Nenhuma ordem de serviço encontrada
-            </Text>
-            <Text className="mt-2 text-center text-muted-foreground">
-              Crie a primeira ordem para começar.
-            </Text>
-          </View>
+          search ? (
+            <EmptyState
+              icon={SearchX}
+              title="Nenhuma ordem de serviço encontrada"
+              description={`Nada corresponde a "${search}".`}
+              actionLabel="Limpar busca"
+              onAction={() => setSearch("")}
+            />
+          ) : (
+            <EmptyState
+              title="Nenhuma ordem de serviço"
+              description="Crie a primeira ordem para começar."
+            />
+          )
         }
       />
     </View>
