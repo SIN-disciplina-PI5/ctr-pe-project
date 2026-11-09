@@ -45,4 +45,4 @@ Visão financeira e de disponibilidade.
 Defina `EXPO_PUBLIC_API_URL` no `frontend/.env`, apontando para a API.
 
 ## Capturas de tela
-Adicione as imagens em `docs/img/` e referencie aqui.
+Adicione as imagens em `docs/img/` e referencie aqui.cd ..
