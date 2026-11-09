@@ -9,6 +9,8 @@ import {
   useUpdateAtivoStatus,
 } from "@/features/ativos/ativos.hooks";
 import type { StatusAtivo } from "@/features/ativos/ativos.types";
+import { RoleGate } from "@/components/domain/role-gate";
+import { PERFIS_CADASTRO, PERFIS_EXCLUSAO } from "@/constants/permissoes";
 
 const STATUS_OPTIONS: StatusAtivo[] = [
   "DISPONIVEL",
@@ -85,16 +87,18 @@ export default function AtivoDetailScreen() {
           <Text className="text-sm text-muted-foreground">Código: {ativo.codigo}</Text>
         </View>
 
-        <Button
-          onPress={() =>
-            router.push({
-              pathname: "/ativos/editar",
-              params: { id: ativo.id },
-            })
-          }
-        >
-          <Text>Editar</Text>
-        </Button>
+        <RoleGate perfis={PERFIS_CADASTRO}>
+          <Button
+            onPress={() =>
+              router.push({
+                pathname: "/ativos/editar",
+                params: { id: ativo.id },
+              })
+            }
+          >
+            <Text>Editar</Text>
+          </Button>
+        </RoleGate>
       </View>
 
       <View className="gap-3 rounded-xl border border-border bg-card p-4">
@@ -108,6 +112,7 @@ export default function AtivoDetailScreen() {
         <Text>Descrição: {ativo.descricao ?? "-"}</Text>
       </View>
 
+      <RoleGate perfis={PERFIS_CADASTRO}>
       <View className="mt-6 gap-3 rounded-xl border border-border bg-card p-4">
         <Text className="text-lg font-semibold">Alterar status</Text>
 
@@ -124,15 +129,18 @@ export default function AtivoDetailScreen() {
           ))}
         </View>
       </View>
+      </RoleGate>
 
-      <Button
-        variant="destructive"
-        className="mt-6"
-        disabled={deleteAtivo.isPending}
-        onPress={handleDelete}
-      >
-        <Text>{deleteAtivo.isPending ? "Excluindo..." : "Excluir ativo"}</Text>
-      </Button>
+      <RoleGate perfis={PERFIS_EXCLUSAO}>
+        <Button
+          variant="destructive"
+          className="mt-6"
+          disabled={deleteAtivo.isPending}
+          onPress={handleDelete}
+        >
+          <Text>{deleteAtivo.isPending ? "Excluindo..." : "Excluir ativo"}</Text>
+        </Button>
+      </RoleGate>
     </View>
   );
 }

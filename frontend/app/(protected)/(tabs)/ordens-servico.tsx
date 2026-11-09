@@ -15,6 +15,8 @@ import { useOrdensServico } from "@/features/ordens-servico/ordens-servico.hooks
 import { useSelectedEmpresaId } from "@/hooks/use-selected-empresa";
 import { formatDateTime } from "@/lib/dates";
 import type { OrdemServico } from "@/types/ordem-servico";
+import { RoleGate } from "@/components/domain/role-gate";
+import { OS_ACTION_ROLES } from "@/constants/roles";
 
 function OrdemServicoCard({ ordem }: { ordem: OrdemServico }) {
   return (
@@ -114,9 +116,11 @@ export default function OrdensServicoScreen() {
           </Text>
         </View>
 
-        <Button onPress={() => router.push("/ordens-servico/nova")}>
-          <Text>Nova</Text>
-        </Button>
+        <RoleGate perfis={OS_ACTION_ROLES}>
+          <Button onPress={() => router.push("/ordens-servico/nova")}>
+            <Text>Nova</Text>
+          </Button>
+        </RoleGate>
       </View>
 
       <View className="mb-4">

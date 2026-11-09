@@ -9,6 +9,8 @@ import { Text } from "@/components/ui/text";
 import { useAtivos } from "@/features/ativos/ativos.hooks";
 import { SearchX } from "lucide-react-native";
 import { useState } from "react";
+import { RoleGate } from "@/components/domain/role-gate";
+import { PERFIS_CADASTRO } from "@/constants/permissoes";
 
 export default function AtivosScreen() {
   const [search, setSearch] = useState("");
@@ -49,9 +51,11 @@ export default function AtivosScreen() {
           </Text>
         </View>
 
-        <Button onPress={() => router.push("/ativos/novo")}>
-          <Text>Novo</Text>
-        </Button>
+        <RoleGate perfis={PERFIS_CADASTRO}>
+          <Button onPress={() => router.push("/ativos/novo")}>
+            <Text>Novo</Text>
+          </Button>
+        </RoleGate>
       </View>
 
       <View className="mb-4">

@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useMateriais } from "@/features/materiais/materiais.hooks";
 import type { Material } from "@/features/materiais/materiais.types";
+import { RoleGate } from "@/components/domain/role-gate";
+import { PERFIS_CADASTRO } from "@/constants/permissoes";
 
 function MaterialCard({ material }: { material: Material }) {
   return (
@@ -83,9 +85,11 @@ export default function MateriaisScreen() {
           </Text>
         </View>
 
-        <Button onPress={() => router.push("/materiais/novo")}>
-          <Text>Novo</Text>
-        </Button>
+        <RoleGate perfis={PERFIS_CADASTRO}>
+          <Button onPress={() => router.push("/materiais/novo")}>
+            <Text>Novo</Text>
+          </Button>
+        </RoleGate>
       </View>
 
       <View className="mb-4">
