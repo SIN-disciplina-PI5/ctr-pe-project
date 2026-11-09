@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { ActivityIndicator, FlatList, View } from "react-native";
 
 import { AlertaCard } from "@/components/domain/alerta-card";
+import { EmptyState } from "@/components/feedback/empty-state";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useAlertas } from "@/features/alertas/alertas.hooks";
@@ -64,12 +65,10 @@ export default function AlertasScreen() {
         contentContainerClassName="gap-3 pb-8"
         renderItem={({ item }) => <AlertaCard alerta={item} />}
         ListEmptyComponent={
-          <View className="items-center justify-center rounded-xl border border-dashed border-border p-8">
-            <Text className="text-lg font-semibold">Nenhum alerta encontrado</Text>
-            <Text className="mt-2 text-center text-muted-foreground">
-              Quando houver ocorrências, elas aparecerão aqui.
-            </Text>
-          </View>
+          <EmptyState
+            title="Nenhum alerta encontrado"
+            description="Quando houver ocorrências, elas aparecerão aqui."
+          />
         }
       />
     </View>

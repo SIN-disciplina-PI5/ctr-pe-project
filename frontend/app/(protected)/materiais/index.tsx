@@ -1,7 +1,9 @@
 import { router } from "expo-router";
 import { ActivityIndicator, FlatList, Pressable, View } from "react-native";
+import { SearchX } from "lucide-react-native";
 import { useState } from "react";
 
+import { EmptyState } from "@/components/feedback/empty-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -100,12 +102,20 @@ export default function MateriaisScreen() {
         contentContainerClassName="gap-3 pb-8"
         renderItem={({ item }) => <MaterialCard material={item} />}
         ListEmptyComponent={
-          <View className="items-center justify-center rounded-xl border border-dashed border-border p-8">
-            <Text className="text-lg font-semibold">Nenhum material encontrado</Text>
-            <Text className="mt-2 text-center text-muted-foreground">
-              Cadastre o primeiro material para começar.
-            </Text>
-          </View>
+          search ? (
+            <EmptyState
+              icon={SearchX}
+              title="Nenhum material encontrado"
+              description={`Nada corresponde a "${search}".`}
+              actionLabel="Limpar busca"
+              onAction={() => setSearch("")}
+            />
+          ) : (
+            <EmptyState
+              title="Nenhum material cadastrado"
+              description="Cadastre o primeiro material para começar."
+            />
+          )
         }
       />
     </View>

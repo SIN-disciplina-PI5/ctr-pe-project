@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import { ActivityIndicator, FlatList, View } from "react-native";
 
 import { AlertaCard } from "@/components/domain/alerta-card";
+import { EmptyState } from "@/components/feedback/empty-state";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useMeusAlertas } from "@/features/alertas/alertas.hooks";
@@ -53,12 +54,10 @@ export default function MeusAlertasScreen() {
         contentContainerClassName="gap-3 pb-8"
         renderItem={({ item }) => <AlertaCard alerta={item} />}
         ListEmptyComponent={
-          <View className="items-center justify-center rounded-xl border border-dashed border-border p-8">
-            <Text className="text-lg font-semibold">Nenhum alerta pessoal</Text>
-            <Text className="mt-2 text-center text-muted-foreground">
-              Quando houver alertas vinculados a você, eles aparecerão aqui.
-            </Text>
-          </View>
+          <EmptyState
+            title="Nenhum alerta pessoal"
+            description="Quando houver alertas vinculados a você, eles aparecerão aqui."
+          />
         }
       />
     </View>
