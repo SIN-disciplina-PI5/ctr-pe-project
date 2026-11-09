@@ -10,8 +10,8 @@ type LogoIconProps = {
 
 // Ícone "M" em dois tons. A versão clara é para fundos escuros.
 export function LogoIcon({ size = 32, claro = false }: LogoIconProps) {
-  const corA = claro ? "#FFFFFF" : "#1E3A8A";
-  const corB = claro ? "#93C5FD" : "#3B82F6";
+  const corA = claro ? "#FFFFFF" : "#18181B";
+  const corB = "#F26A21";
 
   return (
     <Svg width={size} height={size} viewBox="0 0 64 64">

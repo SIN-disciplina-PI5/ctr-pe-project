@@ -1,4 +1,4 @@
-const PALETA = ["#1E3A8A", "#3B82F6", "#14B8A6", "#F59E0B", "#8B5CF6", "#64748B"];
+const PALETA = ["#F26A21", "#FFB020", "#10B981", "#71717A", "#8B5CF6", "#0EA5E9"];
 
 function normalizar(texto: string) {
   return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -7,18 +7,18 @@ function normalizar(texto: string) {
 // Cores com significado: verde = bom, âmbar = atenção, tons escuros = crítico.
 const REGRAS: { contem: string; cor: string }[] = [
   { contem: "disponivel", cor: "#10B981" },
-  { contem: "em uso", cor: "#3B82F6" },
-  { contem: "manutencao", cor: "#F59E0B" },
-  { contem: "parado", cor: "#475569" },
+  { contem: "em uso", cor: "#F26A21" },
+  { contem: "manutencao", cor: "#FFB020" },
+  { contem: "parado", cor: "#71717A" },
   { contem: "aguardando", cor: "#8B5CF6" },
   { contem: "baixa", cor: "#10B981" },
-  { contem: "media", cor: "#F59E0B" },
-  { contem: "alta", cor: "#EA580C" },
-  { contem: "critica", cor: "#7C2D12" },
-  { contem: "urgente", cor: "#7C2D12" },
+  { contem: "media", cor: "#FFB020" },
+  { contem: "alta", cor: "#F26A21" },
+  { contem: "critica", cor: "#9A3412" },
+  { contem: "urgente", cor: "#9A3412" },
   { contem: "preventiva", cor: "#10B981" },
-  { contem: "corretiva", cor: "#F59E0B" },
-  { contem: "preditiva", cor: "#3B82F6" },
+  { contem: "corretiva", cor: "#FFB020" },
+  { contem: "preditiva", cor: "#F26A21" },
 ];
 
 // Devolve a cor do rótulo. Se não houver regra, usa a paleta pela posição.
