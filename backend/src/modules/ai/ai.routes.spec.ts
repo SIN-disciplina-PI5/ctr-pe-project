@@ -5,17 +5,17 @@ import { api } from "../../../tests/test-server.js";
 const originalSecret = process.env["JWT_SECRET"];
 const testSecret = "ai-routes-test-secret";
 
-function token(): string {
+function token(id = "usuario-1"): string {
   return jwt.sign(
     {
-      id: "usuario-1",
+      id,
       nome: "Usuário Teste",
       email: "consulta@teste.com",
       perfil: "CONSULTA",
       empresaId: "empresa-1",
     },
     testSecret,
-    { subject: "usuario-1", expiresIn: "1h" },
+    { subject: id, expiresIn: "1h" },
   );
 }
 
@@ -29,12 +29,16 @@ describe("rotas internas de consulta da IA", () => {
     else process.env["JWT_SECRET"] = originalSecret;
   });
 
-  it.each(["/api/ai/query", "/api/ai/query/generate"])(
+  it.each(["/api/ai/chat", "/api/ai/query", "/api/ai/query/generate"])(
     "exige autenticação em %s",
     async (path) => {
       const response = await api
         .post(path)
-        .send({ question: "Quais ativos estão parados?" });
+        .send(
+          path.endsWith("/chat")
+            ? { message: "Quais ativos estão parados?" }
+            : { question: "Quais ativos estão parados?" },
+        );
 
       expect(response.status).toBe(401);
     },
@@ -55,4 +59,39 @@ describe("rotas internas de consulta da IA", () => {
       });
     },
   );
+
+  it("valida mensagem e identificador de conversa do chat", async () => {
+    const response = await api
+      .post("/api/ai/chat")
+      .set("Authorization", `Bearer ${token()}`)
+      .send({ message: "", conversationId: "curto" });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toMatchObject({
+      error: "Dados inválidos.",
+      errorCode: "VALIDATION_ERROR",
+    });
+  });
+
+  it("limita mensagens por usuário e empresa", async () => {
+    const authorization = `Bearer ${token("usuario-rate-limit")}`;
+
+    for (let index = 0; index < 20; index += 1) {
+      const response = await api
+        .post("/api/ai/chat")
+        .set("Authorization", authorization)
+        .send({ message: "" });
+      expect(response.status).toBe(400);
+    }
+
+    const limited = await api
+      .post("/api/ai/chat")
+      .set("Authorization", authorization)
+      .send({ message: "" });
+
+    expect(limited.status).toBe(429);
+    expect(limited.body).toMatchObject({
+      errorCode: "TOO_MANY_REQUESTS",
+    });
+  });
 });

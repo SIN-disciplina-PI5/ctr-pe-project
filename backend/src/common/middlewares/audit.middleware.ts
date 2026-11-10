@@ -25,12 +25,31 @@ function resolverAcao(method: string, path: string): TipoAcaoAuditoria | null {
   }
 }
 
-function resolverEntidade(baseUrl: string): string {
+function resolverEntidade(baseUrl: string, originalUrl: string): string {
+  if (originalUrl.startsWith("/api/ai/chat")) return "conversa_ia";
+
   const segmentos = baseUrl.split("/").filter(Boolean);
   return segmentos[segmentos.length - 1] ?? "desconhecida";
 }
 
-export function auditMiddleware(req: Request, res: Response, next: NextFunction) {
+function sanitizarRespostaAuditada(
+  originalUrl: string,
+  corpo: Record<string, unknown> | undefined,
+): unknown {
+  if (!originalUrl.startsWith("/api/ai/chat")) return corpo;
+
+  return {
+    conversationId: corpo?.["conversationId"] ?? null,
+    status: corpo?.["status"] ?? null,
+    intent: corpo?.["intent"] ?? null,
+  };
+}
+
+export function auditMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   if (!METODOS_AUDITAVEIS.includes(req.method)) {
     return next();
   }
@@ -56,8 +75,13 @@ export function auditMiddleware(req: Request, res: Response, next: NextFunction)
         ? (corpoResposta as Record<string, unknown>)
         : undefined;
 
-    const entidade = resolverEntidade(baseUrl);
-    const entidadeId = String(corpo?.["id"] ?? req.params?.["id"] ?? "desconhecido");
+    const entidade = resolverEntidade(baseUrl, req.originalUrl);
+    const entidadeId = String(
+      corpo?.["conversationId"] ??
+        corpo?.["id"] ??
+        req.params?.["id"] ??
+        "desconhecido",
+    );
 
     const empresaIdResposta = corpo?.["empresaId"];
     const empresaId =
@@ -73,7 +97,9 @@ export function auditMiddleware(req: Request, res: Response, next: NextFunction)
         acao,
         empresaId,
         usuarioId,
-        ...(corpoResposta !== undefined && { depois: corpoResposta }),
+        ...(corpoResposta !== undefined && {
+          depois: sanitizarRespostaAuditada(req.originalUrl, corpo),
+        }),
       })
       .catch((error) => {
         console.error("[auditoria] falha ao registrar log:", error);
