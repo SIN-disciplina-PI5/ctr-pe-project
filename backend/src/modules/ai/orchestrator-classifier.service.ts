@@ -6,6 +6,7 @@ import {
   type OrchestratorIntent,
 } from "./orchestrator.js";
 import { ORCHESTRATOR_SYSTEM_PROMPT } from "./orchestrator-prompts.config.js";
+import { classifyRestrictedRequest } from "./orchestrator-policy.js";
 
 export interface ConversationTurn {
   readonly role: "user" | "assistant";
@@ -45,6 +46,21 @@ export class OrchestratorClassifierService {
   async classify(
     input: ClassifyIntentInput,
   ): Promise<OrchestratorClassification> {
+    const restricted = classifyRestrictedRequest(input.message);
+    if (restricted) {
+      return {
+        ...restricted,
+        metrics: {
+          provider: "policy",
+          model: "deterministic-guard",
+          latencyMs: 0,
+          inputTokens: 0,
+          outputTokens: 0,
+          totalTokens: 0,
+        },
+      };
+    }
+
     const MAX_HISTORY_TURNS = 10;
     const history = (input.history ?? []).slice(-(MAX_HISTORY_TURNS * 2));
 
