@@ -1,0 +1,3159 @@
+{
+  "info": {
+    "name": "CTR-PE API - Contract and Security Suite",
+    "_postman_id": "ctr-pe-api-contract-security-v2",
+    "description": "Contrato executável das rotas atuais. Usa dados sintéticos, captura tokens e IDs e não contém segredos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00. Health e contratos públicos",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.expect([200]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Empresas disponíveis no cadastro",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/auth/sign-up/empresas"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.expect([200]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cadastro público inválido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/auth/sign-up"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.expect([400]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cadastro de teste inválido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/auth/sign-up-testing"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.expect([400]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login inválido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/auth/sign-in"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.expect([400]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh inválido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/auth/refresh"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.expect([400]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout inválido",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/auth/logout"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.expect([400]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01. Autenticação dos dois tenants",
+      "item": [
+        {
+          "name": "Autenticar ADMIN Alpha International",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{admin_email_a}}\",\n  \"password\": \"{{auth_password}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/sign-in"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('autenticação responde 200', () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "pm.expect(data.accessToken).to.be.a('string').and.not.empty;",
+                  "pm.expect(data.refreshToken).to.be.a('string').and.not.empty;",
+                  "pm.environment.set('token_admin_a', data.accessToken);",
+                  "pm.environment.set('refresh_admin_a', data.refreshToken);",
+                  "pm.test('não expõe senha ou hash', () => {",
+                  "  const text = pm.response.text();",
+                  "  pm.expect(text).not.to.include('senhaHash');",
+                  "  pm.expect(text).not.to.include('passwordHash');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Autenticar ADMIN Alpha Brazilian",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{admin_email_b}}\",\n  \"password\": \"{{auth_password}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/sign-in"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('autenticação responde 200', () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "pm.expect(data.accessToken).to.be.a('string').and.not.empty;",
+                  "pm.expect(data.refreshToken).to.be.a('string').and.not.empty;",
+                  "pm.environment.set('token_admin_b', data.accessToken);",
+                  "pm.environment.set('refresh_admin_b', data.refreshToken);",
+                  "pm.test('não expõe senha ou hash', () => {",
+                  "  const text = pm.response.text();",
+                  "  pm.expect(text).not.to.include('senhaHash');",
+                  "  pm.expect(text).not.to.include('passwordHash');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Autenticar GESTOR Alpha International",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{gestor_email_a}}\",\n  \"password\": \"{{auth_password}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/sign-in"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('autenticação responde 200', () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "pm.expect(data.accessToken).to.be.a('string').and.not.empty;",
+                  "pm.expect(data.refreshToken).to.be.a('string').and.not.empty;",
+                  "pm.environment.set('token_gestor_a', data.accessToken);",
+                  "pm.environment.set('refresh_gestor_a', data.refreshToken);",
+                  "pm.test('não expõe senha ou hash', () => {",
+                  "  const text = pm.response.text();",
+                  "  pm.expect(text).not.to.include('senhaHash');",
+                  "  pm.expect(text).not.to.include('passwordHash');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Autenticar CONSULTA Alpha International",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{consulta_email_a}}\",\n  \"password\": \"{{auth_password}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/sign-in"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('autenticação responde 200', () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "pm.expect(data.accessToken).to.be.a('string').and.not.empty;",
+                  "pm.expect(data.refreshToken).to.be.a('string').and.not.empty;",
+                  "pm.environment.set('token_consulta_a', data.accessToken);",
+                  "pm.environment.set('refresh_consulta_a', data.refreshToken);",
+                  "pm.test('não expõe senha ou hash', () => {",
+                  "  const text = pm.response.text();",
+                  "  pm.expect(text).not.to.include('senhaHash');",
+                  "  pm.expect(text).not.to.include('passwordHash');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Identidade do tenant A",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/me"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('identidade responde 200', () => pm.response.to.have.status(200));",
+                  "const user = pm.response.json();",
+                  "pm.expect(user.empresaId).to.be.a('string').and.not.empty;",
+                  "pm.environment.set('empresa_id_a', user.empresaId);",
+                  "pm.environment.set('usuario_id_a', user.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Identidade do tenant B",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_b}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/me"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('identidade responde 200', () => pm.response.to.have.status(200));",
+                  "const user = pm.response.json();",
+                  "pm.environment.set('empresa_id_b', user.empresaId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rotação de refresh token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_admin_a}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/refresh"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.expect([200]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02. Superfície protegida exige autenticação",
+      "item": [
+        {
+          "name": "GET /api/auth/me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/auth/me"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/auth/me/password",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/auth/me/password"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/usuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/usuarios"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/usuarios/{{missing_id}}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/usuarios/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/usuarios",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/usuarios"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/usuarios/{{missing_id}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/usuarios/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/usuarios/{{missing_id}}/password",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/usuarios/{{missing_id}}/password"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /api/usuarios/{{missing_id}}",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/usuarios/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/empresas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/empresas"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/empresas/{{missing_id}}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/empresas/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/empresas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/empresas"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/empresas/{{missing_id}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/empresas/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /api/empresas/{{missing_id}}",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/empresas/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/ativos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/ativos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/ativos/{{missing_id}}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/ativos/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/ativos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ativos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/ativos/{{missing_id}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ativos/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/ativos/{{missing_id}}/status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ativos/{{missing_id}}/status"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /api/ativos/{{missing_id}}",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/ativos/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/materiais",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/materiais"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/materiais/{{missing_id}}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/materiais/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/materiais",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/materiais"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/materiais/{{missing_id}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/materiais/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/materiais/{{missing_id}}/estoque",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/materiais/{{missing_id}}/estoque"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /api/materiais/{{missing_id}}",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/materiais/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/alertas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/alertas"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/alertas/me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/alertas/me"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/alertas/{{missing_id}}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/alertas/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/alertas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/alertas"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/alertas/{{missing_id}}/lido",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/alertas/{{missing_id}}/lido"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/alertas/{{missing_id}}/resolver",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/alertas/{{missing_id}}/resolver"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/alertas/{{missing_id}}/ignorar",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/alertas/{{missing_id}}/ignorar"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/ordens-servico",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/ordens-servico"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/ordens-servico/{{missing_id}}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/ordens-servico/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/ordens-servico/{{missing_id}}/materiais",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/ordens-servico/{{missing_id}}/materiais"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/ordens-servico/{{missing_id}}/apontamentos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/ordens-servico/{{missing_id}}/apontamentos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/ordens-servico",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/ordens-servico/{{missing_id}}/materiais",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico/{{missing_id}}/materiais"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/ordens-servico/{{missing_id}}/apontamentos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico/{{missing_id}}/apontamentos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/ordens-servico/{{missing_id}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/ordens-servico/{{missing_id}}/iniciar",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico/{{missing_id}}/iniciar"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/ordens-servico/{{missing_id}}/aguardar-peca",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico/{{missing_id}}/aguardar-peca"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/ordens-servico/{{missing_id}}/retomar",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico/{{missing_id}}/retomar"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/ordens-servico/{{missing_id}}/encerrar",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico/{{missing_id}}/encerrar"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/ordens-servico/{{missing_id}}/cancelar",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico/{{missing_id}}/cancelar"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/paradas-ativos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/paradas-ativos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/paradas-ativos/{{missing_id}}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/paradas-ativos/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/paradas-ativos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/paradas-ativos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/paradas-ativos/{{missing_id}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/paradas-ativos/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/paradas-ativos/{{missing_id}}/encerrar",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/paradas-ativos/{{missing_id}}/encerrar"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/paradas-ativos/{{missing_id}}/cancelar",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/paradas-ativos/{{missing_id}}/cancelar"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/ordens-servico-materiais/{{missing_id}}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/ordens-servico-materiais/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/ordens-servico-materiais/{{missing_id}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico-materiais/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/ordens-servico-materiais/{{missing_id}}/consumir",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico-materiais/{{missing_id}}/consumir"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/ordens-servico-materiais/{{missing_id}}/devolver",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico-materiais/{{missing_id}}/devolver"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/ordens-servico-materiais/{{missing_id}}/cancelar",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico-materiais/{{missing_id}}/cancelar"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/apontamentos-os/{{missing_id}}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/apontamentos-os/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/apontamentos-os/{{missing_id}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/apontamentos-os/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/apontamentos-os/{{missing_id}}/encerrar",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/apontamentos-os/{{missing_id}}/encerrar"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /api/apontamentos-os/{{missing_id}}",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/apontamentos-os/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/dashboard/resumo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/dashboard/resumo"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/dashboard/ativos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/dashboard/ativos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/dashboard/ordens-servico",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/dashboard/ordens-servico"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/dashboard/materiais",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/dashboard/materiais"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/dashboard/custos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/dashboard/custos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/auditoria",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/auditoria"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/auditoria/{{missing_id}}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/auditoria/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/localizacoes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/localizacoes"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/localizacoes/{{missing_id}}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/localizacoes/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/localizacoes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/localizacoes"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/localizacoes/{{missing_id}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/localizacoes/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /api/localizacoes/{{missing_id}}",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/localizacoes/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/ai/chat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ai/chat"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/ai/query",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ai/query"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/ai/query/generate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ai/query/generate"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03. Leitura autenticada e captura de IDs",
+      "item": [
+        {
+          "name": "Usuários",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_gestor_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/usuarios"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('listagem responde 200', () => pm.response.to.have.status(200));",
+                  "const payload = pm.response.json();",
+                  "const rows = Array.isArray(payload) ? payload : (payload.data || payload.items || []);",
+                  "pm.expect(rows).to.be.an('array');",
+                  "if (rows.length > 0) pm.environment.set('usuario_listado_id', rows[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Empresas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/empresas"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('listagem responde 200', () => pm.response.to.have.status(200));",
+                  "const payload = pm.response.json();",
+                  "const rows = Array.isArray(payload) ? payload : (payload.data || payload.items || []);",
+                  "pm.expect(rows).to.be.an('array');",
+                  "if (rows.length > 0) pm.environment.set('empresa_listada_id', rows[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ativos do tenant A",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/ativos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('listagem responde 200', () => pm.response.to.have.status(200));",
+                  "const payload = pm.response.json();",
+                  "const rows = Array.isArray(payload) ? payload : (payload.data || payload.items || []);",
+                  "pm.expect(rows).to.be.an('array');",
+                  "if (rows.length > 0) pm.environment.set('ativo_id_a', rows[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Materiais",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/materiais"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('listagem responde 200', () => pm.response.to.have.status(200));",
+                  "const payload = pm.response.json();",
+                  "const rows = Array.isArray(payload) ? payload : (payload.data || payload.items || []);",
+                  "pm.expect(rows).to.be.an('array');",
+                  "if (rows.length > 0) pm.environment.set('material_id_a', rows[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Alertas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/alertas"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('listagem responde 200', () => pm.response.to.have.status(200));",
+                  "const payload = pm.response.json();",
+                  "const rows = Array.isArray(payload) ? payload : (payload.data || payload.items || []);",
+                  "pm.expect(rows).to.be.an('array');",
+                  "if (rows.length > 0) pm.environment.set('alerta_id_a', rows[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ordens de serviço",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/ordens-servico"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('listagem responde 200', () => pm.response.to.have.status(200));",
+                  "const payload = pm.response.json();",
+                  "const rows = Array.isArray(payload) ? payload : (payload.data || payload.items || []);",
+                  "pm.expect(rows).to.be.an('array');",
+                  "if (rows.length > 0) pm.environment.set('ordem_id_a', rows[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Paradas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/paradas-ativos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('listagem responde 200', () => pm.response.to.have.status(200));",
+                  "const payload = pm.response.json();",
+                  "const rows = Array.isArray(payload) ? payload : (payload.data || payload.items || []);",
+                  "pm.expect(rows).to.be.an('array');",
+                  "if (rows.length > 0) pm.environment.set('parada_id_a', rows[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Localizações",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/localizacoes"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('listagem responde 200', () => pm.response.to.have.status(200));",
+                  "const payload = pm.response.json();",
+                  "const rows = Array.isArray(payload) ? payload : (payload.data || payload.items || []);",
+                  "pm.expect(rows).to.be.an('array');",
+                  "if (rows.length > 0) pm.environment.set('localizacao_id_a', rows[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ativos do tenant B",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_b}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/ativos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('listagem responde 200', () => pm.response.to.have.status(200));",
+                  "const payload = pm.response.json();",
+                  "const rows = Array.isArray(payload) ? payload : (payload.data || payload.items || []);",
+                  "pm.expect(rows).to.be.an('array');",
+                  "if (rows.length > 0) pm.environment.set('ativo_id_b', rows[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dashboard resumo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_gestor_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/dashboard/resumo"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.expect([200]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dashboard ativos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_gestor_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/dashboard/ativos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.expect([200]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dashboard ordens",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_gestor_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/dashboard/ordens-servico"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.expect([200]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dashboard materiais",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_gestor_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/dashboard/materiais"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.expect([200]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dashboard custos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_gestor_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/dashboard/custos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.expect([200]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Auditoria",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_gestor_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auditoria"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.expect([200]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04. Isolamento, RBAC e IA",
+      "item": [
+        {
+          "name": "Tenant A não lê ativo do tenant B",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/ativos/{{ativo_id_b}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403 ou 404', () => pm.expect([403,404]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "CONSULTA não cria ativo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_consulta_a}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ativos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', () => pm.expect([403]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Chat valida payload antes do provedor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_consulta_a}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"\"\n}"
+            },
+            "url": "{{baseUrl}}/api/ai/chat"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.expect([400]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Query valida payload antes do provedor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_consulta_a}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"\"\n}"
+            },
+            "url": "{{baseUrl}}/api/ai/query"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.expect([400]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Geração SQL valida payload antes do provedor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_consulta_a}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"\"\n}"
+            },
+            "url": "{{baseUrl}}/api/ai/query/generate"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.expect([400]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05. Workflow controlado de ordem de serviço",
+      "item": [
+        {
+          "name": "Criar localização",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_a}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"PM-LOC-{{$timestamp}}\",\n  \"nome\": \"Local Postman {{$timestamp}}\",\n  \"tipo\": \"TESTE\"\n}"
+            },
+            "url": "{{baseUrl}}/api/localizacoes"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201', () => pm.expect([201]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const data = pm.response.json();",
+                  "  pm.environment.set('created_localizacao_id', data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar ativo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_a}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empresaId\": \"{{empresa_id_a}}\",\n  \"localizacaoId\": \"{{created_localizacao_id}}\",\n  \"codigo\": \"PM-AT-{{$timestamp}}\",\n  \"nome\": \"Ativo Postman {{$timestamp}}\",\n  \"tipo\": \"EQUIPAMENTO\",\n  \"criticidade\": \"MEDIA\"\n}"
+            },
+            "url": "{{baseUrl}}/api/ativos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201', () => pm.expect([201]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const data = pm.response.json();",
+                  "  pm.environment.set('created_ativo_id', data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar material",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_a}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empresaId\": \"{{empresa_id_a}}\",\n  \"codigo\": \"PM-MAT-{{$timestamp}}\",\n  \"nome\": \"Material Postman {{$timestamp}}\",\n  \"unidade\": \"UN\",\n  \"estoqueAtual\": 10,\n  \"estoqueMinimo\": 2,\n  \"custoMedio\": 5\n}"
+            },
+            "url": "{{baseUrl}}/api/materiais"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201', () => pm.expect([201]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const data = pm.response.json();",
+                  "  pm.environment.set('created_material_id', data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar ordem",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_a}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empresaId\": \"{{empresa_id_a}}\",\n  \"localizacaoId\": \"{{created_localizacao_id}}\",\n  \"ativoId\": \"{{created_ativo_id}}\",\n  \"titulo\": \"Ordem Postman {{$timestamp}}\",\n  \"descricao\": \"Fluxo automatizado da coleção Postman.\",\n  \"tipo\": \"CORRETIVA\",\n  \"prioridade\": \"MEDIA\",\n  \"impactaDisponibilidade\": true\n}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201', () => pm.expect([201]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const data = pm.response.json();",
+                  "  pm.environment.set('created_ordem_id', data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Iniciar ordem",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_a}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico/{{created_ordem_id}}/iniciar"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.expect([200]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Aguardar peça",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_a}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"observacao\": \"Aguardando peça do teste.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico/{{created_ordem_id}}/aguardar-peca"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.expect([200]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Retomar ordem",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_a}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"observacao\": \"Peça recebida.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico/{{created_ordem_id}}/retomar"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.expect([200]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Encerrar ordem",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_a}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"diagnostico\": \"Diagnóstico do teste.\",\n  \"solucao\": \"Solução do teste.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/ordens-servico/{{created_ordem_id}}/encerrar"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.expect([200]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
