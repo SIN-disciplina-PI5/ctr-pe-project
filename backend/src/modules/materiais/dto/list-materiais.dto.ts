@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { entityIdSchema } from "../../../common/schemas/entity-id.schema.js";
 
 export const listMateriaisDto = z.object({
-  empresaId: z.string().cuid().optional(),
+  empresaId: entityIdSchema.optional(),
   search: z.string().optional(),
   ativo: z.enum(["true", "false"]).optional(),
   estoqueBaixo: z.enum(["true", "false"]).optional(),

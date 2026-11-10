@@ -1,11 +1,14 @@
 import { z } from "zod";
+import { entityIdSchema } from "../../../common/schemas/entity-id.schema.js";
 
 export const updateAtivoDto = z.object({
-  localizacaoId: z.string().cuid().optional(),
+  localizacaoId: entityIdSchema.optional(),
   codigo: z.string().min(1).optional(),
   nome: z.string().min(1).optional(),
   descricao: z.string().optional(),
-  tipo: z.enum(["MAQUINA", "CAMINHAO", "EQUIPAMENTO", "COMPONENTE", "OUTRO"]).optional(),
+  tipo: z
+    .enum(["MAQUINA", "CAMINHAO", "EQUIPAMENTO", "COMPONENTE", "OUTRO"])
+    .optional(),
   criticidade: z.enum(["BAIXA", "MEDIA", "ALTA", "CRITICA"]).optional(),
   marca: z.string().optional(),
   modelo: z.string().optional(),
@@ -19,7 +22,14 @@ export const updateAtivoDto = z.object({
 export type UpdateAtivoDto = z.infer<typeof updateAtivoDto>;
 
 export const updateStatusAtivoDto = z.object({
-  status: z.enum(["DISPONIVEL", "EM_USO", "PARADO", "EM_MANUTENCAO", "AGUARDANDO_PECA", "DESATIVADO"]),
+  status: z.enum([
+    "DISPONIVEL",
+    "EM_USO",
+    "PARADO",
+    "EM_MANUTENCAO",
+    "AGUARDANDO_PECA",
+    "DESATIVADO",
+  ]),
   motivo: z.string().optional(),
 });
 
