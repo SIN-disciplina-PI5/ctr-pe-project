@@ -34,7 +34,12 @@ interface UpdateOrdemServicoData {
   descricao?: string;
 
   tipo?: "CORRETIVA" | "PREVENTIVA" | "INSPECAO" | "OUTRA";
-  status?: "ABERTA" | "EM_EXECUCAO" | "AGUARDANDO_PECA" | "ENCERRADA" | "CANCELADA";
+  status?:
+    | "ABERTA"
+    | "EM_EXECUCAO"
+    | "AGUARDANDO_PECA"
+    | "ENCERRADA"
+    | "CANCELADA";
   prioridade?: "BAIXA" | "MEDIA" | "ALTA" | "CRITICA";
 
   impactaDisponibilidade?: boolean;
@@ -50,7 +55,12 @@ interface FindAllFilters {
   empresaId?: string;
   ativoId?: string;
   responsavelId?: string;
-  status?: "ABERTA" | "EM_EXECUCAO" | "AGUARDANDO_PECA" | "ENCERRADA" | "CANCELADA";
+  status?:
+    | "ABERTA"
+    | "EM_EXECUCAO"
+    | "AGUARDANDO_PECA"
+    | "ENCERRADA"
+    | "CANCELADA";
   prioridade?: "BAIXA" | "MEDIA" | "ALTA" | "CRITICA";
   search?: string;
 }
@@ -110,13 +120,17 @@ export class OrdensServicoRepository {
   async findAll(filters: FindAllFilters) {
     return prisma.ordemServico.findMany({
       where: {
-        ...(filters.empresaId !== undefined && { empresaId: filters.empresaId }),
+        ...(filters.empresaId !== undefined && {
+          empresaId: filters.empresaId,
+        }),
         ...(filters.ativoId !== undefined && { ativoId: filters.ativoId }),
         ...(filters.responsavelId !== undefined && {
           responsavelId: filters.responsavelId,
         }),
         ...(filters.status !== undefined && { status: filters.status }),
-        ...(filters.prioridade !== undefined && { prioridade: filters.prioridade }),
+        ...(filters.prioridade !== undefined && {
+          prioridade: filters.prioridade,
+        }),
         ...(filters.search && {
           OR: [
             { numero: { contains: filters.search, mode: "insensitive" } },
@@ -204,7 +218,9 @@ export class OrdensServicoRepository {
           ...(data.tipo !== undefined && { tipo: data.tipo }),
           ...(data.prioridade !== undefined && { prioridade: data.prioridade }),
           ...(data.prazoEm !== undefined && { prazoEm: data.prazoEm }),
-          ...(data.diagnostico !== undefined && { diagnostico: data.diagnostico }),
+          ...(data.diagnostico !== undefined && {
+            diagnostico: data.diagnostico,
+          }),
           ...(data.solucao !== undefined && { solucao: data.solucao }),
           ...(data.observacao !== undefined && { observacao: data.observacao }),
         },
@@ -241,188 +257,220 @@ export class OrdensServicoRepository {
         },
         select: ordemServicoSelect,
       });
-  
-      await tx.ativo.update({
-        where: { id: os.ativo.id },
-        data: { status: "EM_MANUTENCAO" },
-      });
-  
+
+      if (os.impactaDisponibilidade) {
+        await tx.ativo.update({
+          where: { id: os.ativo.id },
+          data: { status: "EM_MANUTENCAO" },
+        });
+      }
+
       return os;
     });
   }
 
   async aguardarPeca(id: string, observacao?: string) {
-  return prisma.$transaction(async (tx) => {
-    const os = await tx.ordemServico.update({
-      where: { id },
-      data: {
-        status: "AGUARDANDO_PECA",
-        aguardandoPecaDesde: new Date(),
-        ...(observacao !== undefined && { observacao }),
-      },
-      select: ordemServicoSelect,
-    });
+    return prisma.$transaction(async (tx) => {
+      const os = await tx.ordemServico.update({
+        where: { id },
+        data: {
+          status: "AGUARDANDO_PECA",
+          aguardandoPecaDesde: new Date(),
+          ...(observacao !== undefined && { observacao }),
+        },
+        select: ordemServicoSelect,
+      });
 
-    await tx.ativo.update({
-      where: { id: os.ativo.id },
-      data: { status: "AGUARDANDO_PECA" },
-    });
+      if (os.impactaDisponibilidade) {
+        await tx.ativo.update({
+          where: { id: os.ativo.id },
+          data: { status: "AGUARDANDO_PECA" },
+        });
+      }
 
-    return os;
-  });
-}
+      return os;
+    });
+  }
 
   async retomar(id: string, observacao?: string) {
-  return prisma.$transaction(async (tx) => {
-    const os = await tx.ordemServico.findUniqueOrThrow({
-      where: { id },
-      select: { ativoId: true, aguardandoPecaDesde: true },
-    });
-
-    const tempoAguardandoPecaMinutos = os.aguardandoPecaDesde
-      ? Math.round((Date.now() - os.aguardandoPecaDesde.getTime()) / 60000)
-      : null;
-
-    const updated = await tx.ordemServico.update({
-      where: { id },
-      data: {
-        status: "EM_EXECUCAO",
-        aguardandoPecaDesde: null,
-        ...(tempoAguardandoPecaMinutos !== null && { tempoAguardandoPecaMinutos }),
-        ...(observacao !== undefined && { observacao }),
-      },
-      select: ordemServicoSelect,
-    });
-
-    await tx.ativo.update({
-      where: { id: os.ativoId },
-      data: { status: "EM_MANUTENCAO" },
-    });
-
-    return updated;
-  });
-}
-
-async encerrar(id: string, data: {
-  diagnostico?: string;
-  solucao?: string;
-  observacao?: string;
-  encerradaEm?: Date;
-}) {
-  return prisma.$transaction(async (tx) => {
-    const os = await tx.ordemServico.findUniqueOrThrow({
-      where: { id },
-      select: {
-        ativoId: true,
-        empresaId: true,
-        iniciadaEm: true,
-        abertaEm: true,
-      },
-    });
-
-    const encerradaEm = data.encerradaEm ?? new Date();
-    const iniciadaEm = os.iniciadaEm ?? os.abertaEm;
-    const tempoExecucaoMinutos = Math.round((encerradaEm.getTime() - iniciadaEm.getTime()) / 60000);
-
-    const updated = await tx.ordemServico.update({
-      where: { id },
-      data: {
-        status: "ENCERRADA",
-        encerradaEm,
-        tempoExecucaoMinutos,
-        ...(data.diagnostico !== undefined && { diagnostico: data.diagnostico }),
-        ...(data.solucao !== undefined && { solucao: data.solucao }),
-        ...(data.observacao !== undefined && { observacao: data.observacao }),
-      },
-      select: ordemServicoSelect,
-    });
-
-    // fecha parada aberta
-    await tx.paradaAtivo.updateMany({
-      where: {
-        ordemServicoId: id,
-        status: "ABERTA",
-      },
-      data: {
-        status: "ENCERRADA",
-        fimEm: encerradaEm,
-        duracaoMinutos: tempoExecucaoMinutos,
-      },
-    });
-
-    // verifica se tem outra OS aberta impactante
-    const outraOsAberta = await tx.ordemServico.findFirst({
-      where: {
-        ativoId: os.ativoId,
-        status: { in: ["ABERTA", "EM_EXECUCAO", "AGUARDANDO_PECA"] },
-        impactaDisponibilidade: true,
-        id: { not: id },
-      },
-    });
-
-    if (!outraOsAberta) {
-      await tx.ativo.update({
-        where: { id: os.ativoId },
-        data: { status: "DISPONIVEL" },
+    return prisma.$transaction(async (tx) => {
+      const os = await tx.ordemServico.findUniqueOrThrow({
+        where: { id },
+        select: {
+          ativoId: true,
+          impactaDisponibilidade: true,
+          aguardandoPecaDesde: true,
+          tempoAguardandoPecaMinutos: true,
+        },
       });
-    }
 
-    return updated;
-  });
-}
+      const tempoAguardandoPecaMinutos = os.aguardandoPecaDesde
+        ? (os.tempoAguardandoPecaMinutos ?? 0) +
+          Math.round((Date.now() - os.aguardandoPecaDesde.getTime()) / 60000)
+        : null;
 
-async cancelar(id: string, data: {
-  motivo?: string;
-  canceladaEm?: Date;
-}) {
-  return prisma.$transaction(async (tx) => {
-    const os = await tx.ordemServico.findUniqueOrThrow({
-      where: { id },
-      select: { ativoId: true, empresaId: true },
-    });
-
-    const canceladaEm = data.canceladaEm ?? new Date();
-
-    const updated = await tx.ordemServico.update({
-      where: { id },
-      data: {
-        status: "CANCELADA",
-        canceladaEm,
-        ...(data.motivo !== undefined && { observacao: data.motivo }),
-      },
-      select: ordemServicoSelect,
-    });
-
-    await tx.paradaAtivo.updateMany({
-      where: {
-        ordemServicoId: id,
-        status: "ABERTA",
-      },
-      data: {
-        status: "CANCELADA",
-        fimEm: canceladaEm,
-      },
-    });
-
-    const outraOsAberta = await tx.ordemServico.findFirst({
-      where: {
-        ativoId: os.ativoId,
-        status: { in: ["ABERTA", "EM_EXECUCAO", "AGUARDANDO_PECA"] },
-        impactaDisponibilidade: true,
-        id: { not: id },
-      },
-    });
-
-    if (!outraOsAberta) {
-      await tx.ativo.update({
-        where: { id: os.ativoId },
-        data: { status: "DISPONIVEL" },
+      const updated = await tx.ordemServico.update({
+        where: { id },
+        data: {
+          status: "EM_EXECUCAO",
+          aguardandoPecaDesde: null,
+          ...(tempoAguardandoPecaMinutos !== null && {
+            tempoAguardandoPecaMinutos,
+          }),
+          ...(observacao !== undefined && { observacao }),
+        },
+        select: ordemServicoSelect,
       });
-    }
 
-    return updated;
-  });
-}
+      if (os.impactaDisponibilidade) {
+        await tx.ativo.update({
+          where: { id: os.ativoId },
+          data: { status: "EM_MANUTENCAO" },
+        });
+      }
+
+      return updated;
+    });
+  }
+
+  async encerrar(
+    id: string,
+    data: {
+      diagnostico?: string;
+      solucao?: string;
+      observacao?: string;
+      encerradaEm?: Date;
+    },
+  ) {
+    return prisma.$transaction(async (tx) => {
+      const os = await tx.ordemServico.findUniqueOrThrow({
+        where: { id },
+        select: {
+          ativoId: true,
+          empresaId: true,
+          impactaDisponibilidade: true,
+          iniciadaEm: true,
+          abertaEm: true,
+        },
+      });
+
+      const encerradaEm = data.encerradaEm ?? new Date();
+      const iniciadaEm = os.iniciadaEm ?? os.abertaEm;
+      const tempoExecucaoMinutos = Math.round(
+        (encerradaEm.getTime() - iniciadaEm.getTime()) / 60000,
+      );
+
+      const updated = await tx.ordemServico.update({
+        where: { id },
+        data: {
+          status: "ENCERRADA",
+          encerradaEm,
+          tempoExecucaoMinutos,
+          ...(data.diagnostico !== undefined && {
+            diagnostico: data.diagnostico,
+          }),
+          ...(data.solucao !== undefined && { solucao: data.solucao }),
+          ...(data.observacao !== undefined && { observacao: data.observacao }),
+        },
+        select: ordemServicoSelect,
+      });
+
+      // fecha parada aberta
+      await tx.paradaAtivo.updateMany({
+        where: {
+          ordemServicoId: id,
+          status: "ABERTA",
+        },
+        data: {
+          status: "ENCERRADA",
+          fimEm: encerradaEm,
+          duracaoMinutos: tempoExecucaoMinutos,
+        },
+      });
+
+      if (os.impactaDisponibilidade) {
+        const outraOsAberta = await tx.ordemServico.findFirst({
+          where: {
+            ativoId: os.ativoId,
+            status: { in: ["ABERTA", "EM_EXECUCAO", "AGUARDANDO_PECA"] },
+            impactaDisponibilidade: true,
+            id: { not: id },
+          },
+        });
+
+        if (!outraOsAberta) {
+          await tx.ativo.update({
+            where: { id: os.ativoId },
+            data: { status: "DISPONIVEL" },
+          });
+        }
+      }
+
+      return updated;
+    });
+  }
+
+  async cancelar(
+    id: string,
+    data: {
+      motivo?: string;
+      canceladaEm?: Date;
+    },
+  ) {
+    return prisma.$transaction(async (tx) => {
+      const os = await tx.ordemServico.findUniqueOrThrow({
+        where: { id },
+        select: {
+          ativoId: true,
+          empresaId: true,
+          impactaDisponibilidade: true,
+        },
+      });
+
+      const canceladaEm = data.canceladaEm ?? new Date();
+
+      const updated = await tx.ordemServico.update({
+        where: { id },
+        data: {
+          status: "CANCELADA",
+          canceladaEm,
+          ...(data.motivo !== undefined && { observacao: data.motivo }),
+        },
+        select: ordemServicoSelect,
+      });
+
+      await tx.paradaAtivo.updateMany({
+        where: {
+          ordemServicoId: id,
+          status: "ABERTA",
+        },
+        data: {
+          status: "CANCELADA",
+          fimEm: canceladaEm,
+        },
+      });
+
+      if (os.impactaDisponibilidade) {
+        const outraOsAberta = await tx.ordemServico.findFirst({
+          where: {
+            ativoId: os.ativoId,
+            status: { in: ["ABERTA", "EM_EXECUCAO", "AGUARDANDO_PECA"] },
+            impactaDisponibilidade: true,
+            id: { not: id },
+          },
+        });
+
+        if (!outraOsAberta) {
+          await tx.ativo.update({
+            where: { id: os.ativoId },
+            data: { status: "DISPONIVEL" },
+          });
+        }
+      }
+
+      return updated;
+    });
+  }
 
   async update(id: string, data: UpdateOrdemServicoData) {
     return prisma.ordemServico.update({
