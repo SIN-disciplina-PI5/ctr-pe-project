@@ -10,6 +10,11 @@ import type {
   QueryAgentService,
 } from "./query-agent.service.js";
 import { OrchestratorService } from "./orchestrator.service.js";
+import type {
+  GeneratedReport,
+  ReportAgent,
+  ReportAgentInput,
+} from "./report-agent.service.js";
 
 class FakeClassifier {
   public receivedInput: ClassifyIntentInput | null = null;
@@ -28,6 +33,17 @@ class FakeQueryAgent {
   constructor(private readonly result: QueryAgentResult) {}
 
   async query(input: GenerateQueryInput): Promise<QueryAgentResult> {
+    this.receivedInput = input;
+    return this.result;
+  }
+}
+
+class FakeReportAgent implements ReportAgent {
+  public receivedInput: ReportAgentInput | null = null;
+
+  constructor(private readonly result: GeneratedReport) {}
+
+  async generate(input: ReportAgentInput): Promise<GeneratedReport> {
     this.receivedInput = input;
     return this.result;
   }
@@ -57,19 +73,36 @@ const answeredQueryResult = {
   answer: "Há 3 ordens de serviço abertas.",
 } as QueryAgentResult;
 
+const generatedReport: GeneratedReport = {
+  status: "generated",
+  reportType: "monthly_maintenance",
+  title: "Relatório mensal de manutenção",
+  sections: [],
+  planningMetrics: {
+    provider: "fake",
+    model: "fake-report-model",
+    latencyMs: 2,
+    inputTokens: 5,
+    outputTokens: 3,
+    totalTokens: 8,
+  },
+};
+
 function createService(
   classification: OrchestratorIntent,
   queryResult: QueryAgentResult = answeredQueryResult,
 ) {
   const classifier = new FakeClassifier(classification);
   const queryAgent = new FakeQueryAgent(queryResult);
+  const reportAgent = new FakeReportAgent(generatedReport);
 
   const service = new OrchestratorService(
     classifier as unknown as OrchestratorClassifierService,
     queryAgent as unknown as QueryAgentService,
+    reportAgent,
   );
 
-  return { service, classifier, queryAgent };
+  return { service, classifier, queryAgent, reportAgent };
 }
 
 describe("OrchestratorService", () => {
@@ -104,22 +137,42 @@ describe("OrchestratorService", () => {
     });
   });
 
-  it("retorna placeholder quando a intenção é solicitar um relatório", async () => {
-    const { service, queryAgent } = createService(
+  it("encaminha solicitações de relatório ao Report Agent", async () => {
+    const { service, queryAgent, reportAgent } = createService(
       createClassification("report_request"),
     );
 
     const result = await service.handle(input);
 
     expect(result).toEqual({
-      status: "report_pending",
+      status: "report_generated",
       intent: "report_request",
       classificationMetrics: null,
-      message:
-        "A funcionalidade de geração de relatórios ainda não está disponível.",
+      message: 'Relatório "Relatório mensal de manutenção" gerado com sucesso.',
+      report: generatedReport,
     });
 
     expect(queryAgent.receivedInput).toBeNull();
+    expect(reportAgent.receivedInput).toEqual({
+      request: input.message,
+      empresaId: input.empresaId,
+    });
+  });
+
+  it("mantém o placeholder quando nenhum Report Agent foi configurado", async () => {
+    const classifier = new FakeClassifier(
+      createClassification("report_request"),
+    );
+    const queryAgent = new FakeQueryAgent(answeredQueryResult);
+    const service = new OrchestratorService(
+      classifier as unknown as OrchestratorClassifierService,
+      queryAgent as unknown as QueryAgentService,
+    );
+
+    await expect(service.handle(input)).resolves.toMatchObject({
+      status: "report_pending",
+      intent: "report_request",
+    });
   });
 
   it("solicita esclarecimento quando a intenção é ambígua", async () => {
