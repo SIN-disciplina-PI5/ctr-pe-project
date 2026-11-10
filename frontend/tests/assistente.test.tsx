@@ -19,26 +19,28 @@ jest.mock("@/features/assistente/assistente.hooks", () => ({
 }));
 
 describe("AssistenteScreen", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockMutateAsync.mockResolvedValue({
-      id: "conversa-1",
-      conversationId: "conversa-1",
-      message: "Há 3 ordens abertas.",
+  const answeredResponse = {
+    id: "conversa-1",
+    conversationId: "conversa-1",
+    message: "Há 3 ordens abertas.",
+    status: "answered",
+    intent: "data_question",
+    result: {
       status: "answered",
       intent: "data_question",
       result: {
         status: "answered",
-        intent: "data_question",
-        result: {
-          status: "answered",
-          mode: "single",
-          answer: "Há 3 ordens abertas.",
-          sql: 'SELECT numero, status FROM ai."ordens_servico" LIMIT 100',
-          rowsUsed: [{ numero: "OS-001", status: "ABERTA" }],
-        },
+        mode: "single",
+        answer: "Há 3 ordens abertas.",
+        sql: 'SELECT numero, status FROM ai."ordens_servico" LIMIT 100',
+        rowsUsed: [{ numero: "OS-001", status: "ABERTA" }],
       },
-    });
+    },
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockMutateAsync.mockResolvedValue(answeredResponse);
   });
 
   it("envia uma pergunta e exibe resposta, tabela e SQL sob demanda", async () => {
@@ -74,7 +76,9 @@ describe("AssistenteScreen", () => {
 
     fireEvent.changeText(screen.getByLabelText("Mensagem"), "Pergunta inicial");
     fireEvent.press(screen.getByLabelText("Enviar mensagem"));
-    await waitFor(() => expect(screen.getByText("Há 3 ordens abertas.")).toBeTruthy());
+    await waitFor(() =>
+      expect(screen.getByText("Há 3 ordens abertas.")).toBeTruthy(),
+    );
 
     fireEvent.press(screen.getByText("Nova conversa"));
 
@@ -82,5 +86,83 @@ describe("AssistenteScreen", () => {
     expect(
       screen.getByText("Como posso ajudar com a manutenção?"),
     ).toBeTruthy();
+  });
+
+  it("envia o identificador no follow-up da mesma conversa", async () => {
+    renderWithProviders(<AssistenteScreen />);
+
+    fireEvent.changeText(screen.getByLabelText("Mensagem"), "Pergunta inicial");
+    fireEvent.press(screen.getByLabelText("Enviar mensagem"));
+    await waitFor(() =>
+      expect(screen.getByText("Há 3 ordens abertas.")).toBeTruthy(),
+    );
+
+    fireEvent.changeText(
+      screen.getByLabelText("Mensagem"),
+      "E no mês passado?",
+    );
+    fireEvent.press(screen.getByLabelText("Enviar mensagem"));
+
+    expect(mockMutateAsync).toHaveBeenLastCalledWith({
+      message: "E no mês passado?",
+      conversationId: "conversa-1",
+    });
+    await waitFor(() => {
+      expect(screen.getAllByText("Há 3 ordens abertas.")).toHaveLength(2);
+    });
+  });
+
+  it("exibe recusas sem inventar tabela ou SQL", async () => {
+    mockMutateAsync.mockResolvedValue({
+      id: "conversa-2",
+      conversationId: "conversa-2",
+      message: "Não posso alterar ou excluir registros.",
+      status: "refused",
+      intent: "write_request",
+      result: {
+        status: "refused",
+        intent: "write_request",
+        message: "Não posso alterar ou excluir registros.",
+      },
+    });
+    renderWithProviders(<AssistenteScreen />);
+
+    fireEvent.changeText(
+      screen.getByLabelText("Mensagem"),
+      "Exclua as ordens antigas",
+    );
+    fireEvent.press(screen.getByLabelText("Enviar mensagem"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Não posso alterar ou excluir registros."),
+      ).toBeTruthy();
+    });
+    expect(screen.queryByText("Visualizar SQL")).toBeNull();
+  });
+
+  it("mostra a mensagem segura devolvida pela API", async () => {
+    mockMutateAsync.mockRejectedValue({
+      response: {
+        data: {
+          error: "Limite de mensagens excedido. Tente novamente em instantes.",
+        },
+      },
+    });
+    renderWithProviders(<AssistenteScreen />);
+
+    fireEvent.changeText(
+      screen.getByLabelText("Mensagem"),
+      "Mais uma pergunta",
+    );
+    fireEvent.press(screen.getByLabelText("Enviar mensagem"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          "Limite de mensagens excedido. Tente novamente em instantes.",
+        ),
+      ).toBeTruthy();
+    });
   });
 });
