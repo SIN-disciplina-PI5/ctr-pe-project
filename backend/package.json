@@ -13,6 +13,8 @@
     "test:synthetic-data": "DATABASE_URL=${DATABASE_URL:-postgresql://test:test@127.0.0.1:5432/test} npm test -- --runTestsByPath tests/unit/synthetic-data-consistency.spec.ts",
     "test:ai-evaluation-dataset": "DATABASE_URL=${DATABASE_URL:-postgresql://test:test@127.0.0.1:5432/test} npm test -- --runTestsByPath tests/evaluation/query-evaluation-dataset.spec.ts",
     "test:ai-evaluation": "DATABASE_URL=${DATABASE_URL:-postgresql://test:test@127.0.0.1:5432/test} npm test -- --runTestsByPath tests/evaluation/query-evaluation-dataset.spec.ts tests/evaluation/query-evaluation-runner.spec.ts",
+    "test:postman-contract": "node --test postman/collection.contract.test.mjs",
+    "postman:generate": "node postman/generate-collection.mjs",
     "evaluate:ai": "tsx evaluation/run-query-evaluation.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
