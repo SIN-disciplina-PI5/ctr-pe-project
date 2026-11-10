@@ -99,69 +99,66 @@ describe("OrchestratorClassifierService", () => {
     },
   ];
 
-      it.each([
-        {
-        description: "data_question sem pergunta contextualizada",
-        response: {
-            intent: "data_question",
-            contextualizedQuestion: "   ",
-            clarification: null,
-            refusalReason: null,
-        },
-        },
-        {
-        description: "report_request com campos adicionais",
-        response: {
-            intent: "report_request",
-            contextualizedQuestion: "Alguma pergunta",
-            clarification: null,
-            refusalReason: null,
-        },
-        },
-        {
-        description: "unclear sem esclarecimento",
-        response: {
-            intent: "unclear",
-            contextualizedQuestion: null,
-            clarification: null,
-            refusalReason: null,
-        },
-        },
-        {
-        description: "write_request sem motivo de recusa",
-        response: {
-            intent: "write_request",
-            contextualizedQuestion: null,
-            clarification: null,
-            refusalReason: null,
-        },
-        },
-        {
-        description: "out_of_domain com campos inconsistentes",
-        response: {
-            intent: "out_of_domain",
-            contextualizedQuestion: "Pergunta fora do domínio",
-            clarification: null,
-            refusalReason: "Fora do domínio.",
-        },
-        },
-    ] as Array<{
-        description: string;
-        response: OrchestratorIntent;
-    }>)(
-        "rejeita classificação inválida: $description",
-        async ({ response }) => {
-        const fake = createFakeProvider(response);
-        const classifier = new OrchestratorClassifierService(fake.provider);
+  it.each([
+    {
+      description: "data_question sem pergunta contextualizada",
+      response: {
+        intent: "data_question",
+        contextualizedQuestion: "   ",
+        clarification: null,
+        refusalReason: null,
+      },
+    },
+    {
+      description: "report_request com campos adicionais",
+      response: {
+        intent: "report_request",
+        contextualizedQuestion: "Alguma pergunta",
+        clarification: null,
+        refusalReason: null,
+      },
+    },
+    {
+      description: "unclear sem esclarecimento",
+      response: {
+        intent: "unclear",
+        contextualizedQuestion: null,
+        clarification: null,
+        refusalReason: null,
+      },
+    },
+    {
+      description: "write_request sem motivo de recusa",
+      response: {
+        intent: "write_request",
+        contextualizedQuestion: null,
+        clarification: null,
+        refusalReason: null,
+      },
+    },
+    {
+      description: "out_of_domain com campos inconsistentes",
+      response: {
+        intent: "out_of_domain",
+        contextualizedQuestion: "Pergunta fora do domínio",
+        clarification: null,
+        refusalReason: "Fora do domínio.",
+      },
+    },
+  ] as Array<{
+    description: string;
+    response: OrchestratorIntent;
+  }>)("rejeita classificação inválida: $description", async ({ response }) => {
+    const fake = createFakeProvider(response);
+    const classifier = new OrchestratorClassifierService(fake.provider);
 
-        await expect(
-            classifier.classify({ message: "Mensagem de teste" }),
-        ).rejects.toMatchObject({
-            name: "LlmProviderError",
-            code: "INVALID_RESPONSE",
-        });
-        },
-    );
+    await expect(
+      classifier.classify({ message: "Mensagem de teste" }),
+    ).rejects.toMatchObject({
+      name: "LlmProviderError",
+      code: "INVALID_RESPONSE",
+    });
+  });
 
   it("envia o schema e o prompt de sistema ao provider", async () => {
     const fake = createFakeProvider({
@@ -173,7 +170,7 @@ describe("OrchestratorClassifierService", () => {
 
     const classifier = new OrchestratorClassifierService(fake.provider);
 
-    await classifier.classify({
+    const classification = await classifier.classify({
       message: "Gere um relatório.",
     });
 
@@ -181,6 +178,14 @@ describe("OrchestratorClassifierService", () => {
 
     expect(request?.schemaName).toBe("ctrpe_orchestrator_intent");
     expect(request?.systemPrompt).toBe(ORCHESTRATOR_SYSTEM_PROMPT);
+    expect(classification.metrics).toEqual({
+      provider: "test",
+      model: "test-model",
+      latencyMs: 1,
+      inputTokens: null,
+      outputTokens: null,
+      totalTokens: null,
+    });
   });
 
   it("considera somente os últimos dez turnos do histórico", async () => {
@@ -194,19 +199,17 @@ describe("OrchestratorClassifierService", () => {
     const classifier = new OrchestratorClassifierService(fake.provider);
 
     const history = Array.from({ length: 22 }, (_, index) => ({
-    role: index % 2 === 0 ? "user" as const : "assistant" as const,
-    content:
-        index === 0 ? "mensagem-antiga" : `mensagem-${index + 1}`,
+      role: index % 2 === 0 ? ("user" as const) : ("assistant" as const),
+      content: index === 0 ? "mensagem-antiga" : `mensagem-${index + 1}`,
     }));
-        await classifier.classify({
-        message: "Quantas estão abertas?",
-        history,
-        });
+    await classifier.classify({
+      message: "Quantas estão abertas?",
+      history,
+    });
 
     const userPrompt = fake.getReceivedRequest()?.userPrompt;
 
     expect(userPrompt).toContain(JSON.stringify(history.slice(-20)));
     expect(userPrompt).not.toContain("mensagem-antiga");
-
   });
 });

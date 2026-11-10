@@ -26,6 +26,7 @@ const actor: AuthUser = {
 const answered: OrchestratorResult = {
   status: "answered",
   intent: "data_question",
+  classificationMetrics: null,
   result: {
     status: "answered",
     mode: "single",

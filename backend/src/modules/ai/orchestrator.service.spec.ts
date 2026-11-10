@@ -3,12 +3,8 @@ import type {
   ClassifyIntentInput,
   OrchestratorClassifierService,
 } from "./orchestrator-classifier.service.js";
-import type {
-  OrchestratorIntent,
-} from "./orchestrator.js";
-import type {
-  GenerateQueryInput,
-} from "./query-generation.service.js";
+import type { OrchestratorIntent } from "./orchestrator.js";
+import type { GenerateQueryInput } from "./query-generation.service.js";
 import type {
   QueryAgentResult,
   QueryAgentService,
@@ -93,6 +89,7 @@ describe("OrchestratorService", () => {
     expect(result).toEqual({
       status: "answered",
       intent: "data_question",
+      classificationMetrics: null,
       result: answeredQueryResult,
     });
 
@@ -102,8 +99,7 @@ describe("OrchestratorService", () => {
     });
 
     expect(queryAgent.receivedInput).toEqual({
-      question:
-        "Quantas ordens de serviço foram abertas no mês passado?",
+      question: "Quantas ordens de serviço foram abertas no mês passado?",
       empresaId: "empresa-1",
     });
   });
@@ -118,6 +114,7 @@ describe("OrchestratorService", () => {
     expect(result).toEqual({
       status: "report_pending",
       intent: "report_request",
+      classificationMetrics: null,
       message:
         "A funcionalidade de geração de relatórios ainda não está disponível.",
     });
@@ -137,6 +134,7 @@ describe("OrchestratorService", () => {
     expect(result).toEqual({
       status: "clarification",
       intent: "unclear",
+      classificationMetrics: null,
       message: "Você deseja consultar qual período?",
     });
 
@@ -155,6 +153,7 @@ describe("OrchestratorService", () => {
     expect(result).toEqual({
       status: "refused",
       intent: "write_request",
+      classificationMetrics: null,
       message: "Não posso alterar ou excluir registros.",
     });
 
@@ -173,6 +172,7 @@ describe("OrchestratorService", () => {
     expect(result).toEqual({
       status: "refused",
       intent: "out_of_domain",
+      classificationMetrics: null,
       message: "Esse assunto não pertence ao domínio de manutenção.",
     });
 
@@ -198,6 +198,7 @@ describe("OrchestratorService", () => {
     expect(result).toEqual({
       status: "refused",
       intent: "data_question",
+      classificationMetrics: null,
       result: queryRefusal,
     });
   });

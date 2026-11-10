@@ -1,5 +1,12 @@
-import type { EvaluationCase, EvaluationCategory } from "./query-evaluation-dataset.js";
-import { QUERY_EXAMPLES, validateExpectedResult, type SyntheticTenantCode } from "../src/modules/ai/query-examples.js";
+import type {
+  EvaluationCase,
+  EvaluationCategory,
+} from "./query-evaluation-dataset.js";
+import {
+  QUERY_EXAMPLES,
+  validateExpectedResult,
+  type SyntheticTenantCode,
+} from "../src/modules/ai/query-examples.js";
 
 export interface EvaluationUsage {
   readonly provider: string;
@@ -13,12 +20,24 @@ export interface EvaluationUsage {
 export type EvaluationAgentOutput =
   | {
       readonly status: "answered";
-      readonly rowGroups: readonly (readonly Readonly<Record<string, unknown>>[])[];
+      readonly rowGroups: readonly (readonly Readonly<
+        Record<string, unknown>
+      >[])[];
       readonly usage: EvaluationUsage;
     }
   | {
       readonly status: "refused";
       readonly reason: string;
+      readonly usage: EvaluationUsage;
+    }
+  | {
+      readonly status: "clarification";
+      readonly message: string;
+      readonly usage: EvaluationUsage;
+    }
+  | {
+      readonly status: "report_pending";
+      readonly message: string;
       readonly usage: EvaluationUsage;
     };
 
@@ -73,7 +92,26 @@ export interface EvaluationRunnerOptions {
   readonly now?: () => number;
 }
 
-const examplesById = new Map(QUERY_EXAMPLES.map((example) => [example.id, example]));
+const examplesById = new Map(
+  QUERY_EXAMPLES.map((example) => [example.id, example]),
+);
+
+function normalizeText(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLocaleLowerCase("pt-BR");
+}
+
+function missingExpectedTerms(
+  message: string,
+  expectedTerms: readonly string[],
+): string[] {
+  const normalizedMessage = normalizeText(message);
+  return expectedTerms.filter(
+    (term) => !normalizedMessage.includes(normalizeText(term)),
+  );
+}
 
 function round(value: number, decimalPlaces = 4): number {
   const factor = 10 ** decimalPlaces;
@@ -88,28 +126,52 @@ function score(
   const expected = evaluationCase.expected;
 
   if (expected.kind === "clarification") {
-    return output.status === "refused" ? [] : ["o agente deveria solicitar esclarecimento antes de consultar"];
+    if (output.status !== "clarification") {
+      return ["o agente deveria solicitar esclarecimento antes de consultar"];
+    }
+    const missing = missingExpectedTerms(
+      output.message,
+      expected.responseIncludes,
+    );
+    return missing.map(
+      (term) => `o esclarecimento não menciona o contexto esperado: ${term}`,
+    );
   }
   if (expected.kind === "refusal") {
-    return output.status === "refused" ? [] : [`o agente deveria recusar o pedido por ${expected.reason}`];
+    if (output.status !== "refused") {
+      return [`o agente deveria recusar o pedido por ${expected.reason}`];
+    }
+    const missing = missingExpectedTerms(
+      output.reason,
+      expected.responseIncludes,
+    );
+    return missing.map(
+      (term) => `a recusa não contém o sinal esperado: ${term}`,
+    );
   }
   if (output.status !== "answered") {
     return ["o agente recusou uma pergunta que possui resultado consultável"];
   }
   if (output.rowGroups.length !== expected.steps.length) {
-    return [`quantidade de etapas esperada ${expected.steps.length}, recebida ${output.rowGroups.length}`];
+    return [
+      `quantidade de etapas esperada ${expected.steps.length}, recebida ${output.rowGroups.length}`,
+    ];
   }
 
   const failures: string[] = [];
   expected.steps.forEach((step, index) => {
     const example = examplesById.get(step.queryExampleId);
     if (!example) {
-      failures.push(`etapa ${index + 1}: referência desconhecida ${step.queryExampleId}`);
+      failures.push(
+        `etapa ${index + 1}: referência desconhecida ${step.queryExampleId}`,
+      );
       return;
     }
     const rows = output.rowGroups[index] ?? [];
     failures.push(
-      ...validateExpectedResult(rows, example.expected, tenantCode).map((failure) => `etapa ${index + 1}: ${failure}`),
+      ...validateExpectedResult(rows, example.expected, tenantCode).map(
+        (failure) => `etapa ${index + 1}: ${failure}`,
+      ),
     );
   });
   return failures;
@@ -120,14 +182,23 @@ function aggregate(results: readonly EvaluationResult[]): CategoryMetrics[] {
   return categories.map((category) => {
     const selected = results.filter((result) => result.category === category);
     const correct = selected.filter((result) => result.correct).length;
-    const tokenValues = selected.map((result) => result.totalTokens).filter((value): value is number => value !== null);
+    const tokenValues = selected
+      .map((result) => result.totalTokens)
+      .filter((value): value is number => value !== null);
     return {
       category,
       cases: selected.length,
       correct,
       precision: round(correct / selected.length),
-      averageLatencyMs: round(selected.reduce((total, result) => total + result.latencyMs, 0) / selected.length, 2),
-      totalTokens: tokenValues.length === 0 ? null : tokenValues.reduce((total, value) => total + value, 0),
+      averageLatencyMs: round(
+        selected.reduce((total, result) => total + result.latencyMs, 0) /
+          selected.length,
+        2,
+      ),
+      totalTokens:
+        tokenValues.length === 0
+          ? null
+          : tokenValues.reduce((total, value) => total + value, 0),
     };
   });
 }
@@ -145,7 +216,10 @@ export class QueryEvaluationRunner {
     for (const evaluationCase of dataset) {
       const startedAt = this.now();
       try {
-        const output = await this.options.adapter.run(evaluationCase.question, this.options.empresaId);
+        const output = await this.options.adapter.run(
+          evaluationCase.question,
+          this.options.empresaId,
+        );
         const details = score(evaluationCase, output, this.options.tenantCode);
         const correct = details.length === 0;
         results.push({
@@ -181,7 +255,9 @@ export class QueryEvaluationRunner {
           inputTokens: null,
           outputTokens: null,
           totalTokens: null,
-          details: [error instanceof Error ? error.message : "erro desconhecido"],
+          details: [
+            error instanceof Error ? error.message : "erro desconhecido",
+          ],
         });
       }
     }
@@ -192,7 +268,8 @@ export class QueryEvaluationRunner {
       tenantCode: this.options.tenantCode,
       totalCases: results.length,
       correctCases,
-      precision: results.length === 0 ? 0 : round(correctCases / results.length),
+      precision:
+        results.length === 0 ? 0 : round(correctCases / results.length),
       results,
       categories: aggregate(results),
     };
@@ -227,7 +304,10 @@ export function serializeEvaluationCsv(report: EvaluationReport): string {
   const lines = [columns.join(",")];
 
   for (const result of report.results) {
-    const row: Record<(typeof columns)[number], string | number | boolean | null> = {
+    const row: Record<
+      (typeof columns)[number],
+      string | number | boolean | null
+    > = {
       executedAt: result.executedAt,
       tenantCode: report.tenantCode,
       caseId: result.caseId,
@@ -250,4 +330,3 @@ export function serializeEvaluationCsv(report: EvaluationReport): string {
 
   return `${lines.join("\n")}\n`;
 }
-

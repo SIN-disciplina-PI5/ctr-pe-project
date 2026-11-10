@@ -1,6 +1,8 @@
 import { describe, expect, it } from "@jest/globals";
 import type { QueryAgentService } from "../../src/modules/ai/query-agent.service.js";
 import { QueryAgentEvaluationAdapter } from "../../evaluation/query-agent-evaluation-adapter.js";
+import { OrchestratorEvaluationAdapter } from "../../evaluation/orchestrator-evaluation-adapter.js";
+import type { OrchestratorService } from "../../src/modules/ai/orchestrator.service.js";
 import { QUERY_EVALUATION_DATASET } from "../../evaluation/query-evaluation-dataset.js";
 import {
   QueryEvaluationRunner,
@@ -22,14 +24,33 @@ const usage = {
 describe("QueryEvaluationRunner", () => {
   it("avalia casos em ordem, calcula métricas por categoria e é determinístico", async () => {
     const selected = [
-      QUERY_EVALUATION_DATASET.find((item) => item.id === "direct-total-ativos")!,
-      QUERY_EVALUATION_DATASET.find((item) => item.id === "refused-apagar-ordens")!,
-      QUERY_EVALUATION_DATASET.find((item) => item.id === "ambiguous-gasto-periodo")!,
+      QUERY_EVALUATION_DATASET.find(
+        (item) => item.id === "direct-total-ativos",
+      )!,
+      QUERY_EVALUATION_DATASET.find(
+        (item) => item.id === "refused-apagar-ordens",
+      )!,
+      QUERY_EVALUATION_DATASET.find(
+        (item) => item.id === "ambiguous-gasto-periodo",
+      )!,
     ];
     const answers = new Map<string, EvaluationAgentOutput>([
-      [selected[0]!.question, { status: "answered", rowGroups: [[{ total: 18 }]], usage }],
-      [selected[1]!.question, { status: "refused", reason: "Operação de escrita não permitida.", usage }],
-      [selected[2]!.question, { status: "answered", rowGroups: [[{ total: 1 }]], usage }],
+      [
+        selected[0]!.question,
+        { status: "answered", rowGroups: [[{ total: 18 }]], usage },
+      ],
+      [
+        selected[1]!.question,
+        {
+          status: "refused",
+          reason: "Não posso executar: o agente é somente leitura.",
+          usage,
+        },
+      ],
+      [
+        selected[2]!.question,
+        { status: "answered", rowGroups: [[{ total: 1 }]], usage },
+      ],
     ]);
     const adapter: EvaluationAdapter = {
       run: async (question) => answers.get(question)!,
@@ -48,12 +69,39 @@ describe("QueryEvaluationRunner", () => {
     const second = await new QueryEvaluationRunner(options).run(selected);
 
     expect(second).toEqual(first);
-    expect(first).toMatchObject({ totalCases: 3, correctCases: 2, precision: 0.6667 });
-    expect(first.results.map((result) => result.caseId)).toEqual(selected.map((item) => item.id));
+    expect(first).toMatchObject({
+      totalCases: 3,
+      correctCases: 2,
+      precision: 0.6667,
+    });
+    expect(first.results.map((result) => result.caseId)).toEqual(
+      selected.map((item) => item.id),
+    );
     expect(first.categories).toEqual([
-      { category: "direct", cases: 1, correct: 1, precision: 1, averageLatencyMs: 15, totalTokens: 15 },
-      { category: "refused", cases: 1, correct: 1, precision: 1, averageLatencyMs: 15, totalTokens: 15 },
-      { category: "ambiguous", cases: 1, correct: 0, precision: 0, averageLatencyMs: 15, totalTokens: 15 },
+      {
+        category: "direct",
+        cases: 1,
+        correct: 1,
+        precision: 1,
+        averageLatencyMs: 15,
+        totalTokens: 15,
+      },
+      {
+        category: "refused",
+        cases: 1,
+        correct: 1,
+        precision: 1,
+        averageLatencyMs: 15,
+        totalTokens: 15,
+      },
+      {
+        category: "ambiguous",
+        cases: 1,
+        correct: 0,
+        precision: 0,
+        averageLatencyMs: 15,
+        totalTokens: 15,
+      },
     ]);
   });
 
@@ -79,14 +127,26 @@ describe("QueryEvaluationRunner", () => {
     }).run(selected);
 
     expect(report.results).toHaveLength(2);
-    expect(report.results[0]).toMatchObject({ actualStatus: "error", latencyMs: 15, details: ["falha controlada"] });
+    expect(report.results[0]).toMatchObject({
+      actualStatus: "error",
+      latencyMs: 15,
+      details: ["falha controlada"],
+    });
     expect(report.results[1]?.actualStatus).toBe("refused");
   });
 
   it("exporta CSV estável com escape de texto", async () => {
-    const selected = [QUERY_EVALUATION_DATASET.find((item) => item.id === "direct-total-ativos")!];
+    const selected = [
+      QUERY_EVALUATION_DATASET.find(
+        (item) => item.id === "direct-total-ativos",
+      )!,
+    ];
     const adapter: EvaluationAdapter = {
-      run: async () => ({ status: "answered", rowGroups: [[{ total: 18 }]], usage }),
+      run: async () => ({
+        status: "answered",
+        rowGroups: [[{ total: 18 }]],
+        usage,
+      }),
     };
     const report = await new QueryEvaluationRunner({
       adapter,
@@ -143,18 +203,110 @@ describe("QueryAgentEvaluationAdapter", () => {
       }),
     } as Pick<QueryAgentService, "query">;
 
-    await expect(new QueryAgentEvaluationAdapter(agent, { provider: "groq", model: "fallback" }).run("ativos", "e1"))
-      .resolves.toEqual({
-        status: "answered",
-        rowGroups: [[{ codigo: "CT-07" }]],
-        usage: {
-          provider: "groq",
-          model: "modelo",
-          latencyMs: 17,
-          inputTokens: 16,
-          outputTokens: 8,
-          totalTokens: 24,
+    await expect(
+      new QueryAgentEvaluationAdapter(agent, {
+        provider: "groq",
+        model: "fallback",
+      }).run("ativos", "e1"),
+    ).resolves.toEqual({
+      status: "answered",
+      rowGroups: [[{ codigo: "CT-07" }]],
+      usage: {
+        provider: "groq",
+        model: "modelo",
+        latencyMs: 17,
+        inputTokens: 16,
+        outputTokens: 8,
+        totalTokens: 24,
+      },
+    });
+  });
+});
+
+describe("OrchestratorEvaluationAdapter", () => {
+  const classificationMetrics = {
+    provider: "groq",
+    model: "modelo-classificador",
+    latencyMs: 2,
+    inputTokens: 2,
+    outputTokens: 1,
+    totalTokens: 3,
+  };
+
+  it("distingue esclarecimento de recusa", async () => {
+    const orchestrator = {
+      handle: async () => ({
+        status: "clarification" as const,
+        intent: "unclear" as const,
+        message: "Informe o período e o tipo de custo.",
+        classificationMetrics,
+      }),
+    } as Pick<OrchestratorService, "handle">;
+
+    await expect(
+      new OrchestratorEvaluationAdapter(orchestrator, {
+        provider: "fallback",
+        model: "fallback",
+      }).run("Quanto gastamos?", "empresa-1"),
+    ).resolves.toEqual({
+      status: "clarification",
+      message: "Informe o período e o tipo de custo.",
+      usage: {
+        provider: "groq",
+        model: "modelo-classificador",
+        latencyMs: 2,
+        inputTokens: 2,
+        outputTokens: 1,
+        totalTokens: 3,
+      },
+    });
+  });
+
+  it("soma métricas do classificador, consulta e execução", async () => {
+    const orchestrator = {
+      handle: async () => ({
+        status: "answered" as const,
+        intent: "data_question" as const,
+        classificationMetrics,
+        result: {
+          status: "answered" as const,
+          mode: "single" as const,
+          answer: "Há um ativo parado.",
+          sql: 'SELECT "codigo" FROM ai."Ativo" LIMIT 100',
+          rowsUsed: [{ codigo: "CT-07" }],
+          execution: { rowCount: 1, latencyMs: 4 },
+          correctionApplied: false,
+          correctionMetrics: null,
+          answerMetrics: null,
+          relevantViews: ["Ativo" as const],
+          generation: {
+            provider: "groq",
+            model: "modelo-consulta",
+            latencyMs: 8,
+            inputTokens: 10,
+            outputTokens: 5,
+            totalTokens: 15,
+          },
         },
-      });
+      }),
+    } as Pick<OrchestratorService, "handle">;
+
+    await expect(
+      new OrchestratorEvaluationAdapter(orchestrator, {
+        provider: "fallback",
+        model: "fallback",
+      }).run("Qual ativo está parado?", "empresa-1"),
+    ).resolves.toEqual({
+      status: "answered",
+      rowGroups: [[{ codigo: "CT-07" }]],
+      usage: {
+        provider: "groq",
+        model: "modelo-classificador + modelo-consulta",
+        latencyMs: 14,
+        inputTokens: 12,
+        outputTokens: 6,
+        totalTokens: 18,
+      },
+    });
   });
 });

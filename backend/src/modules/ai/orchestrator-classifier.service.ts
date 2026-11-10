@@ -1,5 +1,5 @@
-
 import type { LlmProvider } from "./llm-provider.js";
+import type { GenerationMetrics } from "./query-generation.service.js";
 import {
   validateOrchestratorIntent,
   orchestratorIntentSchema,
@@ -17,10 +17,34 @@ export interface ClassifyIntentInput {
   readonly history?: readonly ConversationTurn[];
 }
 
+export type OrchestratorClassification = OrchestratorIntent & {
+  readonly metrics: GenerationMetrics;
+};
+
+function metricsOf(result: {
+  readonly provider: string;
+  readonly model: string;
+  readonly latencyMs: number;
+  readonly inputTokens: number | null;
+  readonly outputTokens: number | null;
+  readonly totalTokens: number | null;
+}): GenerationMetrics {
+  return {
+    provider: result.provider,
+    model: result.model,
+    latencyMs: result.latencyMs,
+    inputTokens: result.inputTokens,
+    outputTokens: result.outputTokens,
+    totalTokens: result.totalTokens,
+  };
+}
+
 export class OrchestratorClassifierService {
   constructor(private readonly provider: LlmProvider) {}
 
-  async classify(input: ClassifyIntentInput): Promise<OrchestratorIntent> {
+  async classify(
+    input: ClassifyIntentInput,
+  ): Promise<OrchestratorClassification> {
     const MAX_HISTORY_TURNS = 10;
     const history = (input.history ?? []).slice(-(MAX_HISTORY_TURNS * 2));
 
@@ -41,6 +65,9 @@ export class OrchestratorClassifierService {
       userPrompt,
     });
 
-    return validateOrchestratorIntent(result.data);
+    return {
+      ...validateOrchestratorIntent(result.data),
+      metrics: metricsOf(result),
+    };
   }
 }
