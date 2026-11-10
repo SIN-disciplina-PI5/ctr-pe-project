@@ -5,6 +5,7 @@ import type {
 import type { OrchestratorClassifierService } from "./orchestrator-classifier.service.js";
 import type { ConversationTurn } from "./orchestrator-classifier.service.js";
 import type { GenerationMetrics } from "./query-generation.service.js";
+import type { GeneratedReport, ReportAgent } from "./report-agent.service.js";
 
 interface OrchestratorMetrics {
   readonly classificationMetrics: GenerationMetrics | null;
@@ -33,6 +34,12 @@ export type OrchestratorResult =
       readonly message: string;
     })
   | (OrchestratorMetrics & {
+      readonly status: "report_generated";
+      readonly intent: "report_request";
+      readonly message: string;
+      readonly report: GeneratedReport;
+    })
+  | (OrchestratorMetrics & {
       readonly status: "clarification";
       readonly intent: "unclear";
       readonly message: string;
@@ -47,6 +54,7 @@ export class OrchestratorService {
   constructor(
     private readonly classifier: OrchestratorClassifierService,
     private readonly queryAgent: QueryAgentService,
+    private readonly reportAgent?: ReportAgent,
   ) {}
 
   async handle(input: OrchestratorInput): Promise<OrchestratorResult> {
@@ -80,7 +88,21 @@ export class OrchestratorService {
         };
       }
 
-      case "report_request":
+      case "report_request": {
+        if (this.reportAgent) {
+          const report = await this.reportAgent.generate({
+            request: input.message,
+            empresaId: input.empresaId,
+          });
+          return {
+            status: "report_generated",
+            intent: "report_request",
+            message: `Relatório \"${report.title}\" gerado com sucesso.`,
+            report,
+            classificationMetrics,
+          };
+        }
+
         return {
           status: "report_pending",
           intent: "report_request",
@@ -88,6 +110,7 @@ export class OrchestratorService {
             "A funcionalidade de geração de relatórios ainda não está disponível.",
           classificationMetrics,
         };
+      }
 
       case "unclear":
         return {

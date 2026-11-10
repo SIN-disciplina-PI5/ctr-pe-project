@@ -6,7 +6,11 @@ export type ChatIntent =
   | "out_of_domain";
 
 export type ChatStatus =
-  "answered" | "refused" | "report_pending" | "clarification";
+  | "answered"
+  | "refused"
+  | "report_pending"
+  | "report_generated"
+  | "clarification";
 
 export type QueryRow = Record<string, unknown>;
 
@@ -42,6 +46,29 @@ type RefusedQuery = {
   reason: string;
 };
 
+export type GeneratedReport = {
+  status: "generated";
+  reportType: "monthly_maintenance" | "asset_costs" | "availability";
+  title: string;
+  sections: Array<{
+    id: string;
+    title: string;
+    status: "ready" | "empty" | "refused";
+    narrative: string;
+    table: {
+      columns: string[];
+      rows: QueryRow[];
+    } | null;
+    chart: {
+      type: "bar" | "line";
+      series: Array<{
+        name: string;
+        data: Array<{ label: string; value: number }>;
+      }>;
+    } | null;
+  }>;
+};
+
 export type ChatResponse = {
   id: string;
   conversationId: string;
@@ -58,6 +85,12 @@ export type ChatResponse = {
         status: "report_pending" | "clarification" | "refused";
         intent: Exclude<ChatIntent, "data_question">;
         message: string;
+      }
+    | {
+        status: "report_generated";
+        intent: "report_request";
+        message: string;
+        report: GeneratedReport;
       };
 };
 

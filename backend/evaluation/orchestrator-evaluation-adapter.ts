@@ -99,7 +99,10 @@ export class OrchestratorEvaluationAdapter implements EvaluationAdapter {
         usage: classificationUsage,
       };
     }
-    if (result.status === "report_pending") {
+    if (
+      result.status === "report_pending" ||
+      result.status === "report_generated"
+    ) {
       return {
         status: "report_pending",
         message: result.message,
