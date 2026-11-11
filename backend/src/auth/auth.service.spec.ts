@@ -54,6 +54,82 @@ describe("AuthService.signUp", () => {
       empresaId: user.empresaId,
     });
   });
+
+  it("recusa e-mail já cadastrado antes de consultar a empresa", async () => {
+    jest
+      .spyOn(AuthRepository.prototype, "findByEmail")
+      .mockResolvedValue(user as never);
+    const findEmpresaById = jest.spyOn(
+      AuthRepository.prototype,
+      "findEmpresaById",
+    );
+    const createInactiveSignupUser = jest.spyOn(
+      AuthRepository.prototype,
+      "createInactiveSignupUser",
+    );
+
+    await expect(
+      new AuthService().signUp({
+        nome: user.nome,
+        email: user.email,
+        password: "senha-segura",
+        empresaId: user.empresaId,
+      }),
+    ).rejects.toMatchObject({
+      statusCode: 409,
+      errorCode: "CONFLICT",
+      message: "Email já está em uso",
+    });
+    expect(findEmpresaById).not.toHaveBeenCalled();
+    expect(createInactiveSignupUser).not.toHaveBeenCalled();
+  });
+
+  it("recusa empresa inexistente sem gerar hash de senha", async () => {
+    jest.spyOn(AuthRepository.prototype, "findByEmail").mockResolvedValue(null);
+    jest
+      .spyOn(AuthRepository.prototype, "findEmpresaById")
+      .mockResolvedValue(null);
+    const hash = jest.spyOn(bcrypt, "hash");
+
+    await expect(
+      new AuthService().signUp({
+        nome: user.nome,
+        email: user.email,
+        password: "senha-segura",
+        empresaId: "empresa-inexistente",
+      }),
+    ).rejects.toMatchObject({
+      statusCode: 404,
+      errorCode: "NOT_FOUND",
+      message: "Empresa não encontrada",
+    });
+    expect(hash).not.toHaveBeenCalled();
+  });
+
+  it("recusa empresa inativa sem criar o usuário", async () => {
+    jest.spyOn(AuthRepository.prototype, "findByEmail").mockResolvedValue(null);
+    jest
+      .spyOn(AuthRepository.prototype, "findEmpresaById")
+      .mockResolvedValue({ id: user.empresaId, ativa: false } as never);
+    const createInactiveSignupUser = jest.spyOn(
+      AuthRepository.prototype,
+      "createInactiveSignupUser",
+    );
+
+    await expect(
+      new AuthService().signUp({
+        nome: user.nome,
+        email: user.email,
+        password: "senha-segura",
+        empresaId: user.empresaId,
+      }),
+    ).rejects.toMatchObject({
+      statusCode: 403,
+      errorCode: "FORBIDDEN",
+      message: "Empresa inativa",
+    });
+    expect(createInactiveSignupUser).not.toHaveBeenCalled();
+  });
 });
 
 describe("AuthService.signIn", () => {
