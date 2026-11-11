@@ -1,5 +1,5 @@
 import { apiClient } from "../api/api-client";
-import type { Usuario, PerfilUsuario } from "@/features/usuarios/usuarios.types";
+import type { Usuario } from "@/features/usuarios/usuarios.types";
 
 type LoginCredentials = {
   email: string;
@@ -16,12 +16,11 @@ type SignupEmpresa = {
   nome: string;
 };
 
-type SignUpTestingInput = {
+type SignUpInput = {
   nome: string;
   email: string;
   password: string;
   empresaId: string;
-  perfil: PerfilUsuario;
 };
 
 export const authService = {
@@ -30,7 +29,9 @@ export const authService = {
       const response = await apiClient.post("/auth/sign-in", credentials);
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || "Erro ao realizar autenticação");
+      throw new Error(
+        error.response?.data?.error || "Erro ao realizar autenticação",
+      );
     }
   },
 
@@ -39,7 +40,9 @@ export const authService = {
       const response = await apiClient.get("/auth/me");
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || "Erro ao carregar usuário autenticado");
+      throw new Error(
+        error.response?.data?.error || "Erro ao carregar usuário autenticado",
+      );
     }
   },
 
@@ -48,8 +51,8 @@ export const authService = {
     return response.data;
   },
 
-  async signUpTesting(payload: SignUpTestingInput) {
-    const response = await apiClient.post("/auth/sign-up-testing", payload);
+  async signUp(payload: SignUpInput) {
+    const response = await apiClient.post("/auth/sign-up", payload);
     return response.data;
   },
 

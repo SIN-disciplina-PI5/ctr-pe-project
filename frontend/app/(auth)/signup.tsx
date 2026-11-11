@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link, useRouter } from "expo-router";
-import { View, ScrollView, Pressable, ActivityIndicator, Alert } from "react-native";
+import {
+  View,
+  ScrollView,
+  Pressable,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,15 +24,11 @@ import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/text";
 import { signupSchema } from "@/features/auth/auth.schemas";
 import { authService } from "@/infrastructure/auth/auth.service";
-import type { PerfilUsuario } from "@/features/usuarios/usuarios.types";
-
-const PERFIS: PerfilUsuario[] = ["ADMIN", "GESTOR", "SUPERVISOR", "TECNICO", "CONSULTA"];
 
 type FormData = {
   nome: string;
   email: string;
   empresaId: string;
-  perfil: PerfilUsuario;
   senha: string;
   confirmarSenha: string;
 };
@@ -54,14 +56,12 @@ export default function SignUpScreen() {
       nome: "",
       email: "",
       empresaId: "",
-      perfil: "CONSULTA",
       senha: "",
       confirmarSenha: "",
     },
   });
 
   const empresaId = watch("empresaId");
-  const perfil = watch("perfil");
 
   useEffect(() => {
     async function loadEmpresas() {
@@ -69,7 +69,10 @@ export default function SignUpScreen() {
         const result = await authService.listSignupEmpresas();
         setEmpresas(result);
       } catch {
-        Alert.alert("Erro", "Não foi possível carregar as empresas disponíveis.");
+        Alert.alert(
+          "Erro",
+          "Não foi possível carregar as empresas disponíveis.",
+        );
       } finally {
         setLoadingEmpresas(false);
       }
@@ -82,21 +85,23 @@ export default function SignUpScreen() {
     try {
       setSubmitting(true);
 
-      await authService.signUpTesting({
+      await authService.signUp({
         nome: data.nome.trim(),
         email: data.email.trim(),
         password: data.senha,
         empresaId: data.empresaId,
-        perfil: data.perfil,
       });
 
       Alert.alert(
         "Cadastro realizado",
-        "Usuário criado com sucesso. Agora você já pode fazer login.",
+        "Seu cadastro foi enviado. Aguarde a ativação por um administrador.",
         [{ text: "OK", onPress: () => router.replace("/(auth)/login") }],
       );
     } catch (error: any) {
-      Alert.alert("Erro no cadastro", error.message || "Não foi possível criar o usuário.");
+      Alert.alert(
+        "Erro no cadastro",
+        error.message || "Não foi possível criar o usuário.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -104,7 +109,10 @@ export default function SignUpScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
         <View className="flex-1 items-center justify-center px-6 py-8">
           <View className="w-full max-w-sm">
             <Card className="border-border bg-card">
@@ -113,7 +121,7 @@ export default function SignUpScreen() {
                   Criar Conta
                 </CardTitle>
                 <CardDescription className="text-center">
-                  Cadastro de teste para acesso imediato ao sistema
+                  Cadastre-se para solicitar acesso ao sistema
                 </CardDescription>
               </CardHeader>
 
@@ -135,7 +143,9 @@ export default function SignUpScreen() {
                     )}
                   />
                   {errors.nome ? (
-                    <Text className="text-xs text-destructive">{String(errors.nome.message)}</Text>
+                    <Text className="text-xs text-destructive">
+                      {String(errors.nome.message)}
+                    </Text>
                   ) : null}
                 </View>
 
@@ -157,7 +167,9 @@ export default function SignUpScreen() {
                     )}
                   />
                   {errors.email ? (
-                    <Text className="text-xs text-destructive">{String(errors.email.message)}</Text>
+                    <Text className="text-xs text-destructive">
+                      {String(errors.email.message)}
+                    </Text>
                   ) : null}
                 </View>
 
@@ -198,36 +210,6 @@ export default function SignUpScreen() {
                 </View>
 
                 <View className="gap-2">
-                  <Label>Perfil</Label>
-                  <View className="flex-row flex-wrap gap-2">
-                    {PERFIS.map((item) => (
-                      <Pressable
-                        key={item}
-                        onPress={() => setValue("perfil", item)}
-                        className={`rounded-full border px-3 py-1.5 ${
-                          perfil === item
-                            ? "border-primary bg-primary"
-                            : "border-border bg-background"
-                        }`}
-                      >
-                        <Text
-                          className={
-                            perfil === item
-                              ? "text-primary-foreground text-xs"
-                              : "text-foreground text-xs"
-                          }
-                        >
-                          {item}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                  {errors.perfil ? (
-                    <Text className="text-xs text-destructive">{String(errors.perfil.message)}</Text>
-                  ) : null}
-                </View>
-
-                <View className="gap-2">
                   <Label nativeID="senha">Senha</Label>
                   <Controller
                     control={control}
@@ -245,7 +227,9 @@ export default function SignUpScreen() {
                     )}
                   />
                   {errors.senha ? (
-                    <Text className="text-xs text-destructive">{String(errors.senha.message)}</Text>
+                    <Text className="text-xs text-destructive">
+                      {String(errors.senha.message)}
+                    </Text>
                   ) : null}
                 </View>
 
@@ -282,7 +266,9 @@ export default function SignUpScreen() {
                 </Button>
 
                 <View className="flex-row justify-center gap-1 mt-2">
-                  <Text className="text-muted-foreground">Já tem uma conta?</Text>
+                  <Text className="text-muted-foreground">
+                    Já tem uma conta?
+                  </Text>
                   <Link href="/(auth)/login" asChild>
                     <Text className="text-primary underline">Fazer login</Text>
                   </Link>
