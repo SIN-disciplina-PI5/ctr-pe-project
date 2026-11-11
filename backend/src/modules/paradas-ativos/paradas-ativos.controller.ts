@@ -1,12 +1,12 @@
 import type { Request, Response, NextFunction } from "express";
 import { ParadasAtivosService } from "./paradas-ativos.service.js";
-import { getCurrentUser } from "../../common/utils/get-current-user.js";
+import { getCurrentCompanyUser } from "../../common/utils/get-current-user.js";
 
 const paradasAtivosService = new ParadasAtivosService();
 
 export async function findAll(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { ativoId, status, from, to } = req.query as {
       ativoId?: string;
       status?: "ABERTA" | "ENCERRADA" | "CANCELADA";
@@ -31,7 +31,7 @@ export async function findAll(req: Request, res: Response, next: NextFunction) {
 
 export async function findById(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { id } = req.params as { id: string };
     const result = await paradasAtivosService.findById(id, currentUser.empresaId);
     return res.status(200).json(result);
@@ -42,7 +42,7 @@ export async function findById(req: Request, res: Response, next: NextFunction) 
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { empresaId: _, ...bodyData } = req.body;
 
     const result = await paradasAtivosService.create({
@@ -57,7 +57,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function update(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { id } = req.params as { id: string };
 
     const result = await paradasAtivosService.update(id, currentUser.empresaId, req.body);
@@ -69,7 +69,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
 
 export async function encerrar(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { id } = req.params as { id: string };
     const { fimEm } = req.body as { fimEm?: string };
 
@@ -82,7 +82,7 @@ export async function encerrar(req: Request, res: Response, next: NextFunction) 
 
 export async function cancelar(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { id } = req.params as { id: string };
     const { motivo } = req.body as { motivo?: string };
 

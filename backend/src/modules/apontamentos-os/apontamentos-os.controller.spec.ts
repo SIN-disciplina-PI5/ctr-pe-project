@@ -63,7 +63,7 @@ describe("apontamentos-os.controller", () => {
 
         const req = {
             params: { ordemServicoId: "os-1" },
-            user: { id: "user-1" },
+            user: { id: "user-1", empresaId: "empresa-1" },
             body: {
                 inicioEm: "2026-06-11T10:00:00.000Z",
                 descricao: "Teste",
@@ -76,6 +76,7 @@ describe("apontamentos-os.controller", () => {
         expect(ApontamentosOSService.prototype.create).toHaveBeenCalledWith({
             ordemServicoId: "os-1",
             usuarioId: "user-1",
+            empresaId: "empresa-1",
             inicioEm: new Date("2026-06-11T10:00:00.000Z"),
             descricao: "Teste",
             custoHora: 50,
@@ -88,7 +89,7 @@ describe("apontamentos-os.controller", () => {
 
         const req = {
             params: { ordemServicoId: "os-1" },
-            user: { id: "user-1" },
+            user: { id: "user-1", empresaId: "empresa-1" },
             body: {},
         } as unknown as Request;
 
@@ -103,7 +104,7 @@ describe("apontamentos-os.controller", () => {
 
         const req = {
             params: { ordemServicoId: "os-1" },
-            user: { id: "user-1" },
+            user: { id: "user-1", empresaId: "empresa-1" },
             body: { inicioEm: "data-invalida" },
         } as unknown as Request;
 

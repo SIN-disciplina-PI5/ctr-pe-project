@@ -61,6 +61,18 @@
         });
     }
 
+    async findMaterialByIdForEmpresa(materialId: string, empresaId: string) {
+        return prisma.material.findFirst({
+        where: { id: materialId, empresaId },
+        select: {
+            id: true,
+            estoqueAtual: true,
+            custoMedio: true,
+            ativo: true,
+        },
+        });
+    }
+
     async create(data: CreateOSMaterialData) {
         const custoTotal = new Prisma.Decimal(data.custoUnitario).times(data.quantidade);
 

@@ -3,13 +3,13 @@ import { OrdensServicoService } from "./ordens-servico.service.js";
 import { canIniciarOS, canAguardarPecaOS, canRetomarOS, canEncerrarOS, canCancelarOS } from "./ordens-servico.policy.js";
 import { AppError } from "../../common/errors/AppError.js";
 import { ErrorCode } from "../../common/errors/error-code.js";
-import { getCurrentUser } from "../../common/utils/get-current-user.js";
+import { getCurrentCompanyUser } from "../../common/utils/get-current-user.js";
 
 const ordensServicoService = new OrdensServicoService();
 
 export async function findAll(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { ativoId, responsavelId, status, prioridade, search } =
       req.query as {
         ativoId?: string;
@@ -37,7 +37,7 @@ export async function findAll(req: Request, res: Response, next: NextFunction) {
 
 export async function findById(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { id } = req.params as { id: string };
     const result = await ordensServicoService.findById(id, currentUser.empresaId);
     return res.status(200).json(result);
@@ -48,7 +48,7 @@ export async function findById(req: Request, res: Response, next: NextFunction) 
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { empresaId: _, ...bodyData } = req.body; // Remove company ID from body if present
 
     const result = await ordensServicoService.create({
@@ -63,7 +63,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function update(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { id } = req.params as { id: string };
     const { empresaId: _, ...bodyData } = req.body;
 
@@ -76,7 +76,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
 
 export async function iniciar(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const actor = req.user!;
     const { id } = req.params as { id: string };
     const { iniciadaEm } = (req.body ?? {}) as { iniciadaEm?: string };
@@ -96,7 +96,7 @@ export async function iniciar(req: Request, res: Response, next: NextFunction) {
 
 export async function aguardarPeca(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const actor = req.user!;
     const { id } = req.params as { id: string };
     const { observacao } = req.body as { observacao?: string };
@@ -116,7 +116,7 @@ export async function aguardarPeca(req: Request, res: Response, next: NextFuncti
 
 export async function retomar(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const actor = req.user!;
     const { id } = req.params as { id: string };
     const { observacao } = req.body as { observacao?: string };
@@ -136,7 +136,7 @@ export async function retomar(req: Request, res: Response, next: NextFunction) {
 
 export async function encerrar(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const actor = req.user!;
     const { id } = req.params as { id: string };
     const { diagnostico, solucao, observacao, encerradaEm } = req.body as {
@@ -166,7 +166,7 @@ export async function encerrar(req: Request, res: Response, next: NextFunction) 
 
 export async function cancelar(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const actor = req.user!;
     const { id } = req.params as { id: string };
     const { motivo, canceladaEm } = req.body as {

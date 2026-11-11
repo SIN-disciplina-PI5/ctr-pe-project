@@ -1,13 +1,13 @@
 import type { Request, Response, NextFunction } from "express";
 import { AtivosService } from "./ativos.service.js";
-import { getCurrentUser } from "../../common/utils/get-current-user.js";
+import { getCurrentCompanyUser } from "../../common/utils/get-current-user.js";
 import type { TipoAtivo, StatusAtivo, Criticidade } from "@prisma/client";
 
 const ativosService = new AtivosService();
 
 export async function findAll(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { localizacaoId, status, tipo, criticidade, search } = req.query as {
       localizacaoId?: string;
       status?: StatusAtivo;
@@ -34,7 +34,7 @@ export async function findAll(req: Request, res: Response, next: NextFunction) {
 
 export async function findById(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { id } = req.params as { id: string };
     const result = await ativosService.findById(id, currentUser.empresaId);
     return res.status(200).json(result);
@@ -45,7 +45,7 @@ export async function findById(req: Request, res: Response, next: NextFunction) 
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { empresaId: _, ...bodyData } = req.body; // Remove empresaId vindo do body se existir
 
     const result = await ativosService.create({
@@ -60,7 +60,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function update(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { id } = req.params as { id: string };
     const { empresaId: _, ...bodyData } = req.body; // Ignora empresaId se passado no body
 
@@ -73,7 +73,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
 
 export async function updateStatus(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { id } = req.params as { id: string };
     const { status } = req.body as { status: StatusAtivo };
 
@@ -86,7 +86,7 @@ export async function updateStatus(req: Request, res: Response, next: NextFuncti
 
 export async function remove(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { id } = req.params as { id: string };
 
     await ativosService.delete(id, currentUser.empresaId);

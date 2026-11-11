@@ -1,12 +1,12 @@
 import type { Request, Response, NextFunction } from "express";
 import { MateriaisService } from "./materiais.service.js";
-import { getCurrentUser } from "../../common/utils/get-current-user.js";
+import { getCurrentCompanyUser } from "../../common/utils/get-current-user.js";
 
 const materiaisService = new MateriaisService();
 
 export async function findAll(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { search, ativo, estoqueBaixo } = req.query as {
       search?: string;
       ativo?: string;
@@ -29,7 +29,7 @@ export async function findAll(req: Request, res: Response, next: NextFunction) {
 
 export async function findById(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { id } = req.params as { id: string };
     const result = await materiaisService.findById(id, currentUser.empresaId);
     return res.status(200).json(result);
@@ -40,7 +40,7 @@ export async function findById(req: Request, res: Response, next: NextFunction) 
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { empresaId: _, ...bodyData } = req.body; // Ignora empresaId vindo no body
 
     const result = await materiaisService.create({
@@ -55,7 +55,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function update(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { id } = req.params as { id: string };
     const { empresaId: _, ...bodyData } = req.body; // Ignora empresaId vindo no body
 
@@ -68,7 +68,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
 
 export async function updateEstoque(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { id } = req.params as { id: string };
 
     const result = await materiaisService.updateEstoque(id, currentUser.empresaId, req.body);
@@ -80,7 +80,7 @@ export async function updateEstoque(req: Request, res: Response, next: NextFunct
 
 export async function remove(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { id } = req.params as { id: string };
 
     await materiaisService.delete(id, currentUser.empresaId);

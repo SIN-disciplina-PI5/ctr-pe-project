@@ -1,13 +1,13 @@
 import type { NextFunction, Request, Response } from "express";
 import type { TipoAcaoAuditoria } from "@prisma/client";
 import { AuditoriaService } from "./auditoria.service.js";
-import { getCurrentUser } from "../../common/utils/get-current-user.js";
+import { getCurrentCompanyUser } from "../../common/utils/get-current-user.js";
 
 const auditoriaService = new AuditoriaService();
 
 export async function findAll(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { usuarioId, entidade, entidadeId, acao, limit } =
       req.query as {
         usuarioId?: string;
@@ -35,7 +35,7 @@ export async function findAll(req: Request, res: Response, next: NextFunction) {
 
 export async function findById(req: Request, res: Response, next: NextFunction) {
   try {
-    const currentUser = getCurrentUser(req);
+    const currentUser = getCurrentCompanyUser(req);
     const { id } = req.params as { id: string };
     const result = await auditoriaService.findById(id, currentUser.empresaId);
     return res.status(200).json(result);

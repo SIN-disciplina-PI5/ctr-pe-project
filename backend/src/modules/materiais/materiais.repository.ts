@@ -132,10 +132,8 @@ export class MateriaisRepository {
   }
 
   async update(id: string, empresaId: string, data: UpdateMaterialData) {
-    if (!id || !empresaId) return null;
-
     return prisma.material.update({
-      where: { id },
+      where: { id, empresaId },
       data,
       select: {
         id: true,
@@ -154,10 +152,8 @@ export class MateriaisRepository {
   }
 
   async updateEstoque(id: string, empresaId: string, estoqueAtual: Prisma.Decimal) {
-    if (!id || !empresaId) return null;
-
     return prisma.material.update({
-      where: { id },
+      where: { id, empresaId },
       data: { estoqueAtual },
       select: {
         id: true,
@@ -168,10 +164,8 @@ export class MateriaisRepository {
   }
 
   async delete(id: string, empresaId: string) {
-    if (!id || !empresaId) return null;
-
     return prisma.material.update({
-      where: { id },
+      where: { id, empresaId },
       data: { ativo: false },
       select: { id: true },
     });
