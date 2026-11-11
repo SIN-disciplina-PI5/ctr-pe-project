@@ -165,11 +165,18 @@
         new Prisma.Decimal(0)
         );
 
+        const ordemServico = await tx.ordemServico.findUniqueOrThrow({
+        where: { id: ordemServicoId },
+        select: { custoMaoObra: true },
+        });
+
+        const custoTotal = custoMateriais.plus(ordemServico.custoMaoObra);
+
         await tx.ordemServico.update({
         where: { id: ordemServicoId },
         data: {
             custoMateriais,
-            custoTotal: custoMateriais,
+            custoTotal,
         },
         });
     }
