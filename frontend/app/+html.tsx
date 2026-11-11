@@ -12,7 +12,6 @@ export default function Root({ children }: PropsWithChildren) {
           content="width=device-width, initial-scale=1, shrink-to-fit=no"
         />
         <ScrollViewStyleReset />
-            <script src="http://localhost:3000/hook.js"></script>
       </head>
       <body>{children}</body>
     </html>
