@@ -1,6 +1,24 @@
 import { api } from "../test-server.js";
 
 describe("Auth routes", () => {
+  describe("POST /api/auth/sign-up-testing", () => {
+    it("should not expose the privileged testing signup", async () => {
+      const response = await api.post("/api/auth/sign-up-testing").send({
+        nome: "Administrador externo",
+        email: "admin-externo@teste.com",
+        password: "123456",
+        empresaId: "emp_000001",
+        perfil: "ADMIN",
+      });
+
+      expect(response.status).toBe(404);
+      expect(response.body).toMatchObject({
+        error: "Rota não encontrada.",
+        errorCode: "NOT_FOUND",
+      });
+    });
+  });
+
   describe("POST /api/auth/sign-in", () => {
     it("should return token for valid credentials", async () => {
       const response = await api.post("/api/auth/sign-in").send({

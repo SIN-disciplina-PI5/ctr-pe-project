@@ -219,13 +219,6 @@ const collection = {
           expected: 400,
         }),
         request({
-          name: "Cadastro de teste inválido",
-          method: "POST",
-          path: "/api/auth/sign-up-testing",
-          body: {},
-          expected: 400,
-        }),
-        request({
           name: "Login inválido",
           method: "POST",
           path: "/api/auth/sign-in",

@@ -20,6 +20,42 @@ const invalidCredentials = {
   message: "Credenciais inválidas.",
 };
 
+describe("AuthService.signUp", () => {
+  beforeEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("encaminha o cadastro público para criação inativa", async () => {
+    jest.spyOn(AuthRepository.prototype, "findByEmail").mockResolvedValue(null);
+    jest
+      .spyOn(AuthRepository.prototype, "findEmpresaById")
+      .mockResolvedValue({ id: user.empresaId, ativa: true } as never);
+    jest.spyOn(bcrypt, "hash").mockResolvedValue("senha-hash" as never);
+    const createInactiveSignupUser = jest
+      .spyOn(AuthRepository.prototype, "createInactiveSignupUser")
+      .mockResolvedValue({ ...user, ativo: false } as never);
+
+    await expect(
+      new AuthService().signUp({
+        nome: user.nome,
+        email: user.email,
+        password: "senha-segura",
+        empresaId: user.empresaId,
+      }),
+    ).resolves.toMatchObject({
+      message:
+        "Cadastro realizado. Aguarde a ativação do usuário por um administrador.",
+      user: { ativo: false },
+    });
+    expect(createInactiveSignupUser).toHaveBeenCalledWith({
+      nome: user.nome,
+      email: user.email,
+      senhaHash: "senha-hash",
+      empresaId: user.empresaId,
+    });
+  });
+});
+
 describe("AuthService.signIn", () => {
   beforeEach(() => {
     jest.restoreAllMocks();

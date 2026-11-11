@@ -46,7 +46,6 @@ const routeFiles = [
 const publicAuthRoutes = new Set([
   "GET /api/auth/sign-up/empresas",
   "POST /api/auth/sign-up",
-  "POST /api/auth/sign-up-testing",
   "POST /api/auth/sign-in",
   "POST /api/auth/refresh",
   "DELETE /api/auth/logout",

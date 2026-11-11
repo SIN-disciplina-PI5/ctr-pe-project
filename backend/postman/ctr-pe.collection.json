@@ -79,35 +79,6 @@
           ]
         },
         {
-          "name": "Cadastro de teste inválido",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{}"
-            },
-            "url": "{{baseUrl}}/api/auth/sign-up-testing"
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 400', () => pm.expect([400]).to.include(pm.response.code));",
-                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
-                ]
-              }
-            }
-          ]
-        },
-        {
           "name": "Login inválido",
           "request": {
             "method": "POST",
