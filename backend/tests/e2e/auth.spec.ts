@@ -12,13 +12,18 @@ describe("Auth routes", () => {
       expect(response.body.accessToken).toEqual(expect.any(String));
     });
 
-    it("should return 404 for non-existent user", async () => {
+    it("should not reveal that the user does not exist", async () => {
       const response = await api.post("/api/auth/sign-in").send({
         email: "naoexiste@teste.com",
         password: "123456",
       });
 
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(401);
+      expect(response.body).toMatchObject({
+        error: "Credenciais inválidas.",
+        errorCode: "UNAUTHORIZED",
+        statusCode: 401,
+      });
     });
 
     it("should return 401 for wrong password", async () => {
@@ -30,13 +35,18 @@ describe("Auth routes", () => {
       expect(response.status).toBe(401);
     });
 
-    it("should return 403 for inactive user", async () => {
+    it("should not reveal that the user is inactive", async () => {
       const response = await api.post("/api/auth/sign-in").send({
         email: "tecnico@teste.com",
         password: "123456",
       });
 
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(401);
+      expect(response.body).toMatchObject({
+        error: "Credenciais inválidas.",
+        errorCode: "UNAUTHORIZED",
+        statusCode: 401,
+      });
     });
   });
 
