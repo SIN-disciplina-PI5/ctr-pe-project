@@ -1,4 +1,4 @@
-import Groq from "groq-sdk";
+import { Groq } from "groq-sdk";
 import { z, type output, type ZodType } from "zod";
 
 export interface StructuredGenerationRequest<TSchema extends ZodType> {

@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import type Groq from "groq-sdk";
+import type { Groq } from "groq-sdk";
 import { z } from "zod";
 import { GroqProvider } from "../../../spikes/text-to-sql/llm-provider.js";
 

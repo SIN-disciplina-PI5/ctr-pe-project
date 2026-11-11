@@ -1,5 +1,5 @@
 import { describe, expect, it, jest } from "@jest/globals";
-import Groq, { APIConnectionTimeoutError } from "groq-sdk";
+import { APIConnectionTimeoutError, Groq } from "groq-sdk";
 import { z } from "zod";
 import { GroqProvider } from "./groq-provider.js";
 import { LlmProviderError, type LlmObserver } from "./llm-provider.js";
