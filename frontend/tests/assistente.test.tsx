@@ -141,6 +141,66 @@ describe("AssistenteScreen", () => {
     expect(screen.queryByText("Visualizar SQL")).toBeNull();
   });
 
+  it("exibe o conteúdo estruturado de um relatório gerado", async () => {
+    mockMutateAsync.mockResolvedValue({
+      id: "conversa-relatorio",
+      conversationId: "conversa-relatorio",
+      message: 'Relatório "Custos por ativo" gerado com sucesso.',
+      status: "report_generated",
+      intent: "report_request",
+      result: {
+        status: "report_generated",
+        intent: "report_request",
+        message: 'Relatório "Custos por ativo" gerado com sucesso.',
+        report: {
+          status: "generated",
+          reportType: "asset_costs",
+          title: "Custos por ativo",
+          sections: [
+            {
+              id: "custos",
+              title: "Resumo de custos",
+              status: "ready",
+              narrative: "O ativo AT-001 concentrou o maior custo.",
+              table: {
+                columns: ["ativo", "custo"],
+                rows: [{ ativo: "AT-001", custo: 1250 }],
+              },
+              chart: {
+                type: "bar",
+                series: [
+                  {
+                    name: "Custo total",
+                    data: [{ label: "AT-001", value: 1250 }],
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    });
+    renderWithProviders(<AssistenteScreen />);
+
+    fireEvent.changeText(
+      screen.getByLabelText("Mensagem"),
+      "Gere um relatório de custos por ativo",
+    );
+    fireEvent.press(screen.getByLabelText("Enviar mensagem"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Custos por ativo")).toBeTruthy();
+    });
+    expect(screen.getByText("Resumo de custos")).toBeTruthy();
+    expect(
+      screen.getByText("O ativo AT-001 concentrou o maior custo."),
+    ).toBeTruthy();
+    expect(screen.getAllByText("AT-001")).toHaveLength(2);
+    expect(screen.getAllByText("1250")).toHaveLength(2);
+    expect(screen.getByText("Custo total")).toBeTruthy();
+    expect(screen.queryByText("Visualizar SQL")).toBeNull();
+  });
+
   it("mostra a mensagem segura devolvida pela API", async () => {
     mockMutateAsync.mockRejectedValue({
       response: {
