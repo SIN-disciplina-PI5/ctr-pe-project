@@ -106,4 +106,5 @@ export type ChatViewMessage = {
   status?: ChatStatus;
   intent?: ChatIntent;
   queryBlocks?: QueryResultBlock[];
+  report?: GeneratedReport;
 };

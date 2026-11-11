@@ -1,4 +1,8 @@
-import type { ChatResponse, QueryResultBlock } from "./assistente.types";
+import type {
+  ChatResponse,
+  GeneratedReport,
+  QueryResultBlock,
+} from "./assistente.types";
 
 export function extractQueryBlocks(response: ChatResponse): QueryResultBlock[] {
   if (
@@ -25,6 +29,14 @@ export function extractQueryBlocks(response: ChatResponse): QueryResultBlock[] {
     sql: step.sql,
     rowsUsed: step.rowsUsed,
   }));
+}
+
+export function extractGeneratedReport(
+  response: ChatResponse,
+): GeneratedReport | undefined {
+  return response.result.status === "report_generated"
+    ? response.result.report
+    : undefined;
 }
 
 export function formatCell(value: unknown): string {
