@@ -1,6 +1,7 @@
 import { prisma } from "../../prisma/prisma.client.js";
 import type { Prisma, Severidade, StatusAlerta, TipoAlerta } from "@prisma/client";
 
+// Corrigido para "ABERTO" para alinhar com o Enum do Prisma Schema
 const ABERTO_OU_LIDO: StatusAlerta[] = ["ABERTO", "LIDO"];
 
 interface CreateEstoqueBaixoAlertaData {
@@ -24,7 +25,7 @@ interface CreateAlertaData {
 }
 
 interface FindAllAlertasFilters {
-  empresaId?: string;
+  empresaId: string;
   status?: StatusAlerta;
   tipo?: TipoAlerta;
   usuarioId?: string;
@@ -55,9 +56,11 @@ const alertaSelect = {
 
 export class AlertasRepository {
   async findAll(filters: FindAllAlertasFilters) {
+    if (!filters.empresaId) return [];
+
     return prisma.alerta.findMany({
       where: {
-        ...(filters.empresaId !== undefined && { empresaId: filters.empresaId }),
+        empresaId: filters.empresaId,
         ...(filters.status !== undefined && { status: filters.status }),
         ...(filters.tipo !== undefined && { tipo: filters.tipo }),
         ...(filters.usuarioId !== undefined && { usuarioId: filters.usuarioId }),
@@ -67,14 +70,20 @@ export class AlertasRepository {
     });
   }
 
-  async findById(id: string) {
-    return prisma.alerta.findUnique({
-      where: { id },
+  async findById(id: string, empresaId: string) {
+    if (!id || id === "undefined" || !empresaId) return null;
+
+    return prisma.alerta.findFirst({
+      where: { id, empresaId },
       select: alertaSelect,
     });
   }
 
   async create(data: CreateAlertaData) {
+    if (!data.empresaId) {
+      throw new Error("empresaId é obrigatório para criar um alerta.");
+    }
+
     return prisma.alerta.create({
       data: {
         empresaId: data.empresaId,
@@ -92,7 +101,9 @@ export class AlertasRepository {
     });
   }
 
-  async updateStatus(id: string, data: UpdateStatusData) {
+  async updateStatus(id: string, empresaId: string, data: UpdateStatusData) {
+    if (!id || id === "undefined" || !empresaId) return null;
+
     return prisma.alerta.update({
       where: { id },
       data: {
@@ -109,8 +120,11 @@ export class AlertasRepository {
     ativoId: string;
     motivo?: string;
   }) {
+    if (!data.empresaId || !data.ativoId) return null;
+
     const existente = await prisma.alerta.findFirst({
       where: {
+        empresaId: data.empresaId,
         tipo: "ATIVO_PARADO",
         ativoId: data.ativoId,
         status: { in: ABERTO_OU_LIDO },
@@ -120,8 +134,8 @@ export class AlertasRepository {
 
     if (existente) return existente;
 
-    const ativo = await prisma.ativo.findUnique({
-      where: { id: data.ativoId },
+    const ativo = await prisma.ativo.findFirst({
+      where: { id: data.ativoId, empresaId: data.empresaId },
       select: { codigo: true, nome: true, criticidade: true },
     });
 
@@ -138,7 +152,7 @@ export class AlertasRepository {
         ativoId: data.ativoId,
         tipo: "ATIVO_PARADO",
         severidade,
-        status: "ABERTO",
+        status: "ABERTO" as StatusAlerta,
         titulo: `Ativo parado: ${ativo?.nome ?? data.ativoId}`,
         mensagem:
           `O ativo ${ativo?.nome ?? ""} (${ativo?.codigo ?? data.ativoId}) está parado.` +
@@ -152,8 +166,18 @@ export class AlertasRepository {
     ordemServicoId: string;
     observacao?: string;
   }) {
+    if (!data.ordemServicoId) return null;
+
+    const os = await prisma.ordemServico.findUnique({
+      where: { id: data.ordemServicoId },
+      select: { empresaId: true, ativoId: true, numero: true, titulo: true },
+    });
+
+    if (!os || !os.empresaId) return null;
+
     const existente = await prisma.alerta.findFirst({
       where: {
+        empresaId: os.empresaId,
         tipo: "AGUARDANDO_PECA",
         ordemServicoId: data.ordemServicoId,
         status: { in: ABERTO_OU_LIDO },
@@ -163,13 +187,6 @@ export class AlertasRepository {
 
     if (existente) return existente;
 
-    const os = await prisma.ordemServico.findUnique({
-      where: { id: data.ordemServicoId },
-      select: { empresaId: true, ativoId: true, numero: true, titulo: true },
-    });
-
-    if (!os) return null;
-
     return prisma.alerta.create({
       data: {
         empresaId: os.empresaId,
@@ -177,7 +194,7 @@ export class AlertasRepository {
         ativoId: os.ativoId,
         tipo: "AGUARDANDO_PECA",
         severidade: "MEDIA",
-        status: "ABERTO",
+        status: "ABERTO" as StatusAlerta,
         titulo: `O.S. aguardando peça: ${os.numero}`,
         mensagem:
           `A O.S. ${os.numero} (${os.titulo}) está aguardando peça.` +
@@ -187,12 +204,14 @@ export class AlertasRepository {
     });
   }
 
-  async verificarOsAtrasadas(empresaId?: string) {
+  async verificarOsAtrasadas(empresaId: string) {
+    if (!empresaId) return [];
+
     const agora = new Date();
 
     const atrasadas = await prisma.ordemServico.findMany({
       where: {
-        ...(empresaId !== undefined && { empresaId }),
+        empresaId,
         status: { notIn: ["ENCERRADA", "CANCELADA"] },
         prazoEm: { lt: agora },
       },
@@ -211,6 +230,7 @@ export class AlertasRepository {
     for (const os of atrasadas) {
       const existente = await prisma.alerta.findFirst({
         where: {
+          empresaId: os.empresaId,
           tipo: "OS_ATRASADA",
           ordemServicoId: os.id,
           status: { in: ABERTO_OU_LIDO },
@@ -227,7 +247,7 @@ export class AlertasRepository {
           ativoId: os.ativoId,
           tipo: "OS_ATRASADA",
           severidade: "ALTA",
-          status: "ABERTO",
+          status: "ABERTO" as StatusAlerta,
           titulo: `O.S. atrasada: ${os.numero}`,
           mensagem:
             `A O.S. ${os.numero} (${os.titulo}) está atrasada. ` +
@@ -242,9 +262,12 @@ export class AlertasRepository {
     return criados;
   }
 
-  async findEstoqueBaixoAbertoPorMaterial(materialId: string) {
+  async findEstoqueBaixoAbertoPorMaterial(empresaId: string, materialId: string) {
+    if (!empresaId || !materialId) return null;
+
     return prisma.alerta.findFirst({
       where: {
+        empresaId,
         tipo: "ESTOQUE_BAIXO",
         status: { in: ABERTO_OU_LIDO },
         mensagem: { contains: materialId },
@@ -254,7 +277,10 @@ export class AlertasRepository {
   }
 
   async createEstoqueBaixo(data: CreateEstoqueBaixoAlertaData) {
+    if (!data.empresaId) return null;
+
     const alertaExistente = await this.findEstoqueBaixoAbertoPorMaterial(
+      data.empresaId,
       data.materialId,
     );
 
@@ -267,7 +293,7 @@ export class AlertasRepository {
         empresaId: data.empresaId,
         tipo: "ESTOQUE_BAIXO",
         severidade: "ALTA",
-        status: "ABERTO",
+        status: "ABERTO" as StatusAlerta,
         titulo: `Estoque baixo: ${data.materialNome}`,
         mensagem:
           `Material ${data.materialNome} (${data.materialCodigo}) ` +

@@ -36,7 +36,7 @@ interface UpdateAtivoData {
 }
 
 interface FindAllFilters {
-  empresaId?: string;
+  empresaId: string;
   localizacaoId?: string;
   status?: StatusAtivo;
   tipo?: TipoAtivo;
@@ -46,9 +46,11 @@ interface FindAllFilters {
 
 export class AtivosRepository {
   async findAll(filters: FindAllFilters) {
+    if (!filters.empresaId) return [];
+
     return prisma.ativo.findMany({
       where: {
-        ...(filters.empresaId !== undefined && { empresaId: filters.empresaId }),
+        empresaId: filters.empresaId,
         ...(filters.localizacaoId !== undefined && { localizacaoId: filters.localizacaoId }),
         ...(filters.status !== undefined && { status: filters.status }),
         ...(filters.tipo !== undefined && { tipo: filters.tipo }),
@@ -82,9 +84,11 @@ export class AtivosRepository {
     });
   }
 
-  async findById(id: string) {
-    return prisma.ativo.findUnique({
-      where: { id },
+  async findById(id: string, empresaId: string) {
+    if (!id || !empresaId) return null;
+
+    return prisma.ativo.findFirst({
+      where: { id, empresaId },
       select: {
         id: true,
         empresaId: true,
@@ -108,6 +112,8 @@ export class AtivosRepository {
   }
 
   async findByCodigo(empresaId: string, codigo: string) {
+    if (!empresaId || !codigo) return null;
+
     return prisma.ativo.findUnique({
       where: { empresaId_codigo: { empresaId, codigo } },
       select: { id: true },
@@ -115,6 +121,10 @@ export class AtivosRepository {
   }
 
   async create(data: CreateAtivoData) {
+    if (!data.empresaId) {
+      throw new Error("empresaId é obrigatório para criar um ativo.");
+    }
+
     return prisma.ativo.create({
       data: {
         empresaId: data.empresaId,
@@ -155,7 +165,9 @@ export class AtivosRepository {
     });
   }
 
-  async update(id: string, data: UpdateAtivoData) {
+  async update(id: string, empresaId: string, data: UpdateAtivoData) {
+    if (!id || !empresaId) return null;
+
     return prisma.ativo.update({
       where: { id },
       data,
@@ -181,7 +193,9 @@ export class AtivosRepository {
     });
   }
 
-  async updateStatus(id: string, status: StatusAtivo) {
+  async updateStatus(id: string, empresaId: string, status: StatusAtivo) {
+    if (!id || !empresaId) return null;
+
     return prisma.ativo.update({
       where: { id },
       data: { status },
@@ -189,7 +203,9 @@ export class AtivosRepository {
     });
   }
 
-  async delete(id: string) {
+  async delete(id: string, empresaId: string) {
+    if (!id || !empresaId) return null;
+
     return prisma.ativo.update({
       where: { id },
       data: { ativo: false },

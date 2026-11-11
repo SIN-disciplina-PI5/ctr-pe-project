@@ -1,13 +1,14 @@
 import type { Request, Response, NextFunction } from "express";
 import { AtivosService } from "./ativos.service.js";
+import { getCurrentUser } from "../../common/utils/get-current-user.js";
 import type { TipoAtivo, StatusAtivo, Criticidade } from "@prisma/client";
 
 const ativosService = new AtivosService();
 
 export async function findAll(req: Request, res: Response, next: NextFunction) {
   try {
-    const { empresaId, localizacaoId, status, tipo, criticidade, search } = req.query as {
-      empresaId?: string;
+    const currentUser = getCurrentUser(req);
+    const { localizacaoId, status, tipo, criticidade, search } = req.query as {
       localizacaoId?: string;
       status?: StatusAtivo;
       tipo?: TipoAtivo;
@@ -16,7 +17,7 @@ export async function findAll(req: Request, res: Response, next: NextFunction) {
     };
 
     const filters = {
-      ...(empresaId !== undefined && { empresaId }),
+      empresaId: currentUser.empresaId, // Força a empresa do usuário autenticado
       ...(localizacaoId !== undefined && { localizacaoId }),
       ...(status !== undefined && { status }),
       ...(tipo !== undefined && { tipo }),
@@ -33,8 +34,9 @@ export async function findAll(req: Request, res: Response, next: NextFunction) {
 
 export async function findById(req: Request, res: Response, next: NextFunction) {
   try {
+    const currentUser = getCurrentUser(req);
     const { id } = req.params as { id: string };
-    const result = await ativosService.findById(id);
+    const result = await ativosService.findById(id, currentUser.empresaId);
     return res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -43,7 +45,13 @@ export async function findById(req: Request, res: Response, next: NextFunction) 
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await ativosService.create(req.body);
+    const currentUser = getCurrentUser(req);
+    const { empresaId: _, ...bodyData } = req.body; // Remove empresaId vindo do body se existir
+
+    const result = await ativosService.create({
+      ...bodyData,
+      empresaId: currentUser.empresaId, // Força a empresa do usuário autenticado
+    });
     return res.status(201).json(result);
   } catch (error) {
     next(error);
@@ -52,8 +60,11 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function update(req: Request, res: Response, next: NextFunction) {
   try {
+    const currentUser = getCurrentUser(req);
     const { id } = req.params as { id: string };
-    const result = await ativosService.update(id, req.body);
+    const { empresaId: _, ...bodyData } = req.body; // Ignora empresaId se passado no body
+
+    const result = await ativosService.update(id, currentUser.empresaId, bodyData);
     return res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -62,9 +73,11 @@ export async function update(req: Request, res: Response, next: NextFunction) {
 
 export async function updateStatus(req: Request, res: Response, next: NextFunction) {
   try {
+    const currentUser = getCurrentUser(req);
     const { id } = req.params as { id: string };
     const { status } = req.body as { status: StatusAtivo };
-    const result = await ativosService.updateStatus(id, status);
+
+    const result = await ativosService.updateStatus(id, currentUser.empresaId, status);
     return res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -73,8 +86,10 @@ export async function updateStatus(req: Request, res: Response, next: NextFuncti
 
 export async function remove(req: Request, res: Response, next: NextFunction) {
   try {
+    const currentUser = getCurrentUser(req);
     const { id } = req.params as { id: string };
-    await ativosService.delete(id);
+
+    await ativosService.delete(id, currentUser.empresaId);
     return res.status(204).send();
   } catch (error) {
     next(error);

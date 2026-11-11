@@ -17,7 +17,7 @@ interface UpdateParadaAtivoData {
 }
 
 interface FindAllFilters {
-  empresaId?: string;
+  empresaId: string;
   ativoId?: string;
   status?: "ABERTA" | "ENCERRADA" | "CANCELADA";
   from?: Date;
@@ -51,7 +51,7 @@ export class ParadasAtivosRepository {
   async findAll(filters: FindAllFilters) {
     return prisma.paradaAtivo.findMany({
       where: {
-        ...(filters.empresaId !== undefined && { empresaId: filters.empresaId }),
+        empresaId: filters.empresaId,
         ...(filters.ativoId !== undefined && { ativoId: filters.ativoId }),
         ...(filters.status !== undefined && { status: filters.status }),
         ...(filters.from !== undefined || filters.to !== undefined
@@ -68,16 +68,16 @@ export class ParadasAtivosRepository {
     });
   }
 
-  async findById(id: string) {
-    return prisma.paradaAtivo.findUnique({
-      where: { id },
+  async findById(id: string, empresaId: string) {
+    return prisma.paradaAtivo.findFirst({
+      where: { id, empresaId },
       select: paradaSelect,
     });
   }
 
-  async findParadaAbertaByAtivo(ativoId: string) {
+  async findParadaAbertaByAtivo(ativoId: string, empresaId: string) {
     return prisma.paradaAtivo.findFirst({
-      where: { ativoId, status: "ABERTA" },
+      where: { ativoId, empresaId, status: "ABERTA" },
       select: { id: true },
     });
   }
@@ -97,7 +97,7 @@ export class ParadasAtivosRepository {
     });
   }
 
-  async update(id: string, data: UpdateParadaAtivoData) {
+  async update(id: string, empresaId: string, data: UpdateParadaAtivoData) {
     return prisma.paradaAtivo.update({
       where: { id },
       data,
@@ -105,9 +105,9 @@ export class ParadasAtivosRepository {
     });
   }
 
-  async encerrar(id: string, fimEm: Date) {
-    const parada = await prisma.paradaAtivo.findUniqueOrThrow({
-      where: { id },
+  async encerrar(id: string, empresaId: string, fimEm: Date) {
+    const parada = await prisma.paradaAtivo.findFirstOrThrow({
+      where: { id, empresaId },
       select: { inicioEm: true },
     });
 
@@ -120,7 +120,7 @@ export class ParadasAtivosRepository {
     });
   }
 
-  async cancelar(id: string, motivo?: string) {
+  async cancelar(id: string, empresaId: string, motivo?: string) {
     return prisma.paradaAtivo.update({
       where: { id },
       data: {
@@ -131,25 +131,25 @@ export class ParadasAtivosRepository {
     });
   }
 
-  async findAtivoById(id: string) {
-  return prisma.ativo.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      empresaId: true,
-      ativo: true,
-    },
-  });
-}
+  async findAtivoById(id: string, empresaId: string) {
+    return prisma.ativo.findFirst({
+      where: { id, empresaId },
+      select: {
+        id: true,
+        empresaId: true,
+        ativo: true,
+      },
+    });
+  }
 
-async findOrdemServicoById(id: string) {
-  return prisma.ordemServico.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      empresaId: true,
-      ativoId: true,
-    },
-  });
-}
+  async findOrdemServicoById(id: string, empresaId: string) {
+    return prisma.ordemServico.findFirst({
+      where: { id, empresaId },
+      select: {
+        id: true,
+        empresaId: true,
+        ativoId: true,
+      },
+    });
+  }
 }
