@@ -7,6 +7,19 @@ import { TokenService } from "./token.service.js";
 import type { SignUpInput } from "./dto/sign-up.dto.js";
 import type { SignUpTestingInput } from "./dto/sign-up-testing.dto.js";
 
+// Mantém o custo do bcrypt também quando o e-mail não existe. O hash não
+// corresponde a nenhuma credencial válida e pode ser versionado com segurança.
+const DUMMY_PASSWORD_HASH =
+  "$2b$10$QKcp4b2yCHTS2ck1vMb8LO6h6kD7P0VNQniTIrvkQD1OsbKUEURCO";
+
+function invalidCredentials(): AppError {
+  return new AppError({
+    message: "Credenciais inválidas.",
+    statusCode: 401,
+    errorCode: ErrorCode.UNAUTHORIZED,
+  });
+}
+
 export class AuthService {
   private authRepository = new AuthRepository();
   private tokenService = new TokenService();
@@ -55,7 +68,8 @@ export class AuthService {
     });
 
     return {
-      message: "Cadastro realizado. Aguarde a ativação do usuário por um administrador.",
+      message:
+        "Cadastro realizado. Aguarde a ativação do usuário por um administrador.",
       user,
     };
   }
@@ -164,32 +178,12 @@ export class AuthService {
 
   async signIn(email: string, password: string) {
     const user = await this.authRepository.findByEmail(email);
+    const passwordMatch = await bcrypt.compare(
+      password,
+      user?.senhaHash ?? DUMMY_PASSWORD_HASH,
+    );
 
-    if (!user) {
-      throw new AppError({
-        message: "Usuario nao encontrado",
-        statusCode: 404,
-        errorCode: ErrorCode.NOT_FOUND,
-      });
-    }
-
-    if (!user.ativo) {
-      throw new AppError({
-        message: "Usuario inativo",
-        statusCode: 403,
-        errorCode: ErrorCode.FORBIDDEN,
-      });
-    }
-
-    const passwordMatch = await bcrypt.compare(password, user.senhaHash);
-
-    if (!passwordMatch) {
-      throw new AppError({
-        message: "Senha invalida",
-        statusCode: 401,
-        errorCode: ErrorCode.UNAUTHORIZED,
-      });
-    }
+    if (!user || !user.ativo || !passwordMatch) throw invalidCredentials();
 
     const authUser = {
       id: user.id,
@@ -212,7 +206,8 @@ export class AuthService {
 
   async refresh(refreshToken: string) {
     const tokenHash = this.tokenService.hashRefreshToken(refreshToken);
-    const storedToken = await this.authRepository.findRefreshTokenByHash(tokenHash);
+    const storedToken =
+      await this.authRepository.findRefreshTokenByHash(tokenHash);
 
     if (!storedToken) {
       throw new AppError({
