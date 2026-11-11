@@ -39,12 +39,10 @@ cd "$FRONTEND" && [ -d node_modules ] || npm ci
 
 echo "[3/6] Generating backend test coverage..."
 cd "$BACKEND"
-npm test -- \
+npm run test:unit -- \
   --coverage \
   --coverageReporters=lcov \
-  --coverageReporters=text-summary \
-  --runInBand \
-  --testPathPatterns='tests/unit|src/modules/ai'
+  --coverageReporters=text-summary
 
 echo "[4/6] Generating frontend test coverage..."
 cd "$FRONTEND"
