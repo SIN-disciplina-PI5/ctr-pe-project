@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
+    "@google-cloud/recaptcha-enterprise-react-native": "18.9.2",
     "@hookform/resolvers": "^5.4.0",
     "@rn-primitives/avatar": "^1.4.0",
     "@rn-primitives/dialog": "^1.4.0",

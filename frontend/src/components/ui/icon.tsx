@@ -3,10 +3,13 @@ import { cn } from '@/lib/utils';
 import type { LucideIcon, LucideProps } from 'lucide-react-native';
 import { cssInterop } from 'nativewind';
 import * as React from 'react';
+import type { StyleProp, ViewStyle } from 'react-native';
 
 type IconProps = LucideProps & {
   as: LucideIcon;
-} & React.RefAttributes<LucideIcon>;
+  className?: string;
+  style?: StyleProp<ViewStyle>;
+};
 
 function IconImpl({ as: IconComponent, ...props }: IconProps) {
   return <IconComponent {...props} />;

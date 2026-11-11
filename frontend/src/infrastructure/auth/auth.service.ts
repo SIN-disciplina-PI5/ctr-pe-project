@@ -1,9 +1,13 @@
 import { apiClient } from "../api/api-client";
 import type { Usuario } from "@/features/usuarios/usuarios.types";
 
-type LoginCredentials = {
+export type RecaptchaPlatform = "web" | "android" | "ios";
+
+export type LoginCredentials = {
   email: string;
   password: string;
+  recaptchaToken: string;
+  recaptchaPlatform: RecaptchaPlatform;
 };
 
 type LoginResponse = {

@@ -1,17 +1,35 @@
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
-import { View, TextInput, Pressable, ActivityIndicator, Alert } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Platform,
+  Pressable,
+  TextInput,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { authService } from "@/infrastructure/auth/auth.service";
+import {
+  authService,
+  type RecaptchaPlatform,
+} from "@/infrastructure/auth/auth.service";
+import { getRecaptchaToken } from "@/infrastructure/auth/recaptcha.service";
 import {
   clearSession,
   setRefreshToken,
   setToken,
 } from "@/infrastructure/storage/token-storage";
 import { useAuthStore } from "@/store/auth-store";
+
+function getRecaptchaPlatform(): RecaptchaPlatform {
+  if (Platform.OS === "web") return "web";
+  if (Platform.OS === "android") return "android";
+  if (Platform.OS === "ios") return "ios";
+  throw new Error("Plataforma não suportada pelo reCAPTCHA.");
+}
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -30,9 +48,13 @@ export default function LoginScreen() {
     try {
       setCarregando(true);
 
+      const recaptchaToken = await getRecaptchaToken("login");
+
       const data = await authService.login({
         email: email.trim(),
         password: senha,
+        recaptchaToken,
+        recaptchaPlatform: getRecaptchaPlatform(),
       });
 
       if (!data.accessToken || !data.refreshToken) {

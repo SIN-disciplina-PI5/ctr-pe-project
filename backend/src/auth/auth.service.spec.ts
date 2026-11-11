@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import bcrypt from "bcrypt";
+import { AuditoriaService } from "../modules/auditoria/auditoria.service.js";
 import { AuthRepository } from "./auth.repository.js";
 import { AuthService } from "./auth.service.js";
 import { TokenService } from "./token.service.js";
@@ -196,6 +197,9 @@ describe("AuthService.signIn", () => {
     const updateLastLogin = jest
       .spyOn(AuthRepository.prototype, "updateLastLogin")
       .mockResolvedValue({} as never);
+    jest
+      .spyOn(AuditoriaService.prototype, "registrar")
+      .mockResolvedValue({ id: "audit-id" });
 
     await expect(
       new AuthService().signIn(user.email, "senha-correta"),

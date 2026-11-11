@@ -33,8 +33,17 @@ export async function signUp(req: Request, res: Response, next: NextFunction) {
 
 export async function signIn(req: Request, res: Response, next: NextFunction) {
   try {
-    const { email, password } = req.body as SignInInput;
-    const result = await authService.signIn(email, password);
+    const { email, password, recaptchaToken, recaptchaPlatform } =
+      req.body as SignInInput;
+    const userAgent = req.headers["user-agent"];
+    const userIpAddress = req.ip || req.socket.remoteAddress;
+
+    const result = await authService.signIn(email, password, {
+      recaptchaPlatform,
+      ...(recaptchaToken !== undefined && { recaptchaToken }),
+      ...(userAgent !== undefined && { userAgent }),
+      ...(userIpAddress !== undefined && { userIpAddress }),
+    });
     return res.status(200).json(result);
   } catch (error) {
     next(error);
