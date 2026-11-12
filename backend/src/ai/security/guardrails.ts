@@ -1,34 +1,19 @@
-import type { GuardrailRule, SecurityCheckResult } from './types';
+﻿import type { GuardrailRule, SecurityCheckResult } from './types.js';
 
-export const DEFAULT_GUARDRAIL_RULES: GuardrailRule[] = [
-  {
-    id: 'g1',
-    name: 'Prompt Injection - Ignore Instructions',
-    pattern: /ignore previous instructions|ignore all previous instructions/i,
-    severity: 'HIGH',
-  },
-  {
-    id: 'g2',
-    name: 'System Prompt Extraction',
-    pattern: /reveal system prompt|show me your instructions|print your system prompt/i,
-    severity: 'CRITICAL',
-  },
+const rules: GuardrailRule[] = [
+  { id: 'no_prompt_injection', pattern: /(ignore (all )?instructions|system prompt|bypass|override)/i, errorMessage: 'Attempted prompt injection detected.' },
+  { id: 'no_credentials_access', pattern: /(passwords?|credentials?|users? table|secret)/i, errorMessage: 'Access to credentials or user tables is forbidden.' },
+  { id: 'no_write_attempts', pattern: /\b(DELETE|DROP|UPDATE|INSERT|ALTER|TRUNCATE)\b/i, errorMessage: 'Write operations are strictly forbidden.' }
 ];
 
-export function validateAIPrompt(input: string): SecurityCheckResult {
-  for (const rule of DEFAULT_GUARDRAIL_RULES) {
-    if (rule.pattern.test(input)) {
-      return {
-        passed: false,
-        score: 0,
-        threatDetected: rule.name,
-        matchedRule: rule.id,
-      };
+export function validateAIPrompt(prompt: string, contextCompanyId?: string, requestedCompanyId?: string): SecurityCheckResult {
+  if (contextCompanyId && requestedCompanyId && contextCompanyId !== requestedCompanyId) {
+    return { isValid: false, reason: 'Cross-company data access is forbidden.' };
+  }
+  for (const rule of rules) {
+    if (rule.pattern.test(prompt)) {
+      return { isValid: false, reason: rule.errorMessage };
     }
   }
-
-  return {
-    passed: true,
-    score: 1,
-  };
+  return { isValid: true };
 }
