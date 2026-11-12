@@ -17,7 +17,7 @@
     "prisma:studio": "prisma studio",
     "tokens:cleanup": "tsx src/auth/clean-refresh-tokens.ts"
   },
-  "prisma":{
+  "prisma": {
     "seed": "npx tsx prisma/seed.ts"
   },
   "keywords": [],

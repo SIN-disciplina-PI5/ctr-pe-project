@@ -1,4 +1,4 @@
-import { GuardrailRule, SecurityCheckResult } from './types';
+import type { GuardrailRule, SecurityCheckResult } from './types';
 
 export const DEFAULT_GUARDRAIL_RULES: GuardrailRule[] = [
   {
