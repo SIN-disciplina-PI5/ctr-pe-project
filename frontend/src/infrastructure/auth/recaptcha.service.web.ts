@@ -14,6 +14,10 @@ declare global {
   }
 }
 
+export function isRecaptchaConfigured(): boolean {
+  return Boolean(RECAPTCHA_SITE_KEY);
+}
+
 function loadRecaptchaScript(): Promise<void> {
   return new Promise((resolve, reject) => {
     if (window.grecaptcha?.enterprise) {
@@ -47,9 +51,11 @@ function loadRecaptchaScript(): Promise<void> {
   });
 }
 
-export async function getRecaptchaToken(action: string): Promise<string> {
+export async function getRecaptchaToken(
+  action: string,
+): Promise<string | undefined> {
   if (!RECAPTCHA_SITE_KEY) {
-    throw new Error("EXPO_PUBLIC_RECAPTCHA_WEB_SITE_KEY não configurada.");
+    return undefined;
   }
 
   await loadRecaptchaScript();

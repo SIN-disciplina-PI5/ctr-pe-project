@@ -6,6 +6,8 @@ import { AuthRepository } from "../auth.repository.js";
 import { AuthService } from "../auth.service.js";
 
 const originalIosSiteKey = process.env.RECAPTCHA_IOS_SITE_KEY;
+const originalNodeEnv = process.env.NODE_ENV;
+const originalRecaptchaRequired = process.env.RECAPTCHA_REQUIRED;
 
 describe("AuthService reCAPTCHA e auditoria", () => {
   afterEach(() => {
@@ -16,6 +18,32 @@ describe("AuthService reCAPTCHA e auditoria", () => {
     } else {
       process.env.RECAPTCHA_IOS_SITE_KEY = originalIosSiteKey;
     }
+
+    if (originalNodeEnv === undefined) {
+      delete process.env.NODE_ENV;
+    } else {
+      process.env.NODE_ENV = originalNodeEnv;
+    }
+
+    if (originalRecaptchaRequired === undefined) {
+      delete process.env.RECAPTCHA_REQUIRED;
+    } else {
+      process.env.RECAPTCHA_REQUIRED = originalRecaptchaRequired;
+    }
+  });
+
+  it("exige o token quando o reCAPTCHA estiver configurado como obrigatório", async () => {
+    process.env.NODE_ENV = "development";
+    process.env.RECAPTCHA_REQUIRED = "true";
+    const findByEmail = jest.spyOn(AuthRepository.prototype, "findByEmail");
+
+    await expect(
+      new AuthService().signIn("usuario@empresa.com", "qualquer-senha"),
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      errorCode: "VALIDATION_ERROR",
+    });
+    expect(findByEmail).not.toHaveBeenCalled();
   });
 
   it("bloqueia o login recusado pelo reCAPTCHA antes de consultar credenciais", async () => {

@@ -22,6 +22,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { EmpresaCompactSelect } from "@/components/domain/empresa-compact-select";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { hasPermission, type AppPermission } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 import { authService } from "@/infrastructure/auth/auth.service";
 import {
@@ -30,33 +31,32 @@ import {
 } from "@/infrastructure/storage/token-storage";
 import { useAuthStore } from "@/store/auth-store";
 import { useEmpresaStore } from "@/store/empresa-store";
-import type { PerfilUsuario } from "@/features/usuarios/usuarios.types";
 
 type NavItem = {
   href: string;
   label: string;
   icon: LucideIcon;
-  perfis?: PerfilUsuario[];
+  permission: AppPermission;
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/assistente", label: "Assistente", icon: MessageSquareText },
-  { href: "/ordens-servico", label: "Ordens", icon: ClipboardList },
-  { href: "/ativos", label: "Ativos", icon: Boxes },
-  { href: "/materiais", label: "Materiais", icon: Package },
-  { href: "/paradas", label: "Paradas", icon: CirclePause },
-  { href: "/alertas", label: "Alertas", icon: Bell },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, permission: "dashboardRead" },
+  { href: "/assistente", label: "Assistente", icon: MessageSquareText, permission: "assistantUse" },
+  { href: "/ordens-servico", label: "Ordens", icon: ClipboardList, permission: "maintenanceRead" },
+  { href: "/ativos", label: "Ativos", icon: Boxes, permission: "maintenanceRead" },
+  { href: "/materiais", label: "Materiais", icon: Package, permission: "maintenanceRead" },
+  { href: "/paradas", label: "Paradas", icon: CirclePause, permission: "maintenanceRead" },
+  { href: "/alertas", label: "Alertas", icon: Bell, permission: "maintenanceRead" },
   {
     href: "/auditoria",
     label: "Auditoria",
     icon: FileText,
-    perfis: ["ADMIN", "GESTOR"],
+    permission: "auditRead",
   },
-  { href: "/cadastros/empresas", label: "Empresas", icon: Building2 },
-  { href: "/cadastros/localizacoes", label: "Localizacoes", icon: MapPinned },
-  { href: "/cadastros/usuarios", label: "Usuarios", icon: Users },
-  { href: "/perfil", label: "Perfil", icon: UserCircle2 },
+  { href: "/cadastros/empresas", label: "Empresas", icon: Building2, permission: "companiesRead" },
+  { href: "/cadastros/localizacoes", label: "Localizacoes", icon: MapPinned, permission: "locationsRead" },
+  { href: "/cadastros/usuarios", label: "Usuarios", icon: Users, permission: "usersRead" },
+  { href: "/perfil", label: "Perfil", icon: UserCircle2, permission: "profileRead" },
 ];
 
 function matchesPath(pathname: string, href: string) {
@@ -117,8 +117,8 @@ export function ProtectedShell({ children }: { children: ReactNode }) {
     }
   }
 
-  const visibleNavItems = NAV_ITEMS.filter(
-    (item) => !item.perfis || (user && item.perfis.includes(user.perfil)),
+  const visibleNavItems = NAV_ITEMS.filter((item) =>
+    hasPermission(user?.perfil, item.permission),
   );
   return (
     <SafeAreaView className="flex-1 bg-background">

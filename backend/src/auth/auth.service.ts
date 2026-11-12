@@ -148,7 +148,11 @@ export class AuthService {
   ) {
     const recaptchaPlatform = context.recaptchaPlatform ?? "web";
 
-    if (!context.recaptchaToken && process.env.NODE_ENV !== "test") {
+    const recaptchaRequired =
+      process.env.RECAPTCHA_REQUIRED === "true" &&
+      process.env.NODE_ENV !== "test";
+
+    if (!context.recaptchaToken && recaptchaRequired) {
       throw new AppError({
         message: "O reCAPTCHA é obrigatório.",
         statusCode: 400,

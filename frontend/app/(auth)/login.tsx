@@ -16,7 +16,10 @@ import {
   authService,
   type RecaptchaPlatform,
 } from "@/infrastructure/auth/auth.service";
-import { getRecaptchaToken } from "@/infrastructure/auth/recaptcha.service";
+import {
+  getRecaptchaToken,
+  isRecaptchaConfigured,
+} from "@/infrastructure/auth/recaptcha.service";
 import {
   clearSession,
   setRefreshToken,
@@ -38,6 +41,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [carregando, setCarregando] = useState(false);
+  const recaptchaConfigured = isRecaptchaConfigured();
 
   async function handleLogin() {
     if (!email || !senha) {
@@ -53,7 +57,7 @@ export default function LoginScreen() {
       const data = await authService.login({
         email: email.trim(),
         password: senha,
-        recaptchaToken,
+        ...(recaptchaToken ? { recaptchaToken } : {}),
         recaptchaPlatform: getRecaptchaPlatform(),
       });
 
@@ -167,6 +171,14 @@ export default function LoginScreen() {
             </View>
 
             <View className="gap-3 mt-6">
+              {!recaptchaConfigured ? (
+                <View className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2">
+                  <Text className="text-xs text-amber-800">
+                    reCAPTCHA não configurado neste ambiente. O login continuará sem validação anti-robô.
+                  </Text>
+                </View>
+              ) : null}
+
               <Button
                 className="w-full bg-blue-900 active:bg-blue-950 h-12 rounded-xl shadow-md shadow-blue-900/10"
                 onPress={handleLogin}

@@ -6,7 +6,7 @@ export type RecaptchaPlatform = "web" | "android" | "ios";
 export type LoginCredentials = {
   email: string;
   password: string;
-  recaptchaToken: string;
+  recaptchaToken?: string;
   recaptchaPlatform: RecaptchaPlatform;
 };
 

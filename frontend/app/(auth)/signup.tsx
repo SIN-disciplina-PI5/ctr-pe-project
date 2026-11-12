@@ -6,6 +6,7 @@ import {
   Pressable,
   ActivityIndicator,
   Alert,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useForm, Controller } from "react-hook-form";
@@ -97,6 +98,10 @@ export default function SignUpScreen() {
         "Seu cadastro foi enviado. Aguarde a ativação por um administrador.",
         [{ text: "OK", onPress: () => router.replace("/(auth)/login") }],
       );
+
+        if (Platform.OS === "web") {
+          router.replace("/(auth)/login");
+        }
     } catch (error: any) {
       Alert.alert(
         "Erro no cadastro",
