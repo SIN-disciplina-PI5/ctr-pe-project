@@ -122,6 +122,12 @@ enum PapelMensagemConversaIA {
   ASSISTENTE
 }
 
+enum TipoRelatorioIA {
+  MANUTENCAO_MENSAL
+  CUSTOS_POR_ATIVO
+  DISPONIBILIDADE
+}
+
 /**
  * 1. EMPRESA
  * Representa matriz, filial ou qualquer unidade empresarial principal.
@@ -147,6 +153,7 @@ model Empresa {
   alertas       Alerta[]
   logs          LogAuditoria[]
   conversasIA   ConversaIA[]
+  arquivosRelatorioIA ArquivoRelatorioIA[]
 
   @@index([nome])
 }
@@ -209,6 +216,7 @@ model Usuario {
   logs              LogAuditoria[]
   refreshTokens     RefreshToken[]
   conversasIA       ConversaIA[]
+  arquivosRelatorioIA ArquivoRelatorioIA[]
 
   @@index([empresaId])
   @@index([perfil])
@@ -568,4 +576,27 @@ model MensagemConversaIA {
   conversa ConversaIA @relation(fields: [conversaId], references: [id], onDelete: Cascade)
 
   @@index([conversaId, createdAt])
+}
+
+model ArquivoRelatorioIA {
+  id        String @id @default(cuid())
+  empresaId String
+  usuarioId String
+
+  tipo            TipoRelatorioIA
+  titulo          String
+  nomeArquivo     String
+  storagePathname String @unique
+  contentType     String
+  tamanhoBytes    Int
+
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  empresa Empresa @relation(fields: [empresaId], references: [id])
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  @@index([empresaId, createdAt])
+  @@index([empresaId, usuarioId, createdAt])
+  @@index([expiresAt])
 }
