@@ -2,12 +2,21 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 
+import { PermissionRoute } from "@/components/domain/permission-gate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useMaterial, useUpdateMaterial } from "@/features/materiais/materiais.hooks";
 
 export default function EditarMaterialScreen() {
+  return (
+    <PermissionRoute permission="materialsManage">
+      <EditarMaterialContent />
+    </PermissionRoute>
+  );
+}
+
+function EditarMaterialContent() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: material, isLoading } = useMaterial(id);
   const updateMaterial = useUpdateMaterial(id);

@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PermissionRoute } from "@/components/domain/permission-gate";
 import { useCreateLocalizacao } from "@/features/localizacoes/localizacoes.hooks";
 import { useEmpresas } from "@/features/empresas/empresas.hooks";
 import { useEmpresaStore } from "@/store/empresa-store";
@@ -18,6 +19,14 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function LocalizacaoNovaScreen() {
+  return (
+    <PermissionRoute permission="locationsManage">
+      <LocalizacaoNovaContent />
+    </PermissionRoute>
+  );
+}
+
+function LocalizacaoNovaContent() {
   const router = useRouter();
   const { empresaId } = useEmpresaStore();
   const { data: empresas } = useEmpresas({ ativa: true });

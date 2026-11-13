@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, Pressable, View } from "react-native";
 
+import { PermissionGate } from "@/components/domain/permission-gate";
 import { PrioridadeBadge } from "@/components/domain/prioridade-badge";
 import { StatusBadge } from "@/components/domain/status-badge";
 import { Button } from "@/components/ui/button";
@@ -112,9 +113,11 @@ export default function OrdensServicoScreen() {
           </Text>
         </View>
 
-        <Button onPress={() => router.push("/ordens-servico/nova")}>
-          <Text>Nova</Text>
-        </Button>
+        <PermissionGate permission="workOrdersCreate">
+          <Button onPress={() => router.push("/ordens-servico/nova")}>
+            <Text>Nova</Text>
+          </Button>
+        </PermissionGate>
       </View>
 
       <View className="mb-4">

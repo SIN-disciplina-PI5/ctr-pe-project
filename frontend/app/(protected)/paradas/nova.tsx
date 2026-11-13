@@ -5,6 +5,7 @@ import { Controller, useForm } from "react-hook-form";
 import { ActivityIndicator, Alert, Platform, ScrollView, Switch, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { PermissionRoute } from "@/components/domain/permission-gate";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,14 @@ import { useSelectedEmpresaId } from "@/hooks/use-selected-empresa";
 const NO_OS_VALUE = "__SEM_OS__";
 
 export default function ParadaNovaScreen() {
+  return (
+    <PermissionRoute permission="stopsManage">
+      <ParadaNovaContent />
+    </PermissionRoute>
+  );
+}
+
+function ParadaNovaContent() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const empresaInicial = useSelectedEmpresaId();

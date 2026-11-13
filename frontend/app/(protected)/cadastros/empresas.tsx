@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View, Text, FlatList, Pressable, TextInput, Alert } from "react-native";
 import { useRouter } from "expo-router";
+import { PermissionGate } from "@/components/domain/permission-gate";
 import { useEmpresas, useDeleteEmpresa } from "@/features/empresas/empresas.hooks";
 
 export default function EmpresasScreen() {
@@ -22,12 +23,14 @@ export default function EmpresasScreen() {
     <View className="flex-1 bg-background p-4">
       <View className="flex-row items-center justify-between mb-4">
         <Text className="text-foreground text-xl font-bold">Empresas</Text>
-        <Pressable
-          onPress={() => router.push("/(protected)/cadastros/empresa-nova")}
-          className="bg-primary px-4 py-2 rounded-md"
-        >
-          <Text className="text-primary-foreground text-sm font-medium">Nova empresa</Text>
-        </Pressable>
+        <PermissionGate permission="companiesManage">
+          <Pressable
+            onPress={() => router.push("/(protected)/cadastros/empresa-nova")}
+            className="bg-primary px-4 py-2 rounded-md"
+          >
+            <Text className="text-primary-foreground text-sm font-medium">Nova empresa</Text>
+          </Pressable>
+        </PermissionGate>
       </View>
 
       <TextInput
@@ -83,16 +86,18 @@ export default function EmpresasScreen() {
             {item.codigo && (
               <Text className="text-muted-foreground text-sm mb-2">{item.codigo}</Text>
             )}
-            <View className="flex-row gap-3 mt-2">
-              <Pressable
-                onPress={() => router.push(`/(protected)/cadastros/empresa-editar?id=${item.id}`)}
-              >
-                <Text className="text-primary text-sm">Editar</Text>
-              </Pressable>
-              <Pressable onPress={() => handleInativar(item.id)}>
-                <Text className="text-destructive text-sm">Inativar</Text>
-              </Pressable>
-            </View>
+            <PermissionGate permission="companiesManage">
+              <View className="flex-row gap-3 mt-2">
+                <Pressable
+                  onPress={() => router.push(`/(protected)/cadastros/empresa-editar?id=${item.id}`)}
+                >
+                  <Text className="text-primary text-sm">Editar</Text>
+                </Pressable>
+                <Pressable onPress={() => handleInativar(item.id)}>
+                  <Text className="text-destructive text-sm">Inativar</Text>
+                </Pressable>
+              </View>
+            </PermissionGate>
           </View>
         )}
         ListEmptyComponent={

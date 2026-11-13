@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PermissionRoute } from "@/components/domain/permission-gate";
 import { useCreateEmpresa } from "@/features/empresas/empresas.hooks";
 
 const schema = z.object({
@@ -14,6 +15,14 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function EmpresaNovaScreen() {
+  return (
+    <PermissionRoute permission="companiesManage">
+      <EmpresaNovaContent />
+    </PermissionRoute>
+  );
+}
+
+function EmpresaNovaContent() {
   const router = useRouter();
   const { mutate: createEmpresa, isPending } = useCreateEmpresa();
 const { control, handleSubmit, formState: { errors } } = useForm<FormData>({

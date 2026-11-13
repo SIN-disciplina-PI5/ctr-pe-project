@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 
+import { PermissionGate } from "@/components/domain/permission-gate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -81,9 +82,11 @@ export default function MaterialDetailScreen() {
           </Text>
         </View>
 
-        <Button onPress={() => router.push(`/materiais/${material.id}-editar`)}>
-          <Text>Editar</Text>
-        </Button>
+        <PermissionGate permission="materialsManage">
+          <Button onPress={() => router.push(`/materiais/${material.id}-editar`)}>
+            <Text>Editar</Text>
+          </Button>
+        </PermissionGate>
       </View>
 
       <View className="gap-3 rounded-xl border border-border bg-card p-4">
@@ -95,8 +98,9 @@ export default function MaterialDetailScreen() {
         <Text>Descrição: {material.descricao ?? "-"}</Text>
       </View>
 
-      <View className="mt-6 gap-4 rounded-xl border border-border bg-card p-4">
-        <Text className="text-lg font-semibold">Controle de estoque</Text>
+      <PermissionGate permission="materialsManage">
+        <View className="mt-6 gap-4 rounded-xl border border-border bg-card p-4">
+          <Text className="text-lg font-semibold">Controle de estoque</Text>
 
         <View className="gap-2">
           <Text>Quantidade</Text>
@@ -142,7 +146,8 @@ export default function MaterialDetailScreen() {
         >
           <Text>Ajustar estoque</Text>
         </Button>
-      </View>
+        </View>
+      </PermissionGate>
     </View>
   );
 }

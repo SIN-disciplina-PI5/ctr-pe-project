@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { Pressable, View } from "react-native";
 
-import { RoleGate } from "@/components/domain/role-gate";
+import { PermissionGate } from "@/components/domain/permission-gate";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
@@ -115,18 +115,18 @@ export function AlertaCard({ alerta }: Props) {
             </Button>
           ) : null}
 
-          {alerta.status === "ABERTO" ? (
-            <Button
-              size="sm"
-              variant="secondary"
-              onPress={() => marcarLido.mutate(alerta.id)}
-              disabled={marcarLido.isPending}
-            >
-              <Text>Lido</Text>
-            </Button>
-          ) : null}
+          <PermissionGate permission="alertsManage">
+            {alerta.status === "ABERTO" ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                onPress={() => marcarLido.mutate(alerta.id)}
+                disabled={marcarLido.isPending}
+              >
+                <Text>Lido</Text>
+              </Button>
+            ) : null}
 
-          <RoleGate perfis={["ADMIN", "GESTOR", "SUPERVISOR"]}>
             {alerta.status !== "RESOLVIDO" && alerta.status !== "IGNORADO" ? (
               <>
                 <Button
@@ -147,7 +147,7 @@ export function AlertaCard({ alerta }: Props) {
                 </Button>
               </>
             ) : null}
-          </RoleGate>
+          </PermissionGate>
         </View>
       </CardContent>
     </Card>

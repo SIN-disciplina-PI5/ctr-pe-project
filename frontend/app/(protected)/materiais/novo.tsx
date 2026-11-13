@@ -2,12 +2,21 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { ScrollView, View } from "react-native";
 
+import { PermissionRoute } from "@/components/domain/permission-gate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useCreateMaterial } from "@/features/materiais/materiais.hooks";
 
 export default function NovoMaterialScreen() {
+  return (
+    <PermissionRoute permission="materialsManage">
+      <NovoMaterialContent />
+    </PermissionRoute>
+  );
+}
+
+function NovoMaterialContent() {
   const createMaterial = useCreateMaterial();
 
   const [empresaId, setEmpresaId] = useState("");

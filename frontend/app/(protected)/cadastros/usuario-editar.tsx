@@ -3,6 +3,7 @@ import { View, Text, TextInput, Pressable, Switch, Alert } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PermissionRoute } from "@/components/domain/permission-gate";
 import { useUsuario, useUpdateUsuario } from "@/features/usuarios/usuarios.hooks";
 import { useEmpresas } from "@/features/empresas/empresas.hooks";
 import {
@@ -13,6 +14,14 @@ import {
 import type { PerfilUsuario } from "@/features/usuarios/usuarios.types";
 
 export default function UsuarioEditarScreen() {
+  return (
+    <PermissionRoute permission="usersManage">
+      <UsuarioEditarContent />
+    </PermissionRoute>
+  );
+}
+
+function UsuarioEditarContent() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { data: usuario, isLoading } = useUsuario(id);
