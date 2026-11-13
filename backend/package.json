@@ -25,6 +25,7 @@
     "prisma:studio": "prisma studio",
     "ai-role:set-password": "tsx prisma/set-ai-readonly-password.ts",
     "tokens:cleanup": "tsx src/auth/clean-refresh-tokens.ts",
+    "reports:cleanup": "tsx scripts/reporting/cleanup-expired-reports.ts",
     "db:reset-synthetic": "tsx scripts/synthetic-data/reset-and-seed.ts",
     "spike:provider-smoke": "tsx spikes/text-to-sql/run-provider-smoke.ts",
     "spike:generate-sql": "tsx spikes/text-to-sql/run-generation.ts",

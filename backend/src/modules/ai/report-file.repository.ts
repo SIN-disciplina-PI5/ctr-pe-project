@@ -37,6 +37,8 @@ export type ReportFileRecord = Prisma.ArquivoRelatorioIAGetPayload<{
 export interface ReportFileRepositoryPort {
   create(input: CreateReportFileInput): Promise<ReportFileRecord>;
   findOwned(id: string, scope: ReportFileScope): Promise<ReportFileRecord | null>;
+  findExpired(expiresBefore: Date, limit: number): Promise<ReportFileRecord[]>;
+  deleteExpired(id: string, expiresBefore: Date): Promise<boolean>;
 }
 
 export class ReportFileRepository implements ReportFileRepositoryPort {
@@ -59,5 +61,24 @@ export class ReportFileRepository implements ReportFileRepositoryPort {
       },
       select: reportFileSelect,
     });
+  }
+
+  async findExpired(
+    expiresBefore: Date,
+    limit: number,
+  ): Promise<ReportFileRecord[]> {
+    return prisma.arquivoRelatorioIA.findMany({
+      where: { expiresAt: { lte: expiresBefore } },
+      orderBy: [{ expiresAt: "asc" }, { id: "asc" }],
+      take: limit,
+      select: reportFileSelect,
+    });
+  }
+
+  async deleteExpired(id: string, expiresBefore: Date): Promise<boolean> {
+    const result = await prisma.arquivoRelatorioIA.deleteMany({
+      where: { id, expiresAt: { lte: expiresBefore } },
+    });
+    return result.count === 1;
   }
 }
