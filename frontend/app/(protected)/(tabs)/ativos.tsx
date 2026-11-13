@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import { ActivityIndicator, FlatList, View } from "react-native";
 
 import { AtivoCard } from "@/components/domain/ativo-card";
+import { PermissionGate } from "@/components/domain/permission-gate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -47,9 +48,11 @@ export default function AtivosScreen() {
           </Text>
         </View>
 
-        <Button onPress={() => router.push("/ativos/novo")}>
-          <Text>Novo</Text>
-        </Button>
+        <PermissionGate permission="assetsManage">
+          <Button onPress={() => router.push("/ativos/novo")}>
+            <Text>Novo</Text>
+          </Button>
+        </PermissionGate>
       </View>
 
       <View className="mb-4">

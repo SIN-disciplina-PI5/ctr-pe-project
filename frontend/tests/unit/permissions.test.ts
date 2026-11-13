@@ -21,6 +21,16 @@ describe("permissões da aplicação", () => {
     expect(hasPermission("SUPERVISOR", "usersRead")).toBe(true);
   });
 
+  it("aplica as permissões de escrita de ativos", () => {
+    expect(hasPermission("ADMIN", "assetsManage")).toBe(true);
+    expect(hasPermission("ADMIN", "assetsDelete")).toBe(true);
+    expect(hasPermission("SUPERVISOR", "assetsManage")).toBe(true);
+    expect(hasPermission("SUPERVISOR", "assetsDelete")).toBe(false);
+    expect(hasPermission("GESTOR", "assetsManage")).toBe(false);
+    expect(hasPermission("TECNICO", "assetsManage")).toBe(false);
+    expect(hasPermission("CONSULTA", "assetsManage")).toBe(false);
+  });
+
   it("nega acesso quando não existe perfil autenticado", () => {
     expect(hasPermission(null, "dashboardRead")).toBe(false);
     expect(hasPermission(undefined, "dashboardRead")).toBe(false);
