@@ -128,7 +128,7 @@ export class GroqProvider implements LlmProvider {
       new Groq({
         apiKey: options.apiKey,
         timeout: options.timeoutMs,
-        maxRetries: 0,
+        maxRetries: 2,
       });
     this.observer = options.observer;
     this.now = options.now ?? performance.now.bind(performance);
@@ -162,7 +162,7 @@ export class GroqProvider implements LlmProvider {
         },
         {
           timeout: this.options.timeoutMs,
-          maxRetries: 0,
+          maxRetries: 2,
         },
       );
 

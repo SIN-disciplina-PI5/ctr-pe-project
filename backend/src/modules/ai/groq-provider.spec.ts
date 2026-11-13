@@ -107,7 +107,7 @@ describe("GroqProvider", () => {
         temperature: 0,
         response_format: expect.objectContaining({ type: "json_schema" }),
       }),
-      { timeout: 5_000, maxRetries: 0 },
+      { timeout: 5_000, maxRetries: 2 },
     );
     expect(record).toHaveBeenCalledWith(
       expect.objectContaining({
