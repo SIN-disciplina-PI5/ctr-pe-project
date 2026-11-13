@@ -5,9 +5,9 @@ a partir do mesmo código.
 
 ## Assistente (`/assistente`)
 Chat em linguagem natural sobre os dados da operação.
-- Usa `POST /api/ai/query` (agente de IA do backend).
-- Sugestões de perguntas, indicador de carregamento e tratamento de recusa.
-- Histórico mantido durante a sessão (Zustand) e botão "Nova conversa".
+- Usa `POST /api/ai/chat` (orquestrador de IA do backend).
+- Exibe respostas, consultas, tabelas e relatórios estruturados.
+- Mantém a conversa no backend por meio do `conversationId` e oferece o botão "Nova conversa".
 
 ## Indicadores (`/indicadores`)
 Distribuição dos dados da operação.
@@ -33,8 +33,7 @@ Visão financeira e de disponibilidade.
 | `frontend/app/(protected)/` | Telas (`assistente`, `indicadores`, `desempenho`) |
 | `frontend/src/components/charts/` | ChartCard, StatCard, BarChart, DonutChart, ColumnChart, BotaoAtualizar, ChartSkeleton |
 | `frontend/src/components/brand/` | Logo MaqControl |
-| `frontend/src/features/ai/` | Tipos, service e hook do assistente |
-| `frontend/src/store/assistente-store.ts` | Histórico da conversa |
+| `frontend/src/features/assistente/` | Tipos, service, hook e utilitários do assistente |
 | `frontend/src/lib/` | `formatters.ts` e `chart-colors.ts` |
 
 ## Como executar
@@ -45,4 +44,4 @@ Visão financeira e de disponibilidade.
 Defina `EXPO_PUBLIC_API_URL` no `frontend/.env`, apontando para a API.
 
 ## Capturas de tela
-Adicione as imagens em `docs/img/` e referencie aqui.cd ..
+Adicione as imagens em `docs/img/` e referencie aqui.
