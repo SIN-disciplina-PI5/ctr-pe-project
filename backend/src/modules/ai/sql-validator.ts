@@ -1,6 +1,13 @@
+import { readFileSync } from "node:fs";
 import { parse } from "pgsql-parser";
 import { AI_VIEW_NAMES, type AiViewName } from "./schema-context.js";
 
+const SQL_PARSER_WASM_URL = new URL(
+  "../../../node_modules/libpg-query/wasm/libpg-query.wasm",
+  import.meta.url,
+);
+
+void readFileSync(SQL_PARSER_WASM_URL);
 type AstRecord = Record<string, unknown>;
 
 export const AI_ALLOWED_SQL_FUNCTIONS = [
