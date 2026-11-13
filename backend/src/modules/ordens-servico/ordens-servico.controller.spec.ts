@@ -14,6 +14,8 @@ import {
 } from "./ordens-servico.controller.js";
 import { OrdensServicoService } from "./ordens-servico.service.js";
 
+const authenticatedUser = { id: "user-1", empresaId: "empresa-1" };
+
 function makeResponse() {
   const res = {} as Response;
   res.status = jest.fn<typeof res.status>().mockReturnValue(res);
@@ -35,6 +37,7 @@ describe("ordens-servico.controller", () => {
     jest.spyOn(OrdensServicoService.prototype, "findAll").mockResolvedValue([{ id: "1" }] as never);
 
     const req = {
+      user: authenticatedUser,
       query: {
         empresaId: "empresa-1",
         ativoId: "ativo-1",
@@ -62,12 +65,16 @@ describe("ordens-servico.controller", () => {
     jest.spyOn(OrdensServicoService.prototype, "findById").mockResolvedValue({ id: "1" } as never);
 
     const req = {
+      user: authenticatedUser,
       params: { id: "1" },
     } as unknown as Request;
 
     await findById(req, res, next);
 
-    expect(OrdensServicoService.prototype.findById).toHaveBeenCalledWith("1");
+    expect(OrdensServicoService.prototype.findById).toHaveBeenCalledWith(
+      "1",
+      "empresa-1",
+    );
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
@@ -75,6 +82,7 @@ describe("ordens-servico.controller", () => {
     jest.spyOn(OrdensServicoService.prototype, "create").mockResolvedValue({ id: "1" } as never);
 
     const req = {
+      user: authenticatedUser,
       body: {
         empresaId: "empresa-1",
         ativoId: "ativo-1",
@@ -92,15 +100,20 @@ describe("ordens-servico.controller", () => {
     jest.spyOn(OrdensServicoService.prototype, "update").mockResolvedValue({ id: "1" } as never);
 
     const req = {
+      user: authenticatedUser,
       params: { id: "1" },
       body: { titulo: "Atualizada" },
     } as unknown as Request;
 
     await update(req, res, next);
 
-    expect(OrdensServicoService.prototype.update).toHaveBeenCalledWith("1", {
-      titulo: "Atualizada",
-    });
+    expect(OrdensServicoService.prototype.update).toHaveBeenCalledWith(
+      "1",
+      "empresa-1",
+      {
+        titulo: "Atualizada",
+      },
+    );
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
@@ -127,6 +140,7 @@ describe("ordens-servico.controller", () => {
 
     expect(OrdensServicoService.prototype.iniciar).toHaveBeenCalledWith(
       "1",
+      "empresa-1",
       "2026-06-11T10:00:00.000Z",
     );
     expect(res.status).toHaveBeenCalledWith(200);
@@ -180,6 +194,7 @@ describe("ordens-servico.controller", () => {
 
     expect(OrdensServicoService.prototype.aguardarPeca).toHaveBeenCalledWith(
       "1",
+      "empresa-1",
       "Aguardando item",
     );
     expect(res.status).toHaveBeenCalledWith(200);
@@ -231,7 +246,11 @@ describe("ordens-servico.controller", () => {
 
     await retomar(req, res, next);
 
-    expect(OrdensServicoService.prototype.retomar).toHaveBeenCalledWith("1", "Peça chegou");
+    expect(OrdensServicoService.prototype.retomar).toHaveBeenCalledWith(
+      "1",
+      "empresa-1",
+      "Peça chegou",
+    );
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
@@ -263,6 +282,7 @@ describe("ordens-servico.controller", () => {
 
     expect(OrdensServicoService.prototype.encerrar).toHaveBeenCalledWith(
       "1",
+      "empresa-1",
       expect.objectContaining({
         diagnostico: "Falha elétrica",
         solucao: "Troca de cabo",
@@ -299,12 +319,15 @@ describe("ordens-servico.controller", () => {
   });
 
   it("should cancelar com permissão", async () => {
+    jest.spyOn(OrdensServicoService.prototype, "findById").mockResolvedValue({
+      id: "1",
+    } as never);
     jest.spyOn(OrdensServicoService.prototype, "cancelar").mockResolvedValue({ id: "1" } as never);
 
     const req = {
       user: {
         id: "admin-1",
-        empresaId: null,
+        empresaId: "empresa-1",
         nome: "Admin",
         email: "admin@teste.com",
         perfil: "ADMIN",
@@ -320,6 +343,7 @@ describe("ordens-servico.controller", () => {
 
     expect(OrdensServicoService.prototype.cancelar).toHaveBeenCalledWith(
       "1",
+      "empresa-1",
       expect.objectContaining({
         motivo: "Erro de abertura",
         canceladaEm: "2026-06-11T12:00:00.000Z",

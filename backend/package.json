@@ -9,15 +9,35 @@
     "start": "node dist/server.js",
     "postinstall": "prisma generate",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand",
+    "test:unit": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config jest.unit.config.ts --runInBand",
+    "test:integration": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config jest.integration.config.ts --runInBand",
     "test:watch": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --watch",
+    "test:synthetic-data": "DATABASE_URL=${DATABASE_URL:-postgresql://test:test@127.0.0.1:5432/test} npm test -- --runTestsByPath tests/unit/synthetic-data-consistency.spec.ts",
+    "test:ai-evaluation-dataset": "DATABASE_URL=${DATABASE_URL:-postgresql://test:test@127.0.0.1:5432/test} npm test -- --runTestsByPath tests/evaluation/query-evaluation-dataset.spec.ts",
+    "test:ai-evaluation": "DATABASE_URL=${DATABASE_URL:-postgresql://test:test@127.0.0.1:5432/test} npm test -- --runTestsByPath tests/evaluation/query-evaluation-dataset.spec.ts tests/evaluation/query-evaluation-runner.spec.ts",
+    "test:postman-contract": "node --test postman/collection.contract.test.mjs",
+    "postman:generate": "node postman/generate-collection.mjs",
+    "evaluate:ai": "tsx evaluation/run-query-evaluation.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:seed": "prisma db seed",
     "prisma:studio": "prisma studio",
-    "tokens:cleanup": "tsx src/auth/clean-refresh-tokens.ts"
+    "ai-role:set-password": "tsx prisma/set-ai-readonly-password.ts",
+    "tokens:cleanup": "tsx src/auth/clean-refresh-tokens.ts",
+    "db:reset-synthetic": "tsx scripts/synthetic-data/reset-and-seed.ts",
+    "spike:provider-smoke": "tsx spikes/text-to-sql/run-provider-smoke.ts",
+    "spike:generate-sql": "tsx spikes/text-to-sql/run-generation.ts",
+    "spike:generate-retry": "tsx spikes/text-to-sql/run-retry-generation.ts",
+    "spike:validate-sql": "tsx spikes/text-to-sql/run-validation.ts",
+    "spike:execute-sql": "tsx spikes/text-to-sql/run-execution.ts",
+    "spike:execute-snake-sql": "tsx spikes/text-to-sql/run-snake-case-execution.ts",
+    "spike:compare-models": "tsx spikes/text-to-sql/run-model-comparison.ts",
+    "spike:compare-retries": "tsx spikes/text-to-sql/run-retry-comparison.ts",
+    "spike:evaluate-tenant-filter": "tsx spikes/text-to-sql/run-tenant-filter-evaluation.ts",
+    "spike:evaluate-tenant-rls": "tsx spikes/text-to-sql/run-rls-tenant-isolation.ts"
   },
-  "prisma":{
+  "prisma": {
     "seed": "npx tsx prisma/seed.ts"
   },
   "keywords": [],
@@ -25,20 +45,24 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@google-cloud/recaptcha-enterprise": "^7.2.0",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "groq-sdk": "^1.6.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
     "pg": "^8.20.0",
-    "zod": "^4.4.2",
-    "express-rate-limit": "^8.5.2"
+    "pgsql-parser": "^18.3.1",
+    "zod": "^4.4.2"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.6.0",
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
@@ -55,7 +79,7 @@
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.9",
     "ts-node": "^10.9.2",
-    "tsx": "^4.21.0",
+    "tsx": "^4.23.15",
     "typescript": "^6.0.3"
   }
 }

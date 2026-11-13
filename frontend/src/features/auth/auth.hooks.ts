@@ -1,10 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
-import { authService } from '../../infrastructure/auth/auth.service';
+import {
+  authService,
+  type LoginCredentials,
+} from '../../infrastructure/auth/auth.service';
 
 
 export const useLoginMutation = () => {
   return useMutation({
-    mutationFn: async (credentials: { email: string; password: string }) => {
+    mutationFn: async (credentials: LoginCredentials) => {
       return authService.login(credentials);
     },
     onSuccess: (data) => {

@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { entityIdSchema } from "../../../common/schemas/entity-id.schema.js";
 
 export const listAuditoriaDto = z.object({
-  empresaId: z.string().cuid().optional(),
-  usuarioId: z.string().cuid().optional(),
+  empresaId: entityIdSchema.optional(),
+  usuarioId: entityIdSchema.optional(),
   entidade: z.string().min(1).optional(),
   entidadeId: z.string().min(1).optional(),
   acao: z

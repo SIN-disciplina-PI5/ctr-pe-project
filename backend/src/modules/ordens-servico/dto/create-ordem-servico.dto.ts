@@ -1,12 +1,13 @@
 import { z } from "zod";
+import { entityIdSchema } from "../../../common/schemas/entity-id.schema.js";
 
 export const createOrdemServicoDto = z.object({
-  empresaId: z.string().cuid(),
-  localizacaoId: z.string().cuid().optional(),
-  ativoId: z.string().cuid(),
+  empresaId: entityIdSchema,
+  localizacaoId: entityIdSchema.optional(),
+  ativoId: entityIdSchema,
 
-  solicitanteId: z.string().cuid().optional(),
-  responsavelId: z.string().cuid().optional(),
+  solicitanteId: entityIdSchema.optional(),
+  responsavelId: entityIdSchema.optional(),
 
   numero: z.string().min(1).optional(),
   titulo: z.string().min(1),

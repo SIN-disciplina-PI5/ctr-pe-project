@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { entityIdSchema } from "../../../common/schemas/entity-id.schema.js";
 
 export const createMaterialDto = z.object({
-  empresaId: z.string().cuid(),
+  empresaId: entityIdSchema,
   codigo: z.string().min(1),
   nome: z.string().min(1),
   descricao: z.string().optional(),

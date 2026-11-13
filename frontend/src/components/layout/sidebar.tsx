@@ -11,8 +11,8 @@ import {
   LayoutDashboard,
   LogOut,
   MapPinned,
+  MessageSquareText,
   Package,
-  Sparkles,
   TrendingUp,
   Users,
 } from "lucide-react-native";
@@ -21,14 +21,14 @@ import { Logo } from "@/components/brand/logo";
 import { EmpresaCompactSelect } from "@/components/domain/empresa-compact-select";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
-import type { PerfilUsuario } from "@/features/usuarios/usuarios.types";
+import { hasPermission, type AppPermission } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
   href: string;
   label: string;
   icon: LucideIcon;
-  perfis?: PerfilUsuario[];
+  permission: AppPermission;
 };
 
 type NavGroup = {
@@ -40,29 +40,29 @@ const NAV_GROUPS: NavGroup[] = [
   {
     titulo: "Visão geral",
     itens: [
-      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/indicadores", label: "Indicadores", icon: BarChart3 },
-      { href: "/desempenho", label: "Desempenho", icon: TrendingUp },
-      { href: "/assistente", label: "Assistente", icon: Sparkles },
+      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, permission: "dashboardRead" },
+      { href: "/indicadores", label: "Indicadores", icon: BarChart3, permission: "dashboardRead" },
+      { href: "/desempenho", label: "Desempenho", icon: TrendingUp, permission: "dashboardRead" },
+      { href: "/assistente", label: "Assistente", icon: MessageSquareText, permission: "assistantUse" },
     ],
   },
   {
     titulo: "Operação",
     itens: [
-      { href: "/ordens-servico", label: "Ordens de serviço", icon: ClipboardList },
-      { href: "/ativos", label: "Ativos", icon: Boxes },
-      { href: "/paradas", label: "Paradas", icon: CirclePause },
-      { href: "/materiais", label: "Materiais", icon: Package },
-      { href: "/alertas", label: "Alertas", icon: Bell },
+      { href: "/ordens-servico", label: "Ordens de serviço", icon: ClipboardList, permission: "maintenanceRead" },
+      { href: "/ativos", label: "Ativos", icon: Boxes, permission: "maintenanceRead" },
+      { href: "/paradas", label: "Paradas", icon: CirclePause, permission: "maintenanceRead" },
+      { href: "/materiais", label: "Materiais", icon: Package, permission: "maintenanceRead" },
+      { href: "/alertas", label: "Alertas", icon: Bell, permission: "maintenanceRead" },
     ],
   },
   {
     titulo: "Gestão",
     itens: [
-      { href: "/auditoria", label: "Auditoria", icon: FileText, perfis: ["ADMIN", "GESTOR"] },
-      { href: "/cadastros/empresas", label: "Empresas", icon: Building2 },
-      { href: "/cadastros/localizacoes", label: "Localizações", icon: MapPinned },
-      { href: "/cadastros/usuarios", label: "Usuários", icon: Users },
+      { href: "/auditoria", label: "Auditoria", icon: FileText, permission: "auditRead" },
+      { href: "/cadastros/empresas", label: "Empresas", icon: Building2, permission: "companiesRead" },
+      { href: "/cadastros/localizacoes", label: "Localizações", icon: MapPinned, permission: "locationsRead" },
+      { href: "/cadastros/usuarios", label: "Usuários", icon: Users, permission: "usersRead" },
     ],
   },
 ];
@@ -80,7 +80,7 @@ function iniciais(nome?: string) {
 type SidebarProps = {
   pathname: string;
   nomeUsuario?: string;
-  perfilUsuario?: PerfilUsuario;
+  perfilUsuario?: Parameters<typeof hasPermission>[0];
   onNavigate: (href: string) => void;
   onLogout: () => void;
 };
@@ -112,8 +112,8 @@ export function Sidebar({
 
       <ScrollView className="flex-1" contentContainerClassName="gap-5 px-3 pb-4 pt-1">
         {NAV_GROUPS.map((grupo) => {
-          const itens = grupo.itens.filter(
-            (item) => !item.perfis || (perfilUsuario && item.perfis.includes(perfilUsuario)),
+          const itens = grupo.itens.filter((item) =>
+            hasPermission(perfilUsuario, item.permission),
           );
           if (itens.length === 0) return null;
 

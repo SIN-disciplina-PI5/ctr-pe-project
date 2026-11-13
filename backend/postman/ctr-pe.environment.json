@@ -1,0 +1,145 @@
+{
+  "id": "ctr-pe-local-contract-environment",
+  "name": "CTR-PE Local Contract Environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "auth_password",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "admin_email_a",
+      "value": "international-admin@alpha-international.com",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "admin_email_b",
+      "value": "brazilian-admin@alpha-brazilian.com",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "gestor_email_a",
+      "value": "gestor1@alpha-international.com",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "consulta_email_a",
+      "value": "consulta1@alpha-international.com",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "missing_id",
+      "value": "cmissing00000000000000000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "token_admin_a",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "token_admin_b",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "token_gestor_a",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "token_consulta_a",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "refresh_admin_a",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "refresh_admin_b",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "refresh_gestor_a",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "refresh_consulta_a",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "empresa_id_a",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "empresa_id_b",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "usuario_id_a",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "ativo_id_b",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "created_localizacao_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "created_ativo_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "created_material_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "created_ordem_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}

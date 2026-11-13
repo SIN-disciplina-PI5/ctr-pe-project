@@ -1,16 +1,23 @@
 import { z } from "zod";
+import { entityIdSchema } from "../../../common/schemas/entity-id.schema.js";
 
 export const updateOrdemServicoDto = z.object({
-  localizacaoId: z.string().cuid().nullable().optional(),
-  solicitanteId: z.string().cuid().nullable().optional(),
-  responsavelId: z.string().cuid().nullable().optional(),
+  localizacaoId: entityIdSchema.nullable().optional(),
+  solicitanteId: entityIdSchema.nullable().optional(),
+  responsavelId: entityIdSchema.nullable().optional(),
 
   titulo: z.string().min(1).optional(),
   descricao: z.string().min(1).optional(),
 
   tipo: z.enum(["CORRETIVA", "PREVENTIVA", "INSPECAO", "OUTRA"]).optional(),
   status: z
-    .enum(["ABERTA", "EM_EXECUCAO", "AGUARDANDO_PECA", "ENCERRADA", "CANCELADA"])
+    .enum([
+      "ABERTA",
+      "EM_EXECUCAO",
+      "AGUARDANDO_PECA",
+      "ENCERRADA",
+      "CANCELADA",
+    ])
     .optional(),
   prioridade: z.enum(["BAIXA", "MEDIA", "ALTA", "CRITICA"]).optional(),
 

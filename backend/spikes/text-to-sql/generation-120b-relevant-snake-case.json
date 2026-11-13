@@ -1,0 +1,295 @@
+[
+  {
+    "id": "ativos-indisponiveis",
+    "question": "Quais ativos da Alpha Brazilian estão indisponíveis?",
+    "referenceSql": "SELECT a.codigo, a.nome, a.status\nFROM \"Ativo\" a\nJOIN \"Empresa\" e ON e.id = a.\"empresaId\"\nWHERE e.codigo = 'alpha-brazilian'\n  AND a.ativo = true\n  AND a.status IN ('PARADO', 'EM_MANUTENCAO', 'AGUARDANDO_PECA')\nORDER BY a.codigo\nLIMIT 100;",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "relevant",
+    "contextNaming": "snake_case",
+    "relevantTables": [
+      "Empresa",
+      "Ativo"
+    ],
+    "contextCharacters": 1041,
+    "generatedSql": "SELECT a.id, a.codigo, a.nome, a.status\nFROM ai.ativos AS a\nJOIN ai.empresas AS e ON a.empresa_id = e.id\nWHERE e.codigo = 'alpha-brazilian'\n  AND a.ativo = true\n  AND a.status IN ('PARADO','EM_MANUTENCAO','AGUARDANDO_PECA')\nLIMIT 100;",
+    "explanation": "A consulta seleciona os ativos que pertencem à empresa com código 'alpha-brazilian' (Alpha Brazilian) e que estão indisponíveis, ou seja, têm a coluna ativo = true e status igual a PARADO, EM_MANUTENCAO ou AGUARDANDO_PECA. É feita a junção entre as views ai.ativos e ai.empresas usando o relacionamento empresa_id → id e o resultado é limitado a no máximo 100 linhas.",
+    "assumptions": [
+      "Usar a view ai.ativos como a",
+      "Usar a view ai.empresas como e",
+      "Filtrar e.codigo = 'alpha-brazilian'",
+      "Filtrar a.ativo = true",
+      "Filtrar a.status IN ('PARADO','EM_MANUTENCAO','AGUARDANDO_PECA')",
+      "Limitar o resultado a 100 registros"
+    ],
+    "metrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 1799,
+      "inputTokens": 555,
+      "outputTokens": 599,
+      "totalTokens": 1154
+    }
+  },
+  {
+    "id": "os-abertas-por-status",
+    "question": "Quantas O.S. abertas existem por status na Alpha Brazilian?",
+    "referenceSql": "SELECT o.status, COUNT(*)::int AS quantidade\nFROM \"OrdemServico\" o\nJOIN \"Empresa\" e ON e.id = o.\"empresaId\"\nWHERE e.codigo = 'alpha-brazilian'\n  AND o.status IN ('ABERTA', 'EM_EXECUCAO', 'AGUARDANDO_PECA')\nGROUP BY o.status\nORDER BY o.status\nLIMIT 100;",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "relevant",
+    "contextNaming": "snake_case",
+    "relevantTables": [
+      "Empresa",
+      "OrdemServico"
+    ],
+    "contextCharacters": 1367,
+    "generatedSql": "SELECT os.status, COUNT(*) AS total FROM ai.ordens_servico AS os JOIN ai.empresas AS e ON os.empresa_id = e.id WHERE e.codigo = 'alpha-brazilian' AND os.status IN ('ABERTA','EM_EXECUCAO','AGUARDANDO_PECA') GROUP BY os.status LIMIT 100",
+    "explanation": "Conta quantas ordens de serviço abertas existem por status para a empresa Alpha Brazilian, filtrando pelos códigos da empresa e pelos status que definem uma O.S. aberta.",
+    "assumptions": [
+      "Usar a view ai.ordens_servico como fonte de dados das O.S.",
+      "Usar a view ai.empresas para filtrar pela empresa com código 'alpha-brazilian'.",
+      "Considerar como O.S. aberta os status ABERTA, EM_EXECUCAO e AGUARDANDO_PECA.",
+      "Agrupar o resultado por status da O.S.",
+      "Limitar o resultado a no máximo 100 linhas."
+    ],
+    "metrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 1488,
+      "inputTokens": 639,
+      "outputTokens": 536,
+      "totalTokens": 1175
+    }
+  },
+  {
+    "id": "ativos-mais-corretivas",
+    "question": "Quais são os cinco ativos com mais manutenções corretivas na Alpha Brazilian?",
+    "referenceSql": "SELECT a.codigo, a.nome, COUNT(*)::int AS quantidade\nFROM \"OrdemServico\" o\nJOIN \"Ativo\" a ON a.id = o.\"ativoId\"\nJOIN \"Empresa\" e ON e.id = o.\"empresaId\"\nWHERE e.codigo = 'alpha-brazilian' AND o.tipo = 'CORRETIVA'\nGROUP BY a.id, a.codigo, a.nome\nORDER BY quantidade DESC, a.codigo\nLIMIT 5;",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "relevant",
+    "contextNaming": "snake_case",
+    "relevantTables": [
+      "Empresa",
+      "Ativo",
+      "OrdemServico"
+    ],
+    "contextCharacters": 1752,
+    "generatedSql": "SELECT a.codigo, a.nome, COUNT(os.id) AS total_corretivas\nFROM ai.ativos AS a\nJOIN ai.ordens_servico AS os ON os.ativo_id = a.id\nJOIN ai.empresas AS e ON e.id = a.empresa_id AND e.id = os.empresa_id\nWHERE e.codigo = 'alpha-brazilian' AND os.tipo = 'CORRETIVA'\nGROUP BY a.codigo, a.nome\nORDER BY total_corretivas DESC\nLIMIT 5;",
+    "explanation": "A consulta conta quantas ordens de serviço do tipo CORRETIVA estão associadas a cada ativo da empresa Alpha Brazilian e devolve os cinco ativos com maior número de manutenções corretivas.",
+    "assumptions": [
+      "Filtrar a empresa pelo código 'alpha-brazilian' usando a coluna ai.empresas.codigo",
+      "Considerar apenas ordens de serviço onde tipo = 'CORRETIVA'",
+      "Relacionar ordens de serviço a ativos via ai.ordens_servico.ativo_id = ai.ativos.id",
+      "Relacionar ativos e ordens de serviço à empresa via ai.ativos.empresa_id = ai.empresas.id e ai.ordens_servico.empresa_id = ai.empresas.id",
+      "Agrupar por código e nome do ativo e ordenar pela contagem decrescente",
+      "Limitar o resultado aos cinco primeiros ativos"
+    ],
+    "metrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 2653,
+      "inputTokens": 766,
+      "outputTokens": 633,
+      "totalTokens": 1399
+    }
+  },
+  {
+    "id": "materiais-estoque-baixo",
+    "question": "Quais materiais da Alpha International estão com estoque baixo?",
+    "referenceSql": "SELECT m.codigo, m.nome, m.\"estoqueAtual\", m.\"estoqueMinimo\"\nFROM \"Material\" m\nJOIN \"Empresa\" e ON e.id = m.\"empresaId\"\nWHERE e.codigo = 'alpha-international'\n  AND m.ativo = true\n  AND m.\"estoqueAtual\" <= m.\"estoqueMinimo\"\nORDER BY m.codigo\nLIMIT 100;",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "relevant",
+    "contextNaming": "snake_case",
+    "relevantTables": [
+      "Empresa",
+      "Material"
+    ],
+    "contextCharacters": 978,
+    "generatedSql": "SELECT m.id, m.codigo, m.nome, m.estoque_atual, m.estoque_minimo, m.custo_medio\nFROM ai.materiais AS m\nJOIN ai.empresas AS e ON m.empresa_id = e.id\nWHERE e.codigo = 'alpha-international'\n  AND m.ativo = true\n  AND m.estoque_atual <= m.estoque_minimo\nLIMIT 100;",
+    "explanation": "A consulta seleciona os materiais que pertencem à empresa Alpha International (código 'alpha-international') e que têm estoque baixo, ou seja, estão ativos e o estoque atual é menor ou igual ao estoque mínimo. A junção entre materiais e empresas garante o filtro correto e o LIMIT limita o resultado a no máximo 100 linhas.",
+    "assumptions": [
+      "Usar apenas as views do schema ai (ai.materiais e ai.empresas)",
+      "Filtrar pela empresa com código 'alpha-international'",
+      "Considerar estoque baixo quando ativo = true e estoque_atual <= estoque_minimo",
+      "Limitar o resultado a no máximo 100 registros"
+    ],
+    "metrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 1574,
+      "inputTokens": 514,
+      "outputTokens": 576,
+      "totalTokens": 1090
+    }
+  },
+  {
+    "id": "os-atrasadas",
+    "question": "Quais O.S. da Alpha Brazilian estão atrasadas em 27 de outubro de 2026?",
+    "referenceSql": "SELECT o.numero, o.titulo, o.status, o.\"prazoEm\"\nFROM \"OrdemServico\" o\nJOIN \"Empresa\" e ON e.id = o.\"empresaId\"\nWHERE e.codigo = 'alpha-brazilian'\n  AND o.status IN ('ABERTA', 'EM_EXECUCAO', 'AGUARDANDO_PECA')\n  AND o.\"prazoEm\" < TIMESTAMPTZ '2026-10-27T12:00:00Z'\nORDER BY o.\"prazoEm\"\nLIMIT 100;",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "relevant",
+    "contextNaming": "snake_case",
+    "relevantTables": [
+      "Empresa",
+      "OrdemServico"
+    ],
+    "contextCharacters": 1367,
+    "generatedSql": "SELECT o.id, o.numero, o.titulo, o.status, o.prazo_em FROM ai.ordens_servico AS o JOIN ai.empresas AS e ON o.empresa_id = e.id WHERE e.codigo = 'alpha-brazilian' AND o.status IN ('ABERTA','EM_EXECUCAO','AGUARDANDO_PECA') AND o.prazo_em < '2026-10-27T12:00:00Z' LIMIT 100",
+    "explanation": "Seleciona as ordens de serviço que pertencem à empresa Alpha Brazilian (código 'alpha-brazilian'), cujo status indica que a O.S. está aberta (ABERTA, EM_EXECUCAO ou AGUARDANDO_PECA) e cujo prazo é anterior à data de referência 27/10/2026 12:00 UTC, limitando o resultado a no máximo 100 linhas.",
+    "assumptions": [
+      "A empresa Alpha Brazilian tem código 'alpha-brazilian'.",
+      "O status aberto inclui ABERTA, EM_EXECUCAO e AGUARDANDO_PECA.",
+      "Uma O.S. está atrasada quando seu prazo_em é anterior a '2026-10-27T12:00:00Z'.",
+      "Os dados são consultados apenas nas views do schema ai, usando as colunas disponíveis em ai.ordens_servico e ai.empresas."
+    ],
+    "metrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 1770,
+      "inputTokens": 647,
+      "outputTokens": 624,
+      "totalTokens": 1271
+    }
+  },
+  {
+    "id": "custo-agosto",
+    "question": "Qual foi o custo total das O.S. que foram abertas durante agosto de 2026 na Alpha Brazilian?",
+    "referenceSql": "SELECT COALESCE(SUM(o.\"custoTotal\"), 0) AS custo_total\nFROM \"OrdemServico\" o\nJOIN \"Empresa\" e ON e.id = o.\"empresaId\"\nWHERE e.codigo = 'alpha-brazilian'\n  AND o.\"abertaEm\" >= TIMESTAMPTZ '2026-08-01T00:00:00Z'\n  AND o.\"abertaEm\" < TIMESTAMPTZ '2026-09-01T00:00:00Z'\nLIMIT 100;",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "relevant",
+    "contextNaming": "snake_case",
+    "relevantTables": [
+      "Empresa",
+      "OrdemServico"
+    ],
+    "contextCharacters": 1367,
+    "generatedSql": "SELECT SUM(os.custo_total) AS custo_total FROM ai.ordens_servico AS os JOIN ai.empresas AS e ON os.empresa_id = e.id WHERE e.codigo = 'alpha-brazilian' AND os.aberta_em >= '2026-08-01'::date AND os.aberta_em < '2026-09-01'::date LIMIT 100;",
+    "explanation": "A consulta soma o custo_total das ordens de serviço abertas no mês de agosto de 2026 para a empresa cujo código é 'alpha-brazilian'. Usa a view ai.ordens_servico e a view ai.empresas, filtrando pelo código da empresa e pelo intervalo de datas da coluna aberta_em. O resultado é limitado a no máximo 100 linhas (apenas uma linha de agregação).",
+    "assumptions": [
+      "Utilizar a view ai.ordens_servico como fonte dos dados de O.S.;",
+      "Utilizar a view ai.empresas para filtrar pela empresa com código 'alpha-brazilian';",
+      "Considerar O.S. abertas quando a coluna aberta_em está entre 2026-08-01 e 2026-08-31 inclusive;",
+      "Somar a coluna custo_total das O.S. que atendem aos critérios;",
+      "Aplicar LIMIT 100 ao resultado."
+    ],
+    "metrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 1748,
+      "inputTokens": 648,
+      "outputTokens": 618,
+      "totalTokens": 1266
+    }
+  },
+  {
+    "id": "maior-media-parada",
+    "question": "Quais são os cinco ativos com maior duração média de parada na Alpha International?",
+    "referenceSql": "SELECT a.codigo, a.nome, AVG(p.\"duracaoMinutos\") AS media_minutos\nFROM \"ParadaAtivo\" p\nJOIN \"Ativo\" a ON a.id = p.\"ativoId\"\nJOIN \"Empresa\" e ON e.id = p.\"empresaId\"\nWHERE e.codigo = 'alpha-international' AND p.status = 'ENCERRADA'\nGROUP BY a.id, a.codigo, a.nome\nORDER BY media_minutos DESC\nLIMIT 5;",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "relevant",
+    "contextNaming": "snake_case",
+    "relevantTables": [
+      "Empresa",
+      "Ativo",
+      "ParadaAtivo"
+    ],
+    "contextCharacters": 1402,
+    "generatedSql": "SELECT a.id, a.codigo, a.nome, AVG(p.duracao_minutos) AS media_duracao\nFROM ai.ativos AS a\nJOIN ai.empresas AS e ON a.empresa_id = e.id\nJOIN ai.paradas AS p ON p.ativo_id = a.id\nWHERE e.codigo = 'alpha-international'\n  AND p.status = 'ENCERRADA'\nGROUP BY a.id, a.codigo, a.nome\nORDER BY media_duracao DESC\nLIMIT 5;",
+    "explanation": "A consulta filtra os ativos da empresa Alpha International (código 'alpha-international'), junta‑os com as paradas encerradas, calcula a média da duração em minutos de cada ativo e devolve os cinco com maior média.",
+    "assumptions": [
+      "Filtrar empresa pelo código 'alpha-international' em ai.empresas.codigo.",
+      "Considerar apenas paradas com status 'ENCERRADA'.",
+      "Calcular a média de duracao_minutos por ativo.",
+      "Ordenar pela média decrescente e limitar a 5 resultados."
+    ],
+    "metrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 1697,
+      "inputTokens": 652,
+      "outputTokens": 618,
+      "totalTokens": 1270
+    }
+  },
+  {
+    "id": "materiais-os-aguardando",
+    "question": "Quais materiais e qual quantidade total aparecem nas O.S. aguardando peça da Alpha Brazilian?",
+    "referenceSql": "SELECT m.codigo, m.nome, SUM(osm.quantidade) AS quantidade\nFROM \"OrdemServicoMaterial\" osm\nJOIN \"Material\" m ON m.id = osm.\"materialId\"\nJOIN \"OrdemServico\" o ON o.id = osm.\"ordemServicoId\"\nJOIN \"Empresa\" e ON e.id = o.\"empresaId\"\nWHERE e.codigo = 'alpha-brazilian' AND o.status = 'AGUARDANDO_PECA'\nGROUP BY m.id, m.codigo, m.nome\nORDER BY quantidade DESC\nLIMIT 100;",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "relevant",
+    "contextNaming": "snake_case",
+    "relevantTables": [
+      "Empresa",
+      "OrdemServico",
+      "Material",
+      "OrdemServicoMaterial"
+    ],
+    "contextCharacters": 1943,
+    "generatedSql": "SELECT m.nome, SUM(om.quantidade) AS quantidade_total FROM ai.os_materiais AS om JOIN ai.ordens_servico AS os ON om.ordem_servico_id = os.id JOIN ai.empresas AS e ON os.empresa_id = e.id JOIN ai.materiais AS m ON om.material_id = m.id WHERE e.codigo = 'alpha-brazilian' AND os.status = 'AGUARDANDO_PECA' GROUP BY m.nome LIMIT 100",
+    "explanation": "Seleciona o nome do material e a soma das quantidades associadas às ordens de serviço que estão no status AGUARDANDO_PECA, limitando ao código da empresa Alpha Brazilian (alpha-brazilian).",
+    "assumptions": [
+      "Utiliza as tabelas ai.os_materiais, ai.ordens_servico, ai.empresas e ai.materiais conforme os relacionamentos informados.",
+      "Filtra apenas ordens de serviço com status AGUARDANDO_PECA (O.S. aguardando peça).",
+      "Aplica filtro de empresa pelo código 'alpha-brazilian'.",
+      "Agrupa por nome do material para obter a quantidade total por material.",
+      "Limita o resultado a no máximo 100 linhas."
+    ],
+    "metrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 1521,
+      "inputTokens": 798,
+      "outputTokens": 533,
+      "totalTokens": 1331
+    }
+  },
+  {
+    "id": "ct07-agosto",
+    "question": "O que aconteceu com o ativo CT-07 da Alpha Brazilian em agosto de 2026?",
+    "referenceSql": "SELECT o.numero, o.titulo, o.status, o.\"abertaEm\", o.\"encerradaEm\",\n       o.\"tempoAguardandoPecaMinutos\", o.\"custoTotal\"\nFROM \"OrdemServico\" o\nJOIN \"Ativo\" a ON a.id = o.\"ativoId\"\nJOIN \"Empresa\" e ON e.id = o.\"empresaId\"\nWHERE e.codigo = 'alpha-brazilian'\n  AND a.codigo = 'CT-07'\n  AND o.\"abertaEm\" >= TIMESTAMPTZ '2026-08-01T00:00:00Z'\n  AND o.\"abertaEm\" < TIMESTAMPTZ '2026-09-01T00:00:00Z'\nORDER BY o.\"abertaEm\"\nLIMIT 100;",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "relevant",
+    "contextNaming": "snake_case",
+    "relevantTables": [
+      "Empresa",
+      "Ativo",
+      "OrdemServico"
+    ],
+    "contextCharacters": 1752,
+    "generatedSql": "SELECT o.numero, o.titulo, o.tipo, o.status, o.aberta_em, o.iniciada_em, o.encerrada_em, o.prazo_em FROM ai.ordens_servico AS o JOIN ai.ativos AS a ON o.ativo_id = a.id JOIN ai.empresas AS e ON o.empresa_id = e.id WHERE e.codigo = 'alpha-brazilian' AND a.codigo = 'CT-07' AND o.aberta_em >= DATE '2026-08-01' AND o.aberta_em < DATE '2026-09-01' LIMIT 100",
+    "explanation": "A consulta traz as ordens de serviço relacionadas ao ativo CT-07 da empresa Alpha Brazilian que foram abertas no mês de agosto de 2026, exibindo número, título, tipo, status e datas relevantes.",
+    "assumptions": [
+      "Filtrar pela empresa com código 'alpha-brazilian'",
+      "Filtrar pelo ativo com código 'CT-07'",
+      "Considerar apenas ordens de serviço abertas entre 2026-08-01 e 2026-08-31",
+      "Limitar o resultado a no máximo 100 linhas"
+    ],
+    "metrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 2188,
+      "inputTokens": 768,
+      "outputTokens": 854,
+      "totalTokens": 1622
+    }
+  },
+  {
+    "id": "alertas-criticos",
+    "question": "Quais alertas críticos ainda estão abertos na Alpha International?",
+    "referenceSql": "SELECT al.tipo, al.titulo, al.mensagem, al.\"geradoEm\"\nFROM \"Alerta\" al\nJOIN \"Empresa\" e ON e.id = al.\"empresaId\"\nWHERE e.codigo = 'alpha-international'\n  AND al.severidade = 'CRITICA'\n  AND al.status = 'ABERTO'\nORDER BY al.\"geradoEm\" DESC\nLIMIT 100;",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "relevant",
+    "contextNaming": "snake_case",
+    "relevantTables": [
+      "Empresa",
+      "Alerta"
+    ],
+    "contextCharacters": 1003,
+    "generatedSql": "SELECT a.id, a.titulo, a.mensagem, a.gerado_em FROM ai.alertas AS a JOIN ai.empresas AS e ON a.empresa_id = e.id WHERE e.codigo = 'alpha-international' AND a.severidade = 'CRITICA' AND a.status = 'ABERTO' LIMIT 100",
+    "explanation": "A consulta seleciona os alertas críticos (severidade = 'CRITICA') que ainda estão abertos (status = 'ABERTO') para a empresa Alpha International, identificada pelo código 'alpha-international'. A junção entre ai.alertas e ai.empresas garante que o filtro seja aplicado ao código da empresa.",
+    "assumptions": [
+      "Existe uma view ou tabela ai.alertas com as colunas id, empresa_id, severidade, status, titulo, mensagem, gerado_em.",
+      "Existe uma view ou tabela ai.empresas com as colunas id e codigo.",
+      "O código da empresa Alpha International é 'alpha-international'.",
+      "Os valores de enum para severidade e status são exatamente 'CRITICA' e 'ABERTO'.",
+      "A consulta deve limitar o resultado a no máximo 100 linhas."
+    ],
+    "metrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 1673,
+      "inputTokens": 542,
+      "outputTokens": 540,
+      "totalTokens": 1082
+    }
+  }
+]

@@ -1,0 +1,230 @@
+[
+  {
+    "file": "spikes/text-to-sql/groq-gpt-oss-20b-results.json",
+    "total": 10,
+    "approved": 8,
+    "rejected": 2,
+    "generationFailures": 1,
+    "results": [
+      {
+        "id": "ativos-indisponiveis",
+        "generatedSql": "SELECT \"Ativo\".id, \"Ativo\".codigo, \"Ativo\".nome, \"Ativo\".status FROM \"Ativo\" JOIN \"Empresa\" ON \"Ativo\".\"empresaId\" = \"Empresa\".id WHERE \"Empresa\".codigo = 'alpha-brazilian' AND \"Ativo\".ativo = true AND \"Ativo\".status IN ('PARADO','EM_MANUTENCAO','AGUARDANDO_PECA') LIMIT 100;",
+        "valid": true,
+        "violations": [],
+        "tables": [
+          "Ativo",
+          "Empresa"
+        ],
+        "limit": 100
+      },
+      {
+        "id": "os-abertas-por-status",
+        "generatedSql": "SELECT os.status, COUNT(*) AS quantidade\nFROM \"OrdemServico\" os\nJOIN \"Empresa\" e ON os.\"empresaId\" = e.id\nWHERE e.codigo = 'alpha-brazilian'\n  AND os.status IN ('ABERTA', 'EM_EXECUCAO', 'AGUARDANDO_PECA')\nGROUP BY os.status\nLIMIT 100;",
+        "valid": true,
+        "violations": [],
+        "tables": [
+          "Empresa",
+          "OrdemServico"
+        ],
+        "limit": 100
+      },
+      {
+        "id": "ativos-mais-corretivas",
+        "generatedSql": "SELECT \"Ativo\".id, \"Ativo\".codigo, \"Ativo\".nome, COUNT(*) AS num_corr\nFROM \"OrdemServico\"\nJOIN \"Ativo\" ON \"OrdemServico\".\"ativoId\" = \"Ativo\".id\nJOIN \"Empresa\" ON \"Ativo\".\"empresaId\" = \"Empresa\".id\nWHERE \"Empresa\".codigo = 'alpha-brazilian'\n  AND \"OrdemServico\".tipo = 'CORRETIVA'\nGROUP BY \"Ativo\".id, \"Ativo\".codigo, \"Ativo\".nome\nORDER BY num_corr DESC\nLIMIT 5;",
+        "valid": true,
+        "violations": [],
+        "tables": [
+          "Ativo",
+          "Empresa",
+          "OrdemServico"
+        ],
+        "limit": 5
+      },
+      {
+        "id": "materiais-estoque-baixo",
+        "generatedSql": "SELECT \"Material\".id, \"Material\".codigo, \"Material\".nome, \"Material\".estoqueAtual, \"Material\".estoqueMinimo FROM \"Material\" JOIN \"Empresa\" ON \"Material\".\"empresaId\" = \"Empresa\".id WHERE \"Empresa\".codigo = 'alpha-international' AND \"Material\".estoqueAtual <= \"Material\".estoqueMinimo LIMIT 100;",
+        "valid": true,
+        "violations": [],
+        "tables": [
+          "Empresa",
+          "Material"
+        ],
+        "limit": 100
+      },
+      {
+        "id": "os-atrasadas",
+        "generatedSql": "SELECT \"OrdemServico\".id, \"OrdemServico\".numero, \"OrdemServico\".titulo, \"OrdemServico\".status, \"OrdemServico\".prazoEm FROM \"OrdemServico\" JOIN \"Empresa\" ON \"OrdemServico\".\"empresaId\" = \"Empresa\".id WHERE \"Empresa\".codigo = 'alpha-brazilian' AND \"OrdemServico\".status IN ('ABERTA','EM_EXECUCAO','AGUARDANDO_PECA') AND \"OrdemServico\".prazoEm < '2026-10-27T12:00:00Z' LIMIT 100;",
+        "valid": true,
+        "violations": [],
+        "tables": [
+          "Empresa",
+          "OrdemServico"
+        ],
+        "limit": 100
+      },
+      {
+        "id": "custo-agosto",
+        "generatedSql": "SELECT SUM(\"custoTotal\") AS total_custo FROM \"OrdemServico\" os JOIN \"Empresa\" e ON os.\"empresaId\" = e.id WHERE e.codigo = 'alpha-brazilian' AND os.status IN ('ABERTA','EM_EXECUCAO','AGUARDANDO_PECA') AND os.\"abertaEm\" >= '2026-08-01' AND os.\"abertaEm\" < '2026-09-01' LIMIT 100;",
+        "valid": true,
+        "violations": [],
+        "tables": [
+          "Empresa",
+          "OrdemServico"
+        ],
+        "limit": 100
+      },
+      {
+        "id": "maior-media-parada",
+        "generatedSql": "SELECT \\\"Ativo\\\".codigo, \\\"Ativo\\\".nome, AVG(\\\"ParadaAtivo\\\".\\\"duracaoMinutos\\\") AS avg_duracao FROM \\\"ParadaAtivo\\\" JOIN \\\"Ativo\\\" ON \\\"ParadaAtivo\\\".\\\"ativoId\\\" = \\\"Ativo\\\".id JOIN \\\"Empresa\\\" ON \\\"Ativo\\\".\\\"empresaId\\\" = \\\"Empresa\\\".id WHERE \\\"ParadaAtivo\\\".\\\"status\\\" = 'ENCERRADA' AND \\\"Empresa\\\".\\\"codigo\\\" = 'alpha-international' GROUP BY \\\"Ativo\\\".id, \\\"Ativo\\\".codigo, \\\"Ativo\\\".nome ORDER BY avg_duracao DESC LIMIT 100;",
+        "valid": false,
+        "violations": [
+          "SQL sintaticamente inválido."
+        ],
+        "tables": [],
+        "limit": null
+      },
+      {
+        "id": "materiais-os-aguardando",
+        "generatedSql": "SELECT DISTINCT m.id, m.nome FROM \"Material\" m JOIN \"OrdemServicoMaterial\" osm ON m.id = osm.\"materialId\" JOIN \"OrdemServico\" os ON osm.\"ordemServicoId\" = os.id JOIN \"Empresa\" e ON os.\"empresaId\" = e.id WHERE e.codigo = 'alpha-brazilian' AND os.status = 'AGUARDANDO_PECA' LIMIT 100;",
+        "valid": true,
+        "violations": [],
+        "tables": [
+          "Empresa",
+          "Material",
+          "OrdemServico",
+          "OrdemServicoMaterial"
+        ],
+        "limit": 100
+      },
+      {
+        "id": "ct07-agosto",
+        "valid": false,
+        "generationError": "400 {\"error\":{\"message\":\"Failed to validate JSON. Please adjust your prompt. See 'failed_generation' for more details.\",\"type\":\"invalid_request_error\",\"code\":\"json_validate_failed\",\"failed_generation\":\"\"}}",
+        "violations": [
+          "SQL não foi gerado."
+        ]
+      },
+      {
+        "id": "alertas-criticos",
+        "generatedSql": "SELECT \"Alerta\".id, \"Alerta\".titulo, \"Alerta\".mensagem, \"Alerta\".geradoEm FROM \"Alerta\" JOIN \"Empresa\" ON \"Alerta\".\"empresaId\" = \"Empresa\".id WHERE \"Empresa\".codigo = 'alpha-international' AND \"Alerta\".severidade = 'CRITICA' AND \"Alerta\".status = 'ABERTO' LIMIT 100;",
+        "valid": true,
+        "violations": [],
+        "tables": [
+          "Alerta",
+          "Empresa"
+        ],
+        "limit": 100
+      }
+    ]
+  },
+  {
+    "file": "spikes/text-to-sql/groq-gpt-oss-20b-results-v2.json",
+    "total": 10,
+    "approved": 6,
+    "rejected": 4,
+    "generationFailures": 4,
+    "results": [
+      {
+        "id": "ativos-indisponiveis",
+        "valid": false,
+        "generationError": "400 {\"error\":{\"message\":\"Generated JSON does not match the expected schema. Please adjust your prompt. See 'failed_generation' for more details. Error: jsonschema: '' does not validate with /required: missing properties: 'sql'\",\"type\":\"invalid_request_error\",\"code\":\"json_validate_failed\",\"failed_generation\":\"{\\\"explicacao\\\":\\\"Consulta ativos indisponíveis da Alpha Brazilian.\\\",\\\"premissas\\\":[\\\"Ativo indisponível: ativo = true e status em {PARADO, EM_MANUTENCAO, AGUARDANDO_PECA}.\\\",\\\"Filtragem por empresa usando Empresa.codigo = 'alpha-brazilian'.\\\"]}\"}}",
+        "violations": [
+          "SQL não foi gerado."
+        ]
+      },
+      {
+        "id": "os-abertas-por-status",
+        "valid": false,
+        "generationError": "400 {\"error\":{\"message\":\"Generated JSON does not match the expected schema. Please adjust your prompt. See 'failed_generation' for more details. Error: jsonschema: '' does not validate with /required: missing properties: 'sql'\",\"type\":\"invalid_request_error\",\"code\":\"json_validate_failed\",\"failed_generation\":\"{\\\"explicacao\\\":\\\"Conta o número de ordens de serviço abertas por status na empresa Alpha Brazilian.\\\",\\\"premissas\\\":[\\\"O.S. aberta corresponde aos status ABERTA, EM_EXECUCAO ou AGUARDANDO_PECA.\\\",\\\"A consulta filtra apenas registros da empresa cujo código é 'alpha-brazilian'.\\\",\\\"Todos os identificadores são citados entre aspas duplas conforme a convenção PostgreSQL.\\\",\\\"A cláusula LIMIT garante no máximo 100 linhas retornadas.\\\",\\\"A consulta utiliza apenas as tabelas e colunas fornecidas no esquema.\\\"]}\"}}",
+        "violations": [
+          "SQL não foi gerado."
+        ]
+      },
+      {
+        "id": "ativos-mais-corretivas",
+        "generatedSql": "SELECT a.\"codigo\" AS codigo, a.\"nome\" AS nome, COUNT(os.id) AS total_corr FROM \"Ativo\" AS a JOIN \"Empresa\" AS e ON a.\"empresaId\" = e.id LEFT JOIN \"OrdemServico\" AS os ON os.\"ativoId\" = a.id AND os.tipo = 'CORRETIVA' WHERE e.codigo = 'alpha-brazilian' GROUP BY a.id, a.\"codigo\", a.\"nome\" ORDER BY total_corr DESC LIMIT 5;",
+        "valid": true,
+        "violations": [],
+        "tables": [
+          "Ativo",
+          "Empresa",
+          "OrdemServico"
+        ],
+        "limit": 5
+      },
+      {
+        "id": "materiais-estoque-baixo",
+        "generatedSql": "SELECT m.\"id\", m.\"codigo\", m.\"nome\", m.\"estoqueAtual\", m.\"estoqueMinimo\" FROM \"Material\" AS m WHERE m.\"empresaId\" = (SELECT \"id\" FROM \"Empresa\" WHERE \"codigo\" = 'alpha-international') AND m.ativo = true AND m.\"estoqueAtual\" <= m.\"estoqueMinimo\" LIMIT 100;",
+        "valid": true,
+        "violations": [],
+        "tables": [
+          "Empresa",
+          "Material"
+        ],
+        "limit": 100
+      },
+      {
+        "id": "os-atrasadas",
+        "generatedSql": "SELECT os.* FROM \"OrdemServico\" os JOIN \"Empresa\" e ON os.\"empresaId\" = e.id WHERE e.\"codigo\" = 'alpha-brazilian' AND os.\"status\" IN ('ABERTA','EM_EXECUCAO','AGUARDANDO_PECA') AND os.\"prazoEm\" < '2026-10-27T12:00:00Z' LIMIT 100;",
+        "valid": true,
+        "violations": [],
+        "tables": [
+          "Empresa",
+          "OrdemServico"
+        ],
+        "limit": 100
+      },
+      {
+        "id": "custo-agosto",
+        "generatedSql": "SELECT SUM(\"custoTotal\") AS \"custoTotalOS\" FROM \"OrdemServico\" AS os JOIN \"Empresa\" AS e ON os.\"empresaId\" = e.id WHERE e.codigo = 'alpha-brazilian' AND os.\"abertaEm\" >= '2026-08-01T00:00:00Z' AND os.\"abertaEm\" < '2026-09-01T00:00:00Z' LIMIT 100;",
+        "valid": true,
+        "violations": [],
+        "tables": [
+          "Empresa",
+          "OrdemServico"
+        ],
+        "limit": 100
+      },
+      {
+        "id": "maior-media-parada",
+        "valid": false,
+        "generationError": "400 {\"error\":{\"message\":\"Failed to validate JSON. Please adjust your prompt. See 'failed_generation' for more details.\",\"type\":\"invalid_request_error\",\"code\":\"json_validate_failed\",\"failed_generation\":\"\"}}",
+        "violations": [
+          "SQL não foi gerado."
+        ]
+      },
+      {
+        "id": "materiais-os-aguardando",
+        "generatedSql": "SELECT m.\"codigo\", m.\"nome\", SUM(osm.\"quantidade\") AS total_quantidade FROM \"Material\" AS m JOIN \"OrdemServicoMaterial\" AS osm ON m.id = osm.\"materialId\" JOIN \"OrdemServico\" AS os ON os.id = osm.\"ordemServicoId\" JOIN \"Empresa\" AS e ON e.id = os.\"empresaId\" WHERE e.\"codigo\" = 'alpha-brazilian' AND os.\"status\" = 'AGUARDANDO_PECA' GROUP BY m.\"codigo\", m.\"nome\" LIMIT 100;",
+        "valid": true,
+        "violations": [],
+        "tables": [
+          "Empresa",
+          "Material",
+          "OrdemServico",
+          "OrdemServicoMaterial"
+        ],
+        "limit": 100
+      },
+      {
+        "id": "ct07-agosto",
+        "valid": false,
+        "generationError": "400 {\"error\":{\"message\":\"Failed to validate JSON. Please adjust your prompt. See 'failed_generation' for more details.\",\"type\":\"invalid_request_error\",\"code\":\"json_validate_failed\",\"failed_generation\":\"\"}}",
+        "violations": [
+          "SQL não foi gerado."
+        ]
+      },
+      {
+        "id": "alertas-criticos",
+        "generatedSql": "SELECT a.\"id\", a.\"titulo\", a.\"mensagem\", a.\"geradoEm\" FROM \"Alerta\" AS a JOIN \"Empresa\" AS e ON a.\"empresaId\" = e.id WHERE e.\"codigo\" = 'alpha-international' AND a.\"severidade\" = 'CRITICA' AND a.\"status\" = 'ABERTO' LIMIT 100;",
+        "valid": true,
+        "violations": [],
+        "tables": [
+          "Alerta",
+          "Empresa"
+        ],
+        "limit": 100
+      }
+    ]
+  }
+]

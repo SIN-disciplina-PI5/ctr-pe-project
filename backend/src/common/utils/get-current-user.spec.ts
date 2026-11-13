@@ -1,7 +1,10 @@
 import { describe, expect, it } from "@jest/globals";
 import type { Request } from "express";
 
-import { getCurrentUser } from "./get-current-user.js";
+import {
+  getCurrentCompanyUser,
+  getCurrentUser,
+} from "./get-current-user.js";
 import { AppError } from "../errors/AppError.js";
 
 describe("getCurrentUser", () => {
@@ -25,5 +28,33 @@ describe("getCurrentUser", () => {
     const req = {} as Request;
 
     expect(() => getCurrentUser(req)).toThrow(AppError);
+  });
+
+  it("should retornar usuário vinculado a uma empresa", () => {
+    const req = {
+      user: {
+        id: "1",
+        empresaId: "empresa-1",
+        nome: "João",
+        email: "joao@teste.com",
+        perfil: "TECNICO",
+      },
+    } as Request;
+
+    expect(getCurrentCompanyUser(req).empresaId).toBe("empresa-1");
+  });
+
+  it("should lançar erro quando usuário não estiver vinculado a uma empresa", () => {
+    const req = {
+      user: {
+        id: "1",
+        empresaId: null,
+        nome: "João",
+        email: "joao@teste.com",
+        perfil: "TECNICO",
+      },
+    } as Request;
+
+    expect(() => getCurrentCompanyUser(req)).toThrow(AppError);
   });
 });
