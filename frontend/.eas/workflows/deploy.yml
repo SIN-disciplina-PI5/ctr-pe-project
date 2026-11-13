@@ -1,0 +1,13 @@
+name: Deploy frontend to production
+
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  deploy_web:
+    name: Deploy web to Expo Hosting
+    type: deploy
+    environment: production
+    params:
+      prod: true
