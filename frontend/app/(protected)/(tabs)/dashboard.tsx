@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,7 @@ import { useParadas } from "@/features/paradas/paradas.hooks";
 import { useSelectedEmpresaId } from "@/hooks/use-selected-empresa";
 
 const DASHBOARD_QUERY_OPTIONS = { refetchInterval: 45_000 };
+const AVAILABILITY_PERIODS = [7, 30, 90] as const;
 
 function IndicadorCard({
   label,
@@ -108,6 +109,7 @@ function formatElapsedTime(startedAt: string) {
 
 export default function DashboardScreen() {
   const empresaId = useSelectedEmpresaId();
+  const [availabilityPeriodDays, setAvailabilityPeriodDays] = useState(30);
 
   const params = useMemo(
     () => ({
@@ -127,10 +129,9 @@ export default function DashboardScreen() {
     DASHBOARD_QUERY_OPTIONS,
   );
 
-  const ativosParados = useAtivos(
+  const ativos = useAtivos(
     {
       empresaId: empresaId ?? undefined,
-      status: "PARADO",
     },
     DASHBOARD_QUERY_OPTIONS,
   );
@@ -145,10 +146,9 @@ export default function DashboardScreen() {
     DASHBOARD_QUERY_OPTIONS,
   );
 
-  const paradasAbertas = useParadas(
+  const paradas = useParadas(
     {
       empresaId: empresaId ?? undefined,
-      status: "ABERTA",
     },
     DASHBOARD_QUERY_OPTIONS,
   );
@@ -158,20 +158,20 @@ export default function DashboardScreen() {
     dashboardAtivos.isLoading ||
     dashboardOrdens.isLoading ||
     dashboardMateriais.isLoading ||
-    ativosParados.isLoading ||
+    ativos.isLoading ||
     ordensServico.isLoading ||
     alertasRecentes.isLoading ||
-    paradasAbertas.isLoading;
+    paradas.isLoading;
 
   const isError =
     resumo.isError ||
     dashboardAtivos.isError ||
     dashboardOrdens.isError ||
     dashboardMateriais.isError ||
-    ativosParados.isError ||
+    ativos.isError ||
     ordensServico.isError ||
     alertasRecentes.isError ||
-    paradasAbertas.isError;
+    paradas.isError;
 
   if (isLoading) {
     return (
@@ -201,7 +201,11 @@ export default function DashboardScreen() {
     ) ?? 0;
 
   const materiaisCriticos = dashboardMateriais.data?.materiaisCriticos ?? [];
-  const listaAtivosParados = ativosParados.data?.slice(0, 5) ?? [];
+  const ativosDaEmpresa = ativos.data ?? [];
+  const paradasDaEmpresa = paradas.data ?? [];
+  const listaAtivosParados = ativosDaEmpresa
+    .filter((ativo) => ativo.status === "PARADO")
+    .slice(0, 5);
   const ordens = ordensServico.data ?? [];
   const listaOrdensCriticas = ordens
     .filter(
@@ -212,7 +216,51 @@ export default function DashboardScreen() {
     )
     .slice(0, 5);
   const listaAlertasRecentes = alertasRecentes.data?.slice(0, 5) ?? [];
-  const listaParadasAbertas = paradasAbertas.data?.slice(0, 5) ?? [];
+  const listaParadasAbertas = paradasDaEmpresa
+    .filter((parada) => parada.status === "ABERTA")
+    .slice(0, 5);
+
+  const periodoFim = new Date();
+  const periodoInicio = new Date(periodoFim);
+  periodoInicio.setDate(periodoFim.getDate() - availabilityPeriodDays);
+
+  const quantidadeAtivos = ativosDaEmpresa.filter((ativo) => ativo.ativo).length;
+  const totalMinutosPeriodo = availabilityPeriodDays * 24 * 60;
+  const tempoParadoPeriodo = paradasDaEmpresa.reduce((total, parada) => {
+    if (!parada.impactaDisponibilidade || parada.status === "CANCELADA") {
+      return total;
+    }
+
+    const inicioParada = new Date(parada.inicioEm);
+    const fimParada = parada.fimEm ? new Date(parada.fimEm) : periodoFim;
+    const inicioIntersecao = new Date(
+      Math.max(inicioParada.getTime(), periodoInicio.getTime()),
+    );
+    const fimIntersecao = new Date(
+      Math.min(fimParada.getTime(), periodoFim.getTime()),
+    );
+
+    if (fimIntersecao <= inicioIntersecao) return total;
+
+    return (
+      total +
+      (fimIntersecao.getTime() - inicioIntersecao.getTime()) / 60_000
+    );
+  }, 0);
+
+  const capacidadeTotalMinutos = totalMinutosPeriodo * quantidadeAtivos;
+  const disponibilidadePercentual =
+    capacidadeTotalMinutos > 0
+      ? Math.min(
+          100,
+          Math.max(
+            0,
+            ((capacidadeTotalMinutos - tempoParadoPeriodo) /
+              capacidadeTotalMinutos) *
+              100,
+          ),
+        )
+      : null;
 
   const ativosPorStatus =
     dashboardAtivos.data?.ativosPorStatus.map((item) => ({
@@ -247,6 +295,59 @@ export default function DashboardScreen() {
           Visão geral da operação de manutenção.
         </Text>
       </View>
+
+      <Card className="border-border bg-card">
+        <CardHeader className="gap-3">
+          <View className="flex-row flex-wrap items-center justify-between gap-3">
+            <View className="gap-1">
+              <CardTitle className="text-base text-foreground">
+                Disponibilidade da frota
+              </CardTitle>
+              <Text className="text-sm text-muted-foreground">
+                Paradas que impactam disponibilidade no período.
+              </Text>
+            </View>
+
+            <View className="flex-row gap-2">
+              {AVAILABILITY_PERIODS.map((days) => {
+                const selected = availabilityPeriodDays === days;
+
+                return (
+                  <Pressable
+                    key={days}
+                    onPress={() => setAvailabilityPeriodDays(days)}
+                    className={
+                      selected
+                        ? "rounded-md bg-primary px-3 py-2"
+                        : "rounded-md border border-border bg-background px-3 py-2"
+                    }
+                  >
+                    <Text
+                      className={
+                        selected
+                          ? "text-sm font-medium text-primary-foreground"
+                          : "text-sm font-medium text-foreground"
+                      }
+                    >
+                      {days} dias
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        </CardHeader>
+        <CardContent className="gap-2">
+          <Text className="text-4xl font-semibold text-foreground">
+            {disponibilidadePercentual === null
+              ? "--"
+              : `${disponibilidadePercentual.toFixed(1)}%`}
+          </Text>
+          <Text className="text-sm text-muted-foreground">
+            {quantidadeAtivos} ativos em operação · {Math.round(tempoParadoPeriodo / 60)}h de indisponibilidade acumulada
+          </Text>
+        </CardContent>
+      </Card>
 
       <View className="flex-row flex-wrap gap-3">
         <IndicadorCard label="Ativos totais" value={String(ativosTotais)} />
