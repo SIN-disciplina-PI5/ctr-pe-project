@@ -5,6 +5,7 @@ import { PermissionGate } from "@/components/domain/permission-gate";
 import { useLocalizacoes, useDeleteLocalizacao } from "@/features/localizacoes/localizacoes.hooks";
 import { useEmpresas } from "@/features/empresas/empresas.hooks";
 import { useEmpresaStore } from "@/store/empresa-store";
+import { EmptyState } from "@/components/feedback/empty-state";
 
 export default function LocalizacoesScreen() {
   const router = useRouter();
@@ -132,9 +133,7 @@ export default function LocalizacoesScreen() {
         )}
         ListEmptyComponent={
           !isLoading ? (
-            <Text className="text-muted-foreground text-center mt-8">
-              Nenhuma localizacao encontrada.
-            </Text>
+            <EmptyState title="Nenhuma localização encontrada" description="Cadastre uma localização para começar." />
           ) : null
         }
       />

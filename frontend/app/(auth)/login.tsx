@@ -9,7 +9,9 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Svg, { Defs, RadialGradient, Rect, Stop } from "react-native-svg";
 
+import { Logo, LogoIcon } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import {
@@ -88,117 +90,117 @@ export default function LoginScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-950 md:bg-slate-50/80 flex-row justify-center items-center">
-      <View className="w-full h-full md:h-[600px] max-w-4xl bg-white md:rounded-3xl shadow-2xl flex-row overflow-hidden">
-        <View className="hidden md:flex flex-1 bg-blue-950 p-12 justify-between relative">
-          <View className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-transparent to-black/50" />
+    <SafeAreaView className="flex-1 bg-[#131316]">
+      <View className="flex-1 flex-row">
+        <View className="relative hidden flex-1 justify-between overflow-hidden bg-[#131316] p-14 md:flex">
+          <View className="absolute inset-0">
+            <Svg width="100%" height="100%">
+              <Defs>
+                <RadialGradient id="brilho" cx="85%" cy="95%" rx="75%" ry="65%">
+                  <Stop offset="0" stopColor="#F26A21" stopOpacity="0.55" />
+                  <Stop offset="0.5" stopColor="#FFB020" stopOpacity="0.12" />
+                  <Stop offset="1" stopColor="#131316" stopOpacity="0" />
+                </RadialGradient>
+              </Defs>
+              <Rect width="100%" height="100%" fill="url(#brilho)" />
+            </Svg>
+          </View>
 
-          <View className="z-10 gap-1">
-            <Text className="text-blue-400 font-black tracking-widest text-xs uppercase">
-              Plataforma Operacional
+          <Logo claro size={44} showName />
+
+          <View className="gap-5">
+            <Text className="max-w-[460px] text-5xl font-bold leading-[1.1] tracking-tight text-white">
+              Máquina parada custa caro. Veja antes.
             </Text>
-            <Text className="text-white text-4xl font-black tracking-tight mt-1">
-              CTR-PE
+            <Text className="max-w-[420px] text-base leading-relaxed text-zinc-400">
+              Ordens de serviço, ativos e estoque de peças em um só lugar, com alertas
+              para agir antes da parada.
             </Text>
           </View>
 
-          <View className="z-10 gap-2">
-            <Text className="text-white text-lg font-bold">
-              Controle Total de Manutenção
-            </Text>
-            <Text className="text-blue-200/70 text-sm leading-relaxed">
-              Gerencie ordens de serviço, monitore a saúde dos ativos e minimize o
-              tempo de máquina parada em uma única interface técnica robusta.
-            </Text>
-          </View>
-
-          <Text className="z-10 text-xs text-blue-300/40 font-mono">
-            v2.0.26 // Unidade Recife
-          </Text>
+          <Text className="text-xs text-zinc-500">MaqControl · Unidade Recife</Text>
         </View>
 
-        <View className="w-full md:w-[420px] bg-white justify-center px-6 md:px-10 py-8">
-          <View className="w-full min-h-[440px] flex-col justify-between">
-            <View className="gap-6">
-              <View className="gap-1 md:items-start items-center">
-                <Text className="text-2xl font-black tracking-tight text-slate-800">
-                  Acessar Sistema
-                </Text>
-                <Text className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                  Insira suas credenciais técnicas
-                </Text>
+        <View className="w-full justify-center bg-background px-6 py-10 md:w-[480px] md:px-14">
+          <View className="w-full max-w-[380px] gap-8 self-center">
+            <View className="items-center md:hidden">
+              <LogoIcon size={64} />
+              <Text className="mt-2 text-xl font-bold tracking-wide text-foreground">
+                MAQCONTROL
+              </Text>
+            </View>
+
+            <View className="gap-1.5">
+              <Text className="text-3xl font-bold tracking-tight text-foreground">
+                Bem-vindo de volta
+              </Text>
+              <Text className="text-sm text-muted-foreground">
+                Entre com seu e-mail e senha para continuar.
+              </Text>
+            </View>
+
+            <View className="gap-4">
+              <View className="gap-1.5">
+                <Text className="text-sm font-medium text-foreground">E-mail</Text>
+                <TextInput
+                  className="h-12 w-full rounded-xl border border-border bg-card px-4 text-sm text-foreground focus:border-brand"
+                  placeholder="seuemail@empresa.com"
+                  placeholderTextColor="#A1A1AA"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  value={email}
+                  onChangeText={setEmail}
+                  editable={!carregando}
+                />
               </View>
 
-              <View className="gap-4">
-                <View className="gap-1.5">
-                  <Text className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    E-mail
-                  </Text>
-                  <TextInput
-                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-sm text-slate-800 focus:border-blue-900"
-                    placeholder="seuemail@empresa.com"
-                    placeholderTextColor="#94a3b8"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    value={email}
-                    onChangeText={setEmail}
-                    editable={!carregando}
-                  />
-                </View>
-
-                <View className="gap-1.5">
-                  <View className="flex-row items-center justify-between">
-                    <Text className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      Senha
+              <View className="gap-1.5">
+                <View className="flex-row items-center justify-between">
+                  <Text className="text-sm font-medium text-foreground">Senha</Text>
+                  <Pressable onPress={() => router.push("/forgot-password")}>
+                    <Text className="text-sm font-medium text-brand hover:underline">
+                      Esqueceu a senha?
                     </Text>
-                    <Pressable onPress={() => router.push("/forgot-password")}>
-                      <Text className="text-xs text-blue-900 font-semibold hover:underline">
-                        Esqueceu?
-                      </Text>
-                    </Pressable>
-                  </View>
-                  <TextInput
-                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-sm text-slate-800 focus:border-blue-900"
-                    secureTextEntry
-                    placeholder="Digite sua senha"
-                    placeholderTextColor="#94a3b8"
-                    value={senha}
-                    onChangeText={setSenha}
-                    editable={!carregando}
-                  />
+                  </Pressable>
                 </View>
+                <TextInput
+                  className="h-12 w-full rounded-xl border border-border bg-card px-4 text-sm text-foreground focus:border-brand"
+                  secureTextEntry
+                  placeholder="Digite sua senha"
+                  placeholderTextColor="#A1A1AA"
+                  value={senha}
+                  onChangeText={setSenha}
+                  editable={!carregando}
+                />
               </View>
             </View>
 
-            <View className="gap-3 mt-6">
+            <View className="gap-4">
               {!recaptchaConfigured ? (
-                <View className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2">
-                  <Text className="text-xs text-amber-800">
-                    reCAPTCHA não configurado neste ambiente. O login continuará sem validação anti-robô.
+                <View className="rounded-xl border border-brand/40 bg-brand/10 px-3 py-2">
+                  <Text className="text-xs text-foreground">
+                    reCAPTCHA não configurado neste ambiente. O login continuará sem
+                    validação anti-robô.
                   </Text>
                 </View>
               ) : null}
 
               <Button
-                className="w-full bg-blue-900 active:bg-blue-950 h-12 rounded-xl shadow-md shadow-blue-900/10"
+                className="h-12 w-full rounded-xl"
                 onPress={handleLogin}
                 disabled={carregando}
               >
                 {carregando ? (
                   <ActivityIndicator color="#ffffff" size="small" />
                 ) : (
-                  <Text className="text-white font-bold text-sm tracking-wide">
-                    Entrar no Sistema
-                  </Text>
+                  <Text className="text-sm font-semibold text-primary-foreground">Entrar</Text>
                 )}
               </Button>
 
               <View className="flex-row justify-center gap-1">
-                <Text className="text-xs font-medium text-slate-500">
-                  Não tem uma conta?
-                </Text>
+                <Text className="text-sm text-muted-foreground">Não tem uma conta?</Text>
                 <Pressable onPress={() => router.push("/signup")}>
-                  <Text className="text-xs text-blue-900 font-bold underline">
+                  <Text className="text-sm font-semibold text-foreground underline">
                     Criar conta
                   </Text>
                 </Pressable>

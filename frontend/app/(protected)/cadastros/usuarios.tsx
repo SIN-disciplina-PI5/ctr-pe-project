@@ -8,6 +8,7 @@ import { useEmpresaStore } from "@/store/empresa-store";
 import { resetSenhaSchema, type ResetSenhaFormData, PERFIS } from "@/features/usuarios/usuarios.schemas";
 import type { PerfilUsuario } from "@/features/usuarios/usuarios.types";
 import { RoleGate } from "@/components/domain/role-gate";
+import { EmptyState } from "@/components/feedback/empty-state";
 
 export default function UsuariosScreen() {
   const router = useRouter();
@@ -153,7 +154,7 @@ export default function UsuariosScreen() {
         )}
         ListEmptyComponent={
           !isLoading ? (
-            <Text className="text-muted-foreground text-center mt-8">Nenhum usuário encontrado.</Text>
+            <EmptyState title="Nenhum usuário encontrado" description="Cadastre um usuário para começar." />
           ) : null
         }
       />

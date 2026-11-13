@@ -1,9 +1,19 @@
 import { router } from "expo-router";
+import {
+  Boxes,
+  CirclePause,
+  ClipboardList,
+  Clock,
+  PackageSearch,
+  Timer,
+} from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 
+import { ChartCard } from "@/components/charts/chart-card";
+import { GaugeChart } from "@/components/charts/gauge-chart";
+import { StatCard } from "@/components/charts/stat-card";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { PRIORIDADE_OS_LABEL, STATUS_OS_LABEL } from "@/constants/status";
 import { useAlertas } from "@/features/alertas/alertas.hooks";
@@ -21,35 +31,39 @@ import { useSelectedEmpresaId } from "@/hooks/use-selected-empresa";
 const DASHBOARD_QUERY_OPTIONS = { refetchInterval: 45_000 };
 const AVAILABILITY_PERIODS = [7, 30, 90] as const;
 
-function IndicadorCard({
-  label,
-  value,
+function ListaVazia({ texto }: { texto: string }) {
+  return <Text className="text-sm text-muted-foreground">{texto}</Text>;
+}
+
+function LinhaItem({
+  titulo,
+  detalhe,
+  badge,
+  badgeVariant = "secondary",
   onPress,
 }: {
-  label: string;
-  value: string;
-  onPress?: () => void;
+  titulo: string;
+  detalhe: string;
+  badge: string;
+  badgeVariant?: "secondary" | "destructive" | "default";
+  onPress: () => void;
 }) {
-  const card = (
-    <Card className="border-border bg-card">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {label}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Text className="text-3xl font-semibold text-foreground">{value}</Text>
-      </CardContent>
-    </Card>
-  );
-
-  if (!onPress) {
-    return <View className="min-w-[47%] flex-1">{card}</View>;
-  }
-
   return (
-    <Pressable className="min-w-[47%] flex-1" onPress={onPress}>
-      {card}
+    <Pressable
+      onPress={onPress}
+      className="rounded-xl bg-muted/60 px-3.5 py-3 hover:bg-muted active:bg-muted"
+    >
+      <View className="flex-row items-center justify-between gap-3">
+        <Text numberOfLines={1} className="flex-1 text-sm font-medium text-foreground">
+          {titulo}
+        </Text>
+        <Badge variant={badgeVariant}>
+          <Text>{badge}</Text>
+        </Badge>
+      </View>
+      <Text numberOfLines={1} className="mt-0.5 text-xs text-muted-foreground">
+        {detalhe}
+      </Text>
     </Pressable>
   );
 }
@@ -62,26 +76,23 @@ function DistribuicaoCard({
   items: Array<{ label: string; value: number }>;
 }) {
   return (
-    <Card className="min-w-[280px] flex-1 border-border bg-card">
-      <CardHeader>
-        <CardTitle className="text-base text-foreground">{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="gap-2">
+    <ChartCard title={title}>
+      <View className="gap-2">
         {items.length === 0 ? (
-          <Text className="text-sm text-muted-foreground">Nenhum dado disponível.</Text>
+          <ListaVazia texto="Nenhum dado disponível." />
         ) : (
           items.map((item) => (
             <View
               key={item.label}
-              className="flex-row items-center justify-between rounded-md bg-muted px-3 py-2"
+              className="flex-row items-center justify-between rounded-xl bg-muted/60 px-3.5 py-3"
             >
               <Text className="text-sm text-foreground">{item.label}</Text>
               <Text className="font-semibold text-foreground">{item.value}</Text>
             </View>
           ))
         )}
-      </CardContent>
-    </Card>
+      </View>
+    </ChartCard>
   );
 }
 
@@ -112,44 +123,25 @@ export default function DashboardScreen() {
   const [availabilityPeriodDays, setAvailabilityPeriodDays] = useState(30);
 
   const params = useMemo(
-    () => ({
-      empresaId: empresaId ?? undefined,
-    }),
+    () => ({ empresaId: empresaId ?? undefined }),
     [empresaId],
   );
 
   const resumo = useDashboardResumo(params, DASHBOARD_QUERY_OPTIONS);
   const dashboardAtivos = useDashboardAtivos(params, DASHBOARD_QUERY_OPTIONS);
-  const dashboardOrdens = useDashboardOrdensServico(
-    params,
-    DASHBOARD_QUERY_OPTIONS,
-  );
-  const dashboardMateriais = useDashboardMateriais(
-    params,
-    DASHBOARD_QUERY_OPTIONS,
-  );
-
+  const dashboardOrdens = useDashboardOrdensServico(params, DASHBOARD_QUERY_OPTIONS);
+  const dashboardMateriais = useDashboardMateriais(params, DASHBOARD_QUERY_OPTIONS);
   const ativos = useAtivos(
-    {
-      empresaId: empresaId ?? undefined,
-    },
+    { empresaId: empresaId ?? undefined },
     DASHBOARD_QUERY_OPTIONS,
   );
-
   const ordensServico = useOrdensServico(params, DASHBOARD_QUERY_OPTIONS);
-
   const alertasRecentes = useAlertas(
-    {
-      empresaId: empresaId ?? undefined,
-      status: "ABERTO",
-    },
+    { empresaId: empresaId ?? undefined, status: "ABERTO" },
     DASHBOARD_QUERY_OPTIONS,
   );
-
   const paradas = useParadas(
-    {
-      empresaId: empresaId ?? undefined,
-    },
+    { empresaId: empresaId ?? undefined },
     DASHBOARD_QUERY_OPTIONS,
   );
 
@@ -162,7 +154,6 @@ export default function DashboardScreen() {
     ordensServico.isLoading ||
     alertasRecentes.isLoading ||
     paradas.isLoading;
-
   const isError =
     resumo.isError ||
     dashboardAtivos.isError ||
@@ -199,14 +190,13 @@ export default function DashboardScreen() {
       (acc, item) => acc + item.quantidade,
       0,
     ) ?? 0;
-
   const materiaisCriticos = dashboardMateriais.data?.materiaisCriticos ?? [];
   const ativosDaEmpresa = ativos.data ?? [];
   const paradasDaEmpresa = paradas.data ?? [];
+  const ordens = ordensServico.data ?? [];
   const listaAtivosParados = ativosDaEmpresa
     .filter((ativo) => ativo.status === "PARADO")
     .slice(0, 5);
-  const ordens = ordensServico.data ?? [];
   const listaOrdensCriticas = ordens
     .filter(
       (ordem) =>
@@ -227,9 +217,7 @@ export default function DashboardScreen() {
   const quantidadeAtivos = ativosDaEmpresa.filter((ativo) => ativo.ativo).length;
   const totalMinutosPeriodo = availabilityPeriodDays * 24 * 60;
   const tempoParadoPeriodo = paradasDaEmpresa.reduce((total, parada) => {
-    if (!parada.impactaDisponibilidade || parada.status === "CANCELADA") {
-      return total;
-    }
+    if (!parada.impactaDisponibilidade || parada.status === "CANCELADA") return total;
 
     const inicioParada = new Date(parada.inicioEm);
     const fimParada = parada.fimEm ? new Date(parada.fimEm) : periodoFim;
@@ -241,13 +229,8 @@ export default function DashboardScreen() {
     );
 
     if (fimIntersecao <= inicioIntersecao) return total;
-
-    return (
-      total +
-      (fimIntersecao.getTime() - inicioIntersecao.getTime()) / 60_000
-    );
+    return total + (fimIntersecao.getTime() - inicioIntersecao.getTime()) / 60_000;
   }, 0);
-
   const capacidadeTotalMinutos = totalMinutosPeriodo * quantidadeAtivos;
   const disponibilidadePercentual =
     capacidadeTotalMinutos > 0
@@ -267,7 +250,6 @@ export default function DashboardScreen() {
       label: formatEnumLabel(item.status),
       value: item.quantidade,
     })) ?? [];
-
   const osPorStatus = Object.entries(
     ordens.reduce<Record<string, number>>((acc, ordem) => {
       acc[ordem.status] = (acc[ordem.status] ?? 0) + 1;
@@ -277,7 +259,6 @@ export default function DashboardScreen() {
     label: STATUS_OS_LABEL[status as keyof typeof STATUS_OS_LABEL] ?? status,
     value: quantidade,
   }));
-
   const osPorPrioridade =
     dashboardOrdens.data?.osPorPrioridade.map((item) => ({
       label:
@@ -288,271 +269,226 @@ export default function DashboardScreen() {
     })) ?? [];
 
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-4 px-4 py-6 pb-6">
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerClassName="gap-5 p-5 md:p-8"
+    >
       <View className="gap-1">
-        <Text className="text-2xl font-bold text-foreground">Dashboard</Text>
+        <Text className="text-3xl font-bold tracking-tight text-foreground">
+          Dashboard
+        </Text>
         <Text className="text-sm text-muted-foreground">
           Visão geral da operação de manutenção.
         </Text>
       </View>
 
-      <Card className="border-border bg-card">
-        <CardHeader className="gap-3">
-          <View className="flex-row flex-wrap items-center justify-between gap-3">
-            <View className="gap-1">
-              <CardTitle className="text-base text-foreground">
-                Disponibilidade da frota
-              </CardTitle>
-              <Text className="text-sm text-muted-foreground">
-                Paradas que impactam disponibilidade no período.
-              </Text>
-            </View>
-
-            <View className="flex-row gap-2">
-              {AVAILABILITY_PERIODS.map((days) => {
-                const selected = availabilityPeriodDays === days;
-
-                return (
-                  <Pressable
-                    key={days}
-                    onPress={() => setAvailabilityPeriodDays(days)}
+      <ChartCard
+        title="Disponibilidade da frota"
+        subtitle="Paradas que impactam disponibilidade no período"
+      >
+        <View className="gap-4">
+          <View className="flex-row flex-wrap gap-2">
+            {AVAILABILITY_PERIODS.map((days) => {
+              const selected = availabilityPeriodDays === days;
+              return (
+                <Pressable
+                  key={days}
+                  onPress={() => setAvailabilityPeriodDays(days)}
+                  className={
+                    selected
+                      ? "rounded-md bg-primary px-3 py-2"
+                      : "rounded-md border border-border bg-background px-3 py-2"
+                  }
+                >
+                  <Text
                     className={
                       selected
-                        ? "rounded-md bg-primary px-3 py-2"
-                        : "rounded-md border border-border bg-background px-3 py-2"
+                        ? "text-sm font-medium text-primary-foreground"
+                        : "text-sm font-medium text-foreground"
                     }
                   >
-                    <Text
-                      className={
-                        selected
-                          ? "text-sm font-medium text-primary-foreground"
-                          : "text-sm font-medium text-foreground"
-                      }
-                    >
-                      {days} dias
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+                    {days} dias
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
-        </CardHeader>
-        <CardContent className="gap-2">
-          <Text className="text-4xl font-semibold text-foreground">
-            {disponibilidadePercentual === null
-              ? "--"
-              : `${disponibilidadePercentual.toFixed(1)}%`}
+          <View className="items-center">
+            <GaugeChart
+              value={disponibilidadePercentual ?? 0}
+              label="disponibilidade"
+            />
+          </View>
+          <Text className="text-center text-sm text-muted-foreground">
+            {quantidadeAtivos} ativos considerados · {Math.round(tempoParadoPeriodo / 60)}h de indisponibilidade acumulada
           </Text>
-          <Text className="text-sm text-muted-foreground">
-            {quantidadeAtivos} ativos em operação · {Math.round(tempoParadoPeriodo / 60)}h de indisponibilidade acumulada
-          </Text>
-        </CardContent>
-      </Card>
+        </View>
+      </ChartCard>
 
-      <View className="flex-row flex-wrap gap-3">
-        <IndicadorCard label="Ativos totais" value={String(ativosTotais)} />
-        <IndicadorCard
-          label="Maquinas paradas"
-          value={String(indicadores?.maquinasParadas ?? 0)}
+      <View className="flex-row flex-wrap gap-4">
+        <StatCard label="Ativos totais" value={ativosTotais} icon={Boxes} />
+        <StatCard
+          label="Máquinas paradas"
+          value={indicadores?.maquinasParadas ?? 0}
+          icon={CirclePause}
+          alerta={(indicadores?.maquinasParadas ?? 0) > 0}
           onPress={() => router.push("/(protected)/(tabs)/ativos?status=PARADO")}
         />
-        <IndicadorCard
+        <StatCard
           label="O.S. abertas"
-          value={String(indicadores?.osAbertas ?? 0)}
+          value={indicadores?.osAbertas ?? 0}
+          icon={ClipboardList}
           onPress={() => router.push("/(protected)/(tabs)/ordens-servico?status=ABERTA")}
         />
-        <IndicadorCard
-          label="O.S. aguardando peca"
-          value={String(indicadores?.osAguardandoPeca ?? 0)}
+        <StatCard
+          label="O.S. aguardando peça"
+          value={indicadores?.osAguardandoPeca ?? 0}
+          icon={PackageSearch}
           onPress={() =>
             router.push("/(protected)/(tabs)/ordens-servico?status=AGUARDANDO_PECA")
           }
         />
-        <IndicadorCard
+        <StatCard
           label="O.S. atrasadas"
-          value={String(indicadores?.osAtrasadas ?? 0)}
+          value={indicadores?.osAtrasadas ?? 0}
+          icon={Clock}
+          alerta={(indicadores?.osAtrasadas ?? 0) > 0}
           onPress={() => router.push("/(protected)/(tabs)/ordens-servico")}
         />
-        <IndicadorCard
+        <StatCard
           label="Tempo médio parado"
           value={`${indicadores?.tempoMedioParadoMinutos ?? 0} min`}
+          icon={Timer}
           onPress={() => router.push("/(protected)/(tabs)/paradas")}
         />
       </View>
 
-      <View className="flex-row flex-wrap gap-3">
-        <DistribuicaoCard title="Ativos por status" items={ativosPorStatus} />
-        <DistribuicaoCard title="O.S. por status" items={osPorStatus} />
-        <DistribuicaoCard title="O.S. por prioridade" items={osPorPrioridade} />
+      <View className="flex-row flex-wrap gap-4">
+        <View className="min-w-[280px] flex-1">
+          <DistribuicaoCard title="Ativos por status" items={ativosPorStatus} />
+        </View>
+        <View className="min-w-[280px] flex-1">
+          <DistribuicaoCard title="O.S. por status" items={osPorStatus} />
+        </View>
+        <View className="min-w-[280px] flex-1">
+          <DistribuicaoCard title="O.S. por prioridade" items={osPorPrioridade} />
+        </View>
       </View>
 
-      <Card className="border-border bg-card">
-        <CardHeader>
-          <CardTitle className="text-base text-foreground">Paradas abertas</CardTitle>
-        </CardHeader>
-        <CardContent className="gap-3">
-          {listaParadasAbertas.length === 0 ? (
-            <Text className="text-sm text-muted-foreground">
-              Nenhuma parada aberta.
-            </Text>
-          ) : (
-            listaParadasAbertas.map((parada) => (
-              <Pressable
-                key={parada.id}
-                onPress={() => router.push(`/(protected)/paradas/${parada.id}`)}
-                className="rounded-md border border-border bg-background px-3 py-3"
-              >
-                <View className="flex-row items-center justify-between gap-3">
-                  <View className="flex-1 gap-1">
-                    <Text className="font-medium text-foreground">
-                      {parada.motivo ?? "Parada sem motivo informado"}
-                    </Text>
-                    <Text className="text-sm text-muted-foreground">
-                      Ativo: {parada.ativoId}
-                    </Text>
-                  </View>
-                  <Badge variant="destructive">
-                    <Text>{formatElapsedTime(parada.inicioEm)}</Text>
-                  </Badge>
-                </View>
-              </Pressable>
-            ))
-          )}
-        </CardContent>
-      </Card>
+      <View className="flex-row flex-wrap gap-4">
+        <View className="min-w-[300px] flex-1">
+          <ChartCard title="Paradas abertas">
+            <View className="gap-2">
+              {listaParadasAbertas.length === 0 ? (
+                <ListaVazia texto="Nenhuma parada aberta." />
+              ) : (
+                listaParadasAbertas.map((parada) => (
+                  <LinhaItem
+                    key={parada.id}
+                    titulo={parada.motivo ?? "Parada sem motivo informado"}
+                    detalhe={`Ativo: ${parada.ativoId}`}
+                    badge={formatElapsedTime(parada.inicioEm)}
+                    badgeVariant="destructive"
+                    onPress={() => router.push(`/(protected)/paradas/${parada.id}`)}
+                  />
+                ))
+              )}
+            </View>
+          </ChartCard>
+        </View>
+        <View className="min-w-[300px] flex-1">
+          <ChartCard
+            title="Alertas recentes"
+            subtitle="Alertas em aberto, do mais novo ao mais antigo"
+          >
+            <View className="gap-2">
+              {listaAlertasRecentes.length === 0 ? (
+                <ListaVazia texto="Nenhum alerta recente." />
+              ) : (
+                listaAlertasRecentes.map((alerta) => (
+                  <LinhaItem
+                    key={alerta.id}
+                    titulo={alerta.titulo}
+                    detalhe={alerta.mensagem}
+                    badge={alerta.severidade}
+                    onPress={() => {
+                      if (alerta.ordemServicoId) {
+                        router.push(`/(protected)/ordens-servico/${alerta.ordemServicoId}`);
+                        return;
+                      }
+                      if (alerta.ativoId) {
+                        router.push(`/(protected)/ativos/${alerta.ativoId}`);
+                      }
+                    }}
+                  />
+                ))
+              )}
+            </View>
+          </ChartCard>
+        </View>
+      </View>
 
-      <Card className="border-border bg-card">
-        <CardHeader>
-          <CardTitle className="text-base text-foreground">Alertas recentes</CardTitle>
-        </CardHeader>
-        <CardContent className="gap-3">
-          {listaAlertasRecentes.length === 0 ? (
-            <Text className="text-sm text-muted-foreground">
-              Nenhum alerta recente.
-            </Text>
-          ) : (
-            listaAlertasRecentes.map((alerta) => (
-              <Pressable
-                key={alerta.id}
-                onPress={() => {
-                  if (alerta.ordemServicoId) {
-                    router.push(`/(protected)/ordens-servico/${alerta.ordemServicoId}`);
-                    return;
-                  }
-
-                  if (alerta.ativoId) {
-                    router.push(`/(protected)/ativos/${alerta.ativoId}`);
-                  }
-                }}
-                className="rounded-md border border-border bg-background px-3 py-3"
-              >
-                <View className="mb-1 flex-row items-center justify-between gap-3">
-                  <Text className="flex-1 font-medium text-foreground">{alerta.titulo}</Text>
-                  <Badge variant="secondary">
-                    <Text>{alerta.severidade}</Text>
-                  </Badge>
-                </View>
-                <Text className="text-sm text-muted-foreground">{alerta.mensagem}</Text>
-              </Pressable>
-            ))
-          )}
-        </CardContent>
-      </Card>
-
-      <Card className="border-border bg-card">
-        <CardHeader>
-          <CardTitle className="text-base text-foreground">Ativos parados</CardTitle>
-        </CardHeader>
-        <CardContent className="gap-3">
-          {listaAtivosParados.length === 0 ? (
-            <Text className="text-sm text-muted-foreground">
-              Nenhum ativo parado.
-            </Text>
-          ) : (
-            listaAtivosParados.map((ativo) => (
-              <Pressable
-                key={ativo.id}
-                onPress={() => router.push(`/(protected)/ativos/${ativo.id}`)}
-                className="rounded-md border border-border bg-background px-3 py-3"
-              >
-                <View className="mb-1 flex-row items-center justify-between gap-3">
-                  <Text className="font-medium text-foreground">
-                    {ativo.codigo} - {ativo.nome}
-                  </Text>
-                  <Badge variant="secondary">
-                    <Text>{ativo.status}</Text>
-                  </Badge>
-                </View>
-                <Text className="text-sm text-muted-foreground">
-                  {ativo.tipo} · {ativo.criticidade}
-                </Text>
-              </Pressable>
-            ))
-          )}
-        </CardContent>
-      </Card>
-
-      <Card className="border-border bg-card">
-        <CardHeader>
-          <CardTitle className="text-base text-foreground">O.S. criticas</CardTitle>
-        </CardHeader>
-        <CardContent className="gap-3">
-          {listaOrdensCriticas.length === 0 ? (
-            <Text className="text-sm text-muted-foreground">
-              Nenhuma O.S. critica.
-            </Text>
-          ) : (
-            listaOrdensCriticas.map((ordem) => (
-              <Pressable
-                key={ordem.id}
-                onPress={() => router.push(`/(protected)/ordens-servico/${ordem.id}`)}
-                className="rounded-md border border-border bg-background px-3 py-3"
-              >
-                <View className="mb-1 flex-row items-center justify-between gap-3">
-                  <Text className="font-medium text-foreground">{ordem.numero}</Text>
-                  <Badge>
-                    <Text>{ordem.prioridade}</Text>
-                  </Badge>
-                </View>
-                <Text className="text-sm text-muted-foreground">{ordem.titulo}</Text>
-              </Pressable>
-            ))
-          )}
-        </CardContent>
-      </Card>
-
-      <Card className="border-border bg-card">
-        <CardHeader>
-          <CardTitle className="text-base text-foreground">Materiais criticos</CardTitle>
-        </CardHeader>
-        <CardContent className="gap-3">
-          {materiaisCriticos.length === 0 ? (
-            <Text className="text-sm text-muted-foreground">
-              Nenhum material com estoque baixo.
-            </Text>
-          ) : (
-            materiaisCriticos.map((material) => (
-              <Pressable
-                key={material.id}
-                onPress={() => router.push(`/materiais/${material.id}`)}
-                className="rounded-md border border-border bg-background px-3 py-3"
-              >
-                <View className="mb-1 flex-row items-center justify-between gap-3">
-                  <Text className="font-medium text-foreground">
-                    {material.codigo} - {material.nome}
-                  </Text>
-                  <Badge variant="destructive">
-                    <Text>Baixo</Text>
-                  </Badge>
-                </View>
-                <Text className="text-sm text-muted-foreground">
-                  Estoque: {material.estoqueAtual} / Minimo: {material.estoqueMinimo}
-                </Text>
-              </Pressable>
-            ))
-          )}
-        </CardContent>
-      </Card>
+      <View className="flex-row flex-wrap gap-4">
+        <View className="min-w-[300px] flex-1">
+          <ChartCard title="Ativos parados">
+            <View className="gap-2">
+              {listaAtivosParados.length === 0 ? (
+                <ListaVazia texto="Nenhum ativo parado." />
+              ) : (
+                listaAtivosParados.map((ativo) => (
+                  <LinhaItem
+                    key={ativo.id}
+                    titulo={`${ativo.codigo} - ${ativo.nome}`}
+                    detalhe={`${ativo.tipo} · ${ativo.criticidade}`}
+                    badge={ativo.status}
+                    onPress={() => router.push(`/(protected)/ativos/${ativo.id}`)}
+                  />
+                ))
+              )}
+            </View>
+          </ChartCard>
+        </View>
+        <View className="min-w-[300px] flex-1">
+          <ChartCard title="O.S. críticas">
+            <View className="gap-2">
+              {listaOrdensCriticas.length === 0 ? (
+                <ListaVazia texto="Nenhuma O.S. crítica." />
+              ) : (
+                listaOrdensCriticas.map((ordem) => (
+                  <LinhaItem
+                    key={ordem.id}
+                    titulo={ordem.numero}
+                    detalhe={ordem.titulo}
+                    badge={ordem.prioridade}
+                    badgeVariant="default"
+                    onPress={() => router.push(`/(protected)/ordens-servico/${ordem.id}`)}
+                  />
+                ))
+              )}
+            </View>
+          </ChartCard>
+        </View>
+        <View className="min-w-[300px] flex-1">
+          <ChartCard title="Materiais críticos">
+            <View className="gap-2">
+              {materiaisCriticos.length === 0 ? (
+                <ListaVazia texto="Nenhum material com estoque baixo." />
+              ) : (
+                materiaisCriticos.map((material) => (
+                  <LinhaItem
+                    key={material.id}
+                    titulo={`${material.codigo} - ${material.nome}`}
+                    detalhe={`Estoque: ${material.estoqueAtual} / Mínimo: ${material.estoqueMinimo}`}
+                    badge="Baixo"
+                    badgeVariant="destructive"
+                    onPress={() => router.push(`/materiais/${material.id}`)}
+                  />
+                ))
+              )}
+            </View>
+          </ChartCard>
+        </View>
+      </View>
     </ScrollView>
   );
 }

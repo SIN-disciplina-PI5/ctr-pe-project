@@ -8,6 +8,7 @@ import { ModalEncerrarParada } from "@/features/paradas/modal-encerrar-parada";
 import { ModalCancelarParada } from "@/features/paradas/modal-cancelar-parada";
 import { ParadasFiltros } from "@/features/paradas/paradas-filtros";
 import type { StatusParada } from "@/features/paradas/paradas.types";
+import { EmptyState } from "@/components/feedback/empty-state";
 
 const STATUS_LABELS: Record<StatusParada, string> = {
   ABERTA: "Aberta",
@@ -126,7 +127,7 @@ export default function ParadasScreen() {
         )}
         ListEmptyComponent={
           !isLoading ? (
-            <Text className="text-muted-foreground text-center mt-8">Nenhuma parada encontrada.</Text>
+            <EmptyState title="Nenhuma parada encontrada" description="As paradas de ativos registradas aparecerão aqui." />
           ) : null
         }
       />

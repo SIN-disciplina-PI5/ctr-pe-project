@@ -1,8 +1,10 @@
 import { router } from "expo-router";
+import { SearchX } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, Pressable, View } from "react-native";
 
 import { PermissionGate } from "@/components/domain/permission-gate";
+import { EmptyState } from "@/components/feedback/empty-state";
 import { PrioridadeBadge } from "@/components/domain/prioridade-badge";
 import { StatusBadge } from "@/components/domain/status-badge";
 import { Button } from "@/components/ui/button";
@@ -134,14 +136,20 @@ export default function OrdensServicoScreen() {
         contentContainerClassName="gap-3 pb-8"
         renderItem={({ item }) => <OrdemServicoCard ordem={item} />}
         ListEmptyComponent={
-          <View className="items-center justify-center rounded-xl border border-dashed border-border p-8">
-            <Text className="text-lg font-semibold">
-              Nenhuma ordem de serviço encontrada
-            </Text>
-            <Text className="mt-2 text-center text-muted-foreground">
-              Crie a primeira ordem para começar.
-            </Text>
-          </View>
+          search ? (
+            <EmptyState
+              icon={SearchX}
+              title="Nenhuma ordem de serviço encontrada"
+              description={`Nada corresponde a "${search}".`}
+              actionLabel="Limpar busca"
+              onAction={() => setSearch("")}
+            />
+          ) : (
+            <EmptyState
+              title="Nenhuma ordem de serviço"
+              description="Crie a primeira ordem para começar."
+            />
+          )
         }
       />
     </View>

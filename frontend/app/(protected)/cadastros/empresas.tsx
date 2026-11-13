@@ -3,6 +3,7 @@ import { View, Text, FlatList, Pressable, TextInput, Alert } from "react-native"
 import { useRouter } from "expo-router";
 import { PermissionGate } from "@/components/domain/permission-gate";
 import { useEmpresas, useDeleteEmpresa } from "@/features/empresas/empresas.hooks";
+import { EmptyState } from "@/components/feedback/empty-state";
 
 export default function EmpresasScreen() {
   const router = useRouter();
@@ -102,7 +103,7 @@ export default function EmpresasScreen() {
         )}
         ListEmptyComponent={
           !isLoading ? (
-            <Text className="text-muted-foreground text-center mt-8">Nenhuma empresa encontrada.</Text>
+            <EmptyState title="Nenhuma empresa encontrada" description="Cadastre uma empresa para começar." />
           ) : null
         }
       />
