@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Svg, { Defs, RadialGradient, Rect, Stop } from "react-native-svg";
+import Svg, { RadialGradient, Rect, Stop } from "react-native-svg";
 
 import { Logo, LogoIcon } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
@@ -95,13 +95,11 @@ export default function LoginScreen() {
         <View className="relative hidden flex-1 justify-between overflow-hidden bg-[#131316] p-14 md:flex">
           <View className="absolute inset-0">
             <Svg width="100%" height="100%">
-              <Defs>
-                <RadialGradient id="brilho" cx="85%" cy="95%" rx="75%" ry="65%">
-                  <Stop offset="0" stopColor="#F26A21" stopOpacity="0.55" />
-                  <Stop offset="0.5" stopColor="#FFB020" stopOpacity="0.12" />
-                  <Stop offset="1" stopColor="#131316" stopOpacity="0" />
-                </RadialGradient>
-              </Defs>
+              <RadialGradient id="brilho" cx="85%" cy="95%" rx="75%" ry="65%">
+                <Stop offset="0" stopColor="#F26A21" stopOpacity="0.55" />
+                <Stop offset="0.5" stopColor="#FFB020" stopOpacity="0.12" />
+                <Stop offset="1" stopColor="#131316" stopOpacity="0" />
+              </RadialGradient>
               <Rect width="100%" height="100%" fill="url(#brilho)" />
             </Svg>
           </View>

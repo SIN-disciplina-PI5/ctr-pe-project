@@ -24,6 +24,11 @@ jest.mock("@/features/dashboard/dashboard.hooks", () => ({
     isError: false,
     data: { ativosPorStatus: [{ status: "DISPONIVEL", quantidade: 4 }] },
   }),
+  useDashboardOrdensServico: () => ({
+    isLoading: false,
+    isError: false,
+    data: { osPorPrioridade: [] },
+  }),
   useDashboardMateriais: () => ({
     isLoading: false,
     isError: false,
@@ -43,13 +48,17 @@ jest.mock("@/features/alertas/alertas.hooks", () => ({
   useAlertas: () => ({ isLoading: false, isError: false, data: [] }),
 }));
 
+jest.mock("@/features/paradas/paradas.hooks", () => ({
+  useParadas: () => ({ isLoading: false, isError: false, data: [] }),
+}));
+
 describe("DashboardScreen", () => {
   it("renderiza os indicadores principais", () => {
     renderWithProviders(<DashboardScreen />);
 
     expect(screen.getByText("Ativos totais")).toBeTruthy();
-    expect(screen.getByText("Maquinas paradas")).toBeTruthy();
+    expect(screen.getByText("Máquinas paradas")).toBeTruthy();
     expect(screen.getByText("O.S. abertas")).toBeTruthy();
-    expect(screen.getByText("O.S. aguardando peca")).toBeTruthy();
+    expect(screen.getByText("O.S. aguardando peça")).toBeTruthy();
   });
 });

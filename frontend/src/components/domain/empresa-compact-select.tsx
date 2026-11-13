@@ -12,6 +12,7 @@ import {
     SelectValue,
     type Option,
 } from "@/components/ui/select";
+import { Text } from "@/components/ui/text";
 import { useEmpresas } from "@/features/empresas/empresas.hooks";
 import { useEmpresaStore } from "@/store/empresa-store";
 
@@ -75,10 +76,16 @@ export function EmpresaCompactSelect({ variant = "default" }: EmpresaCompactSele
                         : "h-9 w-full max-w-[220px]"
                 }
             >
-                <SelectValue
-                    className={naSidebar ? "flex-1 text-zinc-100" : "flex-1"}
-                    placeholder="Empresa"
-                />
+                {naSidebar ? (
+                    <Text
+                        className="flex-1 text-sm text-zinc-100"
+                        numberOfLines={1}
+                    >
+                        {selectedOption?.label ?? "Empresa"}
+                    </Text>
+                ) : (
+                    <SelectValue className="flex-1" placeholder="Empresa" />
+                )}
             </SelectTrigger>
             <SelectContent insets={contentInsets}>
                 <SelectGroup>
