@@ -48,6 +48,7 @@
     "@google-cloud/recaptcha-enterprise": "^7.2.0",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "@vercel/blob": "^2.9.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
