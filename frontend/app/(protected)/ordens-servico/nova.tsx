@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { useForm } from "react-hook-form";
 import { Pressable, ScrollView, View } from "react-native";
 
+import { PermissionRoute } from "@/components/domain/permission-gate";
 import { ChipsField } from "@/components/forms/chips-field";
 import { ControlledInput } from "@/components/forms/form-field";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,14 @@ const PRIORIDADES: PrioridadeOS[] = ["BAIXA", "MEDIA", "ALTA", "CRITICA"];
 const TIPOS: TipoOS[] = ["CORRETIVA", "PREVENTIVA", "INSPECAO", "OUTRA"];
 
 export default function NovaOrdemServicoScreen() {
+  return (
+    <PermissionRoute permission="workOrdersCreate">
+      <NovaOrdemServicoContent />
+    </PermissionRoute>
+  );
+}
+
+function NovaOrdemServicoContent() {
   const router = useRouter();
   const empresaId = useSelectedEmpresaId();
   const createMutation = useCreateOrdemServico();

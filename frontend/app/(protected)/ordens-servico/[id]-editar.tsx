@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useForm } from "react-hook-form";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 
+import { PermissionRoute } from "@/components/domain/permission-gate";
 import { ChipsField } from "@/components/forms/chips-field";
 import { ControlledInput } from "@/components/forms/form-field";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,14 @@ const PRIORIDADES: PrioridadeOS[] = ["BAIXA", "MEDIA", "ALTA", "CRITICA"];
 const TIPOS: TipoOS[] = ["CORRETIVA", "PREVENTIVA", "INSPECAO", "OUTRA"];
 
 export default function EditarOrdemServicoScreen() {
+  return (
+    <PermissionRoute permission="workOrdersManage">
+      <EditarOrdemServicoContent />
+    </PermissionRoute>
+  );
+}
+
+function EditarOrdemServicoContent() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: os, isLoading } = useOrdemServico(id);

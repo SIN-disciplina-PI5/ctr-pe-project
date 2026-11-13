@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PermissionRoute } from "@/components/domain/permission-gate";
 import { useEmpresa, useUpdateEmpresa } from "@/features/empresas/empresas.hooks";
 import { useEffect } from "react";
 
@@ -15,6 +16,14 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function EmpresaEditarScreen() {
+  return (
+    <PermissionRoute permission="companiesManage">
+      <EmpresaEditarContent />
+    </PermissionRoute>
+  );
+}
+
+function EmpresaEditarContent() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { data: empresa, isLoading } = useEmpresa(id);

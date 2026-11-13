@@ -17,10 +17,18 @@ import type {
 
 const ATIVOS_QUERY_KEY = ["ativos"];
 
-export function useAtivos(params?: ListAtivosParams) {
+type AtivosQueryOptions = {
+  refetchInterval?: number;
+};
+
+export function useAtivos(
+  params?: ListAtivosParams,
+  options?: AtivosQueryOptions,
+) {
   return useQuery({
     queryKey: [...ATIVOS_QUERY_KEY, params],
     queryFn: () => listAtivos(params),
+    ...(options ?? {}),
   });
 }
 

@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PermissionRoute } from "@/components/domain/permission-gate";
 import { useLocalizacao, useUpdateLocalizacao } from "@/features/localizacoes/localizacoes.hooks";
 
 const schema = z.object({
@@ -16,6 +17,14 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function LocalizacaoEditarScreen() {
+  return (
+    <PermissionRoute permission="locationsManage">
+      <LocalizacaoEditarContent />
+    </PermissionRoute>
+  );
+}
+
+function LocalizacaoEditarContent() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { data: localizacao, isLoading } = useLocalizacao(id);

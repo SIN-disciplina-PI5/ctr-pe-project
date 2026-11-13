@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import { ActivityIndicator, FlatList, Pressable, View } from "react-native";
 import { useState } from "react";
 
+import { PermissionGate } from "@/components/domain/permission-gate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -81,9 +82,11 @@ export default function MateriaisScreen() {
           </Text>
         </View>
 
-        <Button onPress={() => router.push("/materiais/novo")}>
-          <Text>Novo</Text>
-        </Button>
+        <PermissionGate permission="materialsManage">
+          <Button onPress={() => router.push("/materiais/novo")}>
+            <Text>Novo</Text>
+          </Button>
+        </PermissionGate>
       </View>
 
       <View className="mb-4">

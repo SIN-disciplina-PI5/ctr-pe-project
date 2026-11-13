@@ -10,10 +10,18 @@ import {
 
 export const PARADAS_QUERY_KEY = "paradas";
 
-export function useParadas(params?: ListParadasParams) {
+type ParadasQueryOptions = {
+  refetchInterval?: number;
+};
+
+export function useParadas(
+  params?: ListParadasParams,
+  options?: ParadasQueryOptions,
+) {
   return useQuery({
     queryKey: [PARADAS_QUERY_KEY, params],
     queryFn: () => paradasService.list(params),
+    ...(options ?? {}),
   });
 }
 

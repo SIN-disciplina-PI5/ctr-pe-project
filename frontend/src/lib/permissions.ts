@@ -16,7 +16,17 @@ export type AppPermission =
   | "companiesRead"
   | "locationsRead"
   | "usersRead"
-  | "profileRead";
+  | "profileRead"
+  | "assetsManage"
+  | "assetsDelete"
+  | "companiesManage"
+  | "locationsManage"
+  | "usersManage"
+  | "materialsManage"
+  | "workOrdersCreate"
+  | "workOrdersManage"
+  | "stopsManage"
+  | "alertsManage";
 
 export const APP_PERMISSIONS: Record<
   AppPermission,
@@ -30,6 +40,16 @@ export const APP_PERMISSIONS: Record<
   locationsRead: ALL_PROFILES,
   usersRead: ["ADMIN", "GESTOR", "SUPERVISOR"],
   profileRead: ALL_PROFILES,
+  assetsManage: ["ADMIN", "SUPERVISOR"],
+  assetsDelete: ["ADMIN"],
+  companiesManage: ["ADMIN"],
+  locationsManage: ["ADMIN", "SUPERVISOR"],
+  usersManage: ["ADMIN"],
+  materialsManage: ["ADMIN", "SUPERVISOR"],
+  workOrdersCreate: ["ADMIN", "SUPERVISOR"],
+  workOrdersManage: ["ADMIN", "SUPERVISOR"],
+  stopsManage: ["ADMIN", "SUPERVISOR"],
+  alertsManage: ["ADMIN", "GESTOR", "SUPERVISOR"],
 };
 
 export function hasPermission(

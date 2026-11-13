@@ -2,6 +2,7 @@ import { View, Text, TextInput, Pressable, Switch, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PermissionRoute } from "@/components/domain/permission-gate";
 import { useCreateUsuario } from "@/features/usuarios/usuarios.hooks";
 import { useEmpresas } from "@/features/empresas/empresas.hooks";
 import { useEmpresaStore } from "@/store/empresa-store";
@@ -13,6 +14,14 @@ import {
 import type { PerfilUsuario } from "@/features/usuarios/usuarios.types";
 
 export default function UsuarioNovoScreen() {
+  return (
+    <PermissionRoute permission="usersManage">
+      <UsuarioNovoContent />
+    </PermissionRoute>
+  );
+}
+
+function UsuarioNovoContent() {
   const router = useRouter();
   const { empresaId } = useEmpresaStore();
   const { data: empresas } = useEmpresas({ ativa: true });

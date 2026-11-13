@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 
+import { PermissionGate } from "@/components/domain/permission-gate";
 import { OrdemServicoActions } from "@/components/domain/ordem-servico-actions";
 import { PrioridadeBadge } from "@/components/domain/prioridade-badge";
 import { StatusBadge } from "@/components/domain/status-badge";
@@ -135,17 +136,19 @@ export default function OrdemServicoDetalheScreen() {
       
       <OrdemServicoActions ordemServico={os} />
 
-      <Button
-        variant="outline"
-        onPress={() =>
-          router.push({
-            pathname: "/ordens-servico/[id]-editar",
-            params: { id: os.id },
-          })
-        }
-      >
-        <Text>Editar</Text>
-      </Button>
+      <PermissionGate permission="workOrdersManage">
+        <Button
+          variant="outline"
+          onPress={() =>
+            router.push({
+              pathname: "/ordens-servico/[id]-editar",
+              params: { id: os.id },
+            })
+          }
+        >
+          <Text>Editar</Text>
+        </Button>
+      </PermissionGate>
 
             <ModalAdicionarMaterial
         ordemServicoId={addMaterialOSId}

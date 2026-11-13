@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 
+import { PermissionRoute } from "@/components/domain/permission-gate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -9,6 +10,14 @@ import { useAtivo, useUpdateAtivo } from "@/features/ativos/ativos.hooks";
 import type { TipoAtivo } from "@/features/ativos/ativos.types";
 
 export default function EditarAtivoScreen() {
+  return (
+    <PermissionRoute permission="assetsManage">
+      <EditarAtivoContent />
+    </PermissionRoute>
+  );
+}
+
+function EditarAtivoContent() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: ativo, isLoading } = useAtivo(id);
   const updateAtivo = useUpdateAtivo(id);

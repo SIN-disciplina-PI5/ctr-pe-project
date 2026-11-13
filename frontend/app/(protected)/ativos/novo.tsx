@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 
+import { PermissionRoute } from "@/components/domain/permission-gate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -22,6 +23,14 @@ const TIPOS: TipoAtivo[] = [
 const CRITICIDADES: Criticidade[] = ["BAIXA", "MEDIA", "ALTA", "CRITICA"];
 
 export default function NovoAtivoScreen() {
+  return (
+    <PermissionRoute permission="assetsManage">
+      <NovoAtivoContent />
+    </PermissionRoute>
+  );
+}
+
+function NovoAtivoContent() {
   const createAtivo = useCreateAtivo();
   const { empresaId: empresaSelecionadaGlobal } = useEmpresaStore();
   const { data: empresas } = useEmpresas({ ativa: true });
