@@ -211,4 +211,4 @@ export default function LoginScreen() {
       </View>
     </SafeAreaView>
   );
-}git add -A
+}
