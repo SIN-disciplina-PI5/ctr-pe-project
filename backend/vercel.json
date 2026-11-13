@@ -1,8 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "src/server.ts": {
-      "includeFiles": "node_modules/libpg-query/wasm/libpg-query.wasm"
+    "src/*.ts": {
+      "includeFiles": "node_modules/libpg-query/wasm/**"
     }
   }
 }
