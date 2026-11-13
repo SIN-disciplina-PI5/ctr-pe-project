@@ -11,8 +11,17 @@ describe("permissões da aplicação", () => {
   });
 
   it("impede que CONSULTA acesse áreas administrativas", () => {
+    expect(hasPermission("CONSULTA", "costsRead")).toBe(false);
     expect(hasPermission("CONSULTA", "auditRead")).toBe(false);
     expect(hasPermission("CONSULTA", "usersRead")).toBe(false);
+  });
+
+  it("restringe os custos aos mesmos perfis aceitos pelo backend", () => {
+    expect(hasPermission("ADMIN", "costsRead")).toBe(true);
+    expect(hasPermission("GESTOR", "costsRead")).toBe(true);
+    expect(hasPermission("SUPERVISOR", "costsRead")).toBe(true);
+    expect(hasPermission("TECNICO", "costsRead")).toBe(false);
+    expect(hasPermission("CONSULTA", "costsRead")).toBe(false);
   });
 
   it("mantém o acesso administrativo existente", () => {

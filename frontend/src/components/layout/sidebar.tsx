@@ -42,7 +42,7 @@ const NAV_GROUPS: NavGroup[] = [
     itens: [
       { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, permission: "dashboardRead" },
       { href: "/indicadores", label: "Indicadores", icon: BarChart3, permission: "dashboardRead" },
-      { href: "/desempenho", label: "Desempenho", icon: TrendingUp, permission: "dashboardRead" },
+      { href: "/desempenho", label: "Desempenho", icon: TrendingUp, permission: "costsRead" },
       { href: "/assistente", label: "Assistente", icon: MessageSquareText, permission: "assistantUse" },
     ],
   },

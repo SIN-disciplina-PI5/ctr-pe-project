@@ -8,6 +8,7 @@ import { ChartCard } from "@/components/charts/chart-card";
 import { ChartSkeleton } from "@/components/charts/chart-skeleton";
 import { DonutChart } from "@/components/charts/donut-chart";
 import { StatCard } from "@/components/charts/stat-card";
+import { PermissionRoute } from "@/components/domain/permission-gate";
 import { Text } from "@/components/ui/text";
 import {
   useDashboardCustos,
@@ -18,7 +19,7 @@ import { useAutoRefresh } from "@/hooks/use-auto-refresh";
 import { useSelectedEmpresaId } from "@/hooks/use-selected-empresa";
 import { formatBRL, formatMinutos } from "@/lib/formatters";
 
-export default function DesempenhoScreen() {
+function DesempenhoContent() {
   const empresaId = useSelectedEmpresaId();
   const params = useMemo(
     () => ({ empresaId: empresaId ?? undefined }),
@@ -172,5 +173,13 @@ export default function DesempenhoScreen() {
         </ChartCard>
       </View>
     </ScrollView>
+  );
+}
+
+export default function DesempenhoScreen() {
+  return (
+    <PermissionRoute permission="costsRead">
+      <DesempenhoContent />
+    </PermissionRoute>
   );
 }

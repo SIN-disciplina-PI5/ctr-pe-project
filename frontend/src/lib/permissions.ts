@@ -10,6 +10,7 @@ const ALL_PROFILES: readonly PerfilUsuario[] = [
 
 export type AppPermission =
   | "dashboardRead"
+  | "costsRead"
   | "assistantUse"
   | "maintenanceRead"
   | "auditRead"
@@ -33,6 +34,7 @@ export const APP_PERMISSIONS: Record<
   readonly PerfilUsuario[]
 > = {
   dashboardRead: ALL_PROFILES,
+  costsRead: ["ADMIN", "GESTOR", "SUPERVISOR"],
   assistantUse: ALL_PROFILES,
   maintenanceRead: ALL_PROFILES,
   auditRead: ["ADMIN", "GESTOR"],
