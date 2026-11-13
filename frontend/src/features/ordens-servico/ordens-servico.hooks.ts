@@ -12,10 +12,18 @@ import type {
   UpdateOrdemServicoInput,
 } from "./ordens-servico.schemas";
 
-export function useOrdensServico(filters: OrdensServicoFilters = {}) {
+type OrdensServicoQueryOptions = {
+  refetchInterval?: number;
+};
+
+export function useOrdensServico(
+  filters: OrdensServicoFilters = {},
+  options?: OrdensServicoQueryOptions,
+) {
   return useQuery({
     queryKey: ordensServicoKeys.list(filters),
     queryFn: () => service.listOrdensServico(filters),
+    ...(options ?? {}),
   });
 }
 

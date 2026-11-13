@@ -5,15 +5,20 @@ import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
+import { PRIORIDADE_OS_LABEL, STATUS_OS_LABEL } from "@/constants/status";
 import { useAlertas } from "@/features/alertas/alertas.hooks";
 import { useAtivos } from "@/features/ativos/ativos.hooks";
 import {
   useDashboardAtivos,
   useDashboardMateriais,
+  useDashboardOrdensServico,
   useDashboardResumo,
 } from "@/features/dashboard/dashboard.hooks";
 import { useOrdensServico } from "@/features/ordens-servico/ordens-servico.hooks";
+import { useParadas } from "@/features/paradas/paradas.hooks";
 import { useSelectedEmpresaId } from "@/hooks/use-selected-empresa";
+
+const DASHBOARD_QUERY_OPTIONS = { refetchInterval: 45_000 };
 
 function IndicadorCard({
   label,
@@ -48,6 +53,59 @@ function IndicadorCard({
   );
 }
 
+function DistribuicaoCard({
+  title,
+  items,
+}: {
+  title: string;
+  items: Array<{ label: string; value: number }>;
+}) {
+  return (
+    <Card className="min-w-[280px] flex-1 border-border bg-card">
+      <CardHeader>
+        <CardTitle className="text-base text-foreground">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="gap-2">
+        {items.length === 0 ? (
+          <Text className="text-sm text-muted-foreground">Nenhum dado disponível.</Text>
+        ) : (
+          items.map((item) => (
+            <View
+              key={item.label}
+              className="flex-row items-center justify-between rounded-md bg-muted px-3 py-2"
+            >
+              <Text className="text-sm text-foreground">{item.label}</Text>
+              <Text className="font-semibold text-foreground">{item.value}</Text>
+            </View>
+          ))
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function formatEnumLabel(value: string) {
+  return value
+    .toLowerCase()
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function formatElapsedTime(startedAt: string) {
+  const elapsedMinutes = Math.max(
+    0,
+    Math.floor((Date.now() - new Date(startedAt).getTime()) / 60_000),
+  );
+  const days = Math.floor(elapsedMinutes / 1_440);
+  const hours = Math.floor((elapsedMinutes % 1_440) / 60);
+  const minutes = elapsedMinutes % 60;
+
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}min`;
+  return `${minutes}min`;
+}
+
 export default function DashboardScreen() {
   const empresaId = useSelectedEmpresaId();
 
@@ -58,40 +116,62 @@ export default function DashboardScreen() {
     [empresaId],
   );
 
-  const resumo = useDashboardResumo(params);
-  const dashboardAtivos = useDashboardAtivos(params);
-  const dashboardMateriais = useDashboardMateriais(params);
+  const resumo = useDashboardResumo(params, DASHBOARD_QUERY_OPTIONS);
+  const dashboardAtivos = useDashboardAtivos(params, DASHBOARD_QUERY_OPTIONS);
+  const dashboardOrdens = useDashboardOrdensServico(
+    params,
+    DASHBOARD_QUERY_OPTIONS,
+  );
+  const dashboardMateriais = useDashboardMateriais(
+    params,
+    DASHBOARD_QUERY_OPTIONS,
+  );
 
-  const ativosParados = useAtivos({
-    empresaId: empresaId ?? undefined,
-    status: "PARADO",
-  });
+  const ativosParados = useAtivos(
+    {
+      empresaId: empresaId ?? undefined,
+      status: "PARADO",
+    },
+    DASHBOARD_QUERY_OPTIONS,
+  );
 
-  const ordensCriticas = useOrdensServico({
-    empresaId: empresaId ?? undefined,
-    prioridade: "CRITICA",
-  });
+  const ordensServico = useOrdensServico(params, DASHBOARD_QUERY_OPTIONS);
 
-  const alertasRecentes = useAlertas({
-    empresaId: empresaId ?? undefined,
-    status: "ABERTO",
-  });
+  const alertasRecentes = useAlertas(
+    {
+      empresaId: empresaId ?? undefined,
+      status: "ABERTO",
+    },
+    DASHBOARD_QUERY_OPTIONS,
+  );
+
+  const paradasAbertas = useParadas(
+    {
+      empresaId: empresaId ?? undefined,
+      status: "ABERTA",
+    },
+    DASHBOARD_QUERY_OPTIONS,
+  );
 
   const isLoading =
     resumo.isLoading ||
     dashboardAtivos.isLoading ||
+    dashboardOrdens.isLoading ||
     dashboardMateriais.isLoading ||
     ativosParados.isLoading ||
-    ordensCriticas.isLoading ||
-    alertasRecentes.isLoading;
+    ordensServico.isLoading ||
+    alertasRecentes.isLoading ||
+    paradasAbertas.isLoading;
 
   const isError =
     resumo.isError ||
     dashboardAtivos.isError ||
+    dashboardOrdens.isError ||
     dashboardMateriais.isError ||
     ativosParados.isError ||
-    ordensCriticas.isError ||
-    alertasRecentes.isError;
+    ordensServico.isError ||
+    alertasRecentes.isError ||
+    paradasAbertas.isError;
 
   if (isLoading) {
     return (
@@ -122,8 +202,42 @@ export default function DashboardScreen() {
 
   const materiaisCriticos = dashboardMateriais.data?.materiaisCriticos ?? [];
   const listaAtivosParados = ativosParados.data?.slice(0, 5) ?? [];
-  const listaOrdensCriticas = ordensCriticas.data?.slice(0, 5) ?? [];
+  const ordens = ordensServico.data ?? [];
+  const listaOrdensCriticas = ordens
+    .filter(
+      (ordem) =>
+        ordem.prioridade === "CRITICA" &&
+        ordem.status !== "ENCERRADA" &&
+        ordem.status !== "CANCELADA",
+    )
+    .slice(0, 5);
   const listaAlertasRecentes = alertasRecentes.data?.slice(0, 5) ?? [];
+  const listaParadasAbertas = paradasAbertas.data?.slice(0, 5) ?? [];
+
+  const ativosPorStatus =
+    dashboardAtivos.data?.ativosPorStatus.map((item) => ({
+      label: formatEnumLabel(item.status),
+      value: item.quantidade,
+    })) ?? [];
+
+  const osPorStatus = Object.entries(
+    ordens.reduce<Record<string, number>>((acc, ordem) => {
+      acc[ordem.status] = (acc[ordem.status] ?? 0) + 1;
+      return acc;
+    }, {}),
+  ).map(([status, quantidade]) => ({
+    label: STATUS_OS_LABEL[status as keyof typeof STATUS_OS_LABEL] ?? status,
+    value: quantidade,
+  }));
+
+  const osPorPrioridade =
+    dashboardOrdens.data?.osPorPrioridade.map((item) => ({
+      label:
+        PRIORIDADE_OS_LABEL[
+          item.prioridade as keyof typeof PRIORIDADE_OS_LABEL
+        ] ?? item.prioridade,
+      value: item.quantidade,
+    })) ?? [];
 
   return (
     <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-4 px-4 py-6 pb-6">
@@ -153,7 +267,58 @@ export default function DashboardScreen() {
             router.push("/(protected)/(tabs)/ordens-servico?status=AGUARDANDO_PECA")
           }
         />
+        <IndicadorCard
+          label="O.S. atrasadas"
+          value={String(indicadores?.osAtrasadas ?? 0)}
+          onPress={() => router.push("/(protected)/(tabs)/ordens-servico")}
+        />
+        <IndicadorCard
+          label="Tempo médio parado"
+          value={`${indicadores?.tempoMedioParadoMinutos ?? 0} min`}
+          onPress={() => router.push("/(protected)/(tabs)/paradas")}
+        />
       </View>
+
+      <View className="flex-row flex-wrap gap-3">
+        <DistribuicaoCard title="Ativos por status" items={ativosPorStatus} />
+        <DistribuicaoCard title="O.S. por status" items={osPorStatus} />
+        <DistribuicaoCard title="O.S. por prioridade" items={osPorPrioridade} />
+      </View>
+
+      <Card className="border-border bg-card">
+        <CardHeader>
+          <CardTitle className="text-base text-foreground">Paradas abertas</CardTitle>
+        </CardHeader>
+        <CardContent className="gap-3">
+          {listaParadasAbertas.length === 0 ? (
+            <Text className="text-sm text-muted-foreground">
+              Nenhuma parada aberta.
+            </Text>
+          ) : (
+            listaParadasAbertas.map((parada) => (
+              <Pressable
+                key={parada.id}
+                onPress={() => router.push(`/(protected)/paradas/${parada.id}`)}
+                className="rounded-md border border-border bg-background px-3 py-3"
+              >
+                <View className="flex-row items-center justify-between gap-3">
+                  <View className="flex-1 gap-1">
+                    <Text className="font-medium text-foreground">
+                      {parada.motivo ?? "Parada sem motivo informado"}
+                    </Text>
+                    <Text className="text-sm text-muted-foreground">
+                      Ativo: {parada.ativoId}
+                    </Text>
+                  </View>
+                  <Badge variant="destructive">
+                    <Text>{formatElapsedTime(parada.inicioEm)}</Text>
+                  </Badge>
+                </View>
+              </Pressable>
+            ))
+          )}
+        </CardContent>
+      </Card>
 
       <Card className="border-border bg-card">
         <CardHeader>

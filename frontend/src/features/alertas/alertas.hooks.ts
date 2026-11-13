@@ -11,10 +11,18 @@ import {
 const ALERTAS_QUERY_KEY = ["alertas"];
 const MEUS_ALERTAS_QUERY_KEY = ["meus-alertas"];
 
-export function useAlertas(params?: ListAlertasParams) {
+type AlertasQueryOptions = {
+  refetchInterval?: number;
+};
+
+export function useAlertas(
+  params?: ListAlertasParams,
+  options?: AlertasQueryOptions,
+) {
   return useQuery({
     queryKey: [...ALERTAS_QUERY_KEY, params],
     queryFn: () => alertasService.list(params),
+    ...(options ?? {}),
   });
 }
 
