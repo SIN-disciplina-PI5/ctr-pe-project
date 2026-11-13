@@ -1,0 +1,722 @@
+[
+  {
+    "id": "ativos-indisponiveis",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "full",
+    "relevantTables": [
+      "Empresa",
+      "Ativo"
+    ],
+    "contextCharacters": 3041,
+    "generationMetrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 1477,
+      "inputTokens": 1189,
+      "outputTokens": 509,
+      "totalTokens": 1698
+    },
+    "generationSucceeded": true,
+    "staticValidationPassed": true,
+    "executionSucceeded": true,
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Ativo",
+        "Empresa"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 5,
+      "durationMs": 207,
+      "rows": [
+        {
+          "codigo": "CT-01",
+          "nome": "Caminhão basculante CT-01",
+          "status": "AGUARDANDO_PECA"
+        },
+        {
+          "codigo": "CT-07",
+          "nome": "Caminhão basculante CT-07",
+          "status": "PARADO"
+        },
+        {
+          "codigo": "EX-03",
+          "nome": "Escavadeira hidráulica EX-03",
+          "status": "PARADO"
+        },
+        {
+          "codigo": "GER-02",
+          "nome": "Gerador diesel GER-02",
+          "status": "EM_MANUTENCAO"
+        },
+        {
+          "codigo": "GER-03",
+          "nome": "Gerador diesel GER-03",
+          "status": "PARADO"
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 5,
+      "durationMs": 213,
+      "rows": [
+        {
+          "id": "atv_000021",
+          "codigo": "EX-03",
+          "nome": "Escavadeira hidráulica EX-03",
+          "status": "PARADO"
+        },
+        {
+          "id": "atv_000023",
+          "codigo": "CT-01",
+          "nome": "Caminhão basculante CT-01",
+          "status": "AGUARDANDO_PECA"
+        },
+        {
+          "id": "atv_000029",
+          "codigo": "CT-07",
+          "nome": "Caminhão basculante CT-07",
+          "status": "PARADO"
+        },
+        {
+          "id": "atv_000032",
+          "codigo": "GER-02",
+          "nome": "Gerador diesel GER-02",
+          "status": "EM_MANUTENCAO"
+        },
+        {
+          "id": "atv_000033",
+          "codigo": "GER-03",
+          "nome": "Gerador diesel GER-03",
+          "status": "PARADO"
+        }
+      ],
+      "error": null
+    },
+    "exactMatch": false,
+    "referenceProjectionMatch": true
+  },
+  {
+    "id": "os-abertas-por-status",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "full",
+    "relevantTables": [
+      "Empresa",
+      "OrdemServico"
+    ],
+    "contextCharacters": 3041,
+    "generationMetrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 1530,
+      "inputTokens": 1191,
+      "outputTokens": 509,
+      "totalTokens": 1700
+    },
+    "generationSucceeded": true,
+    "staticValidationPassed": true,
+    "executionSucceeded": true,
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Empresa",
+        "OrdemServico"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 3,
+      "durationMs": 206,
+      "rows": [
+        {
+          "status": "ABERTA",
+          "quantidade": 3
+        },
+        {
+          "status": "EM_EXECUCAO",
+          "quantidade": 1
+        },
+        {
+          "status": "AGUARDANDO_PECA",
+          "quantidade": 1
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 3,
+      "durationMs": 208,
+      "rows": [
+        {
+          "status": "ABERTA",
+          "quantidade": "3"
+        },
+        {
+          "status": "EM_EXECUCAO",
+          "quantidade": "1"
+        },
+        {
+          "status": "AGUARDANDO_PECA",
+          "quantidade": "1"
+        }
+      ],
+      "error": null
+    },
+    "exactMatch": false,
+    "referenceProjectionMatch": false
+  },
+  {
+    "id": "ativos-mais-corretivas",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "full",
+    "relevantTables": [
+      "Empresa",
+      "Ativo",
+      "OrdemServico"
+    ],
+    "contextCharacters": 3041,
+    "generationMetrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 1814,
+      "inputTokens": 1195,
+      "outputTokens": 646,
+      "totalTokens": 1841
+    },
+    "generationSucceeded": true,
+    "staticValidationPassed": true,
+    "executionSucceeded": true,
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Ativo",
+        "Empresa",
+        "OrdemServico"
+      ],
+      "limit": 5
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 5,
+      "durationMs": 207,
+      "rows": [
+        {
+          "codigo": "CT-07",
+          "nome": "Caminhão basculante CT-07",
+          "quantidade": 22
+        },
+        {
+          "codigo": "CT-01",
+          "nome": "Caminhão basculante CT-01",
+          "quantidade": 11
+        },
+        {
+          "codigo": "EX-01",
+          "nome": "Escavadeira hidráulica EX-01",
+          "quantidade": 10
+        },
+        {
+          "codigo": "GER-01",
+          "nome": "Gerador diesel GER-01",
+          "quantidade": 9
+        },
+        {
+          "codigo": "EX-02",
+          "nome": "Escavadeira hidráulica EX-02",
+          "quantidade": 8
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 5,
+      "durationMs": 208,
+      "rows": [
+        {
+          "codigo": "CT-07",
+          "nome": "Caminhão basculante CT-07",
+          "total_corr": "22"
+        },
+        {
+          "codigo": "CT-01",
+          "nome": "Caminhão basculante CT-01",
+          "total_corr": "11"
+        },
+        {
+          "codigo": "EX-01",
+          "nome": "Escavadeira hidráulica EX-01",
+          "total_corr": "10"
+        },
+        {
+          "codigo": "GER-01",
+          "nome": "Gerador diesel GER-01",
+          "total_corr": "9"
+        },
+        {
+          "codigo": "EX-02",
+          "nome": "Escavadeira hidráulica EX-02",
+          "total_corr": "8"
+        }
+      ],
+      "error": null
+    },
+    "exactMatch": false,
+    "referenceProjectionMatch": false
+  },
+  {
+    "id": "materiais-estoque-baixo",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "full",
+    "relevantTables": [
+      "Empresa",
+      "Material"
+    ],
+    "contextCharacters": 3041,
+    "generationMetrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 1819,
+      "inputTokens": 1189,
+      "outputTokens": 564,
+      "totalTokens": 1753
+    },
+    "generationSucceeded": true,
+    "staticValidationPassed": true,
+    "executionSucceeded": true,
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Empresa",
+        "Material"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 5,
+      "durationMs": 207,
+      "rows": [
+        {
+          "codigo": "MAT-007",
+          "nome": "Mangueira hidráulica de alta pressão",
+          "estoqueAtual": "0.000000000000000000000000000000",
+          "estoqueMinimo": "6.000000000000000000000000000000"
+        },
+        {
+          "codigo": "MAT-010",
+          "nome": "Bateria 12V 150Ah",
+          "estoqueAtual": "2.000000000000000000000000000000",
+          "estoqueMinimo": "3.000000000000000000000000000000"
+        },
+        {
+          "codigo": "MAT-012",
+          "nome": "Motor de partida",
+          "estoqueAtual": "1.000000000000000000000000000000",
+          "estoqueMinimo": "1.000000000000000000000000000000"
+        },
+        {
+          "codigo": "MAT-021",
+          "nome": "Radiador",
+          "estoqueAtual": "1.000000000000000000000000000000",
+          "estoqueMinimo": "1.000000000000000000000000000000"
+        },
+        {
+          "codigo": "MAT-022",
+          "nome": "Kit de reparo da caixa de transmissão",
+          "estoqueAtual": "0.000000000000000000000000000000",
+          "estoqueMinimo": "1.000000000000000000000000000000"
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 5,
+      "durationMs": 207,
+      "rows": [
+        {
+          "id": "mat_000010",
+          "codigo": "MAT-010",
+          "nome": "Bateria 12V 150Ah",
+          "estoqueAtual": "2.000000000000000000000000000000",
+          "estoqueMinimo": "3.000000000000000000000000000000",
+          "custoMedio": "650.000000000000000000000000000000"
+        },
+        {
+          "id": "mat_000022",
+          "codigo": "MAT-022",
+          "nome": "Kit de reparo da caixa de transmissão",
+          "estoqueAtual": "0.000000000000000000000000000000",
+          "estoqueMinimo": "1.000000000000000000000000000000",
+          "custoMedio": "8900.000000000000000000000000000000"
+        },
+        {
+          "id": "mat_000007",
+          "codigo": "MAT-007",
+          "nome": "Mangueira hidráulica de alta pressão",
+          "estoqueAtual": "0.000000000000000000000000000000",
+          "estoqueMinimo": "6.000000000000000000000000000000",
+          "custoMedio": "180.000000000000000000000000000000"
+        },
+        {
+          "id": "mat_000012",
+          "codigo": "MAT-012",
+          "nome": "Motor de partida",
+          "estoqueAtual": "1.000000000000000000000000000000",
+          "estoqueMinimo": "1.000000000000000000000000000000",
+          "custoMedio": "1480.000000000000000000000000000000"
+        },
+        {
+          "id": "mat_000021",
+          "codigo": "MAT-021",
+          "nome": "Radiador",
+          "estoqueAtual": "1.000000000000000000000000000000",
+          "estoqueMinimo": "1.000000000000000000000000000000",
+          "custoMedio": "2100.000000000000000000000000000000"
+        }
+      ],
+      "error": null
+    },
+    "exactMatch": false,
+    "referenceProjectionMatch": true
+  },
+  {
+    "id": "os-atrasadas",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "full",
+    "relevantTables": [
+      "Empresa",
+      "OrdemServico"
+    ],
+    "contextCharacters": 3041,
+    "generationMetrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 1752,
+      "inputTokens": 1199,
+      "outputTokens": 637,
+      "totalTokens": 1836
+    },
+    "generationSucceeded": true,
+    "staticValidationPassed": true,
+    "executionSucceeded": true,
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Empresa",
+        "OrdemServico"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 1,
+      "durationMs": 207,
+      "rows": [
+        {
+          "numero": "OS-2026-0192",
+          "titulo": "Vazamento hidráulico - CT-01",
+          "status": "AGUARDANDO_PECA",
+          "prazoEm": "2026-10-22T15:20:00.000Z"
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 1,
+      "durationMs": 206,
+      "rows": [
+        {
+          "id": "os_000242",
+          "numero": "OS-2026-0192",
+          "titulo": "Vazamento hidráulico - CT-01",
+          "status": "AGUARDANDO_PECA",
+          "prazoEm": "2026-10-22T15:20:00.000Z"
+        }
+      ],
+      "error": null
+    },
+    "exactMatch": false,
+    "referenceProjectionMatch": true
+  },
+  {
+    "id": "custo-agosto",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "full",
+    "relevantTables": [
+      "Empresa",
+      "OrdemServico"
+    ],
+    "contextCharacters": 3041,
+    "generationMetrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 17071,
+      "inputTokens": 1200,
+      "outputTokens": 680,
+      "totalTokens": 1880
+    },
+    "generationSucceeded": true,
+    "staticValidationPassed": true,
+    "executionSucceeded": true,
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Empresa",
+        "OrdemServico"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 1,
+      "durationMs": 208,
+      "rows": [
+        {
+          "custo_total": "59093.710000000000200000000000000000"
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 1,
+      "durationMs": 206,
+      "rows": [
+        {
+          "total_custo": "59093.710000000000200000000000000000"
+        }
+      ],
+      "error": null
+    },
+    "exactMatch": false,
+    "referenceProjectionMatch": false
+  },
+  {
+    "id": "maior-media-parada",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "full",
+    "relevantTables": [
+      "Empresa",
+      "Ativo",
+      "ParadaAtivo"
+    ],
+    "contextCharacters": 3041,
+    "generationMetrics": null,
+    "generationSucceeded": false,
+    "staticValidationPassed": false,
+    "executionSucceeded": false,
+    "skipped": true,
+    "reason": "SQL não foi gerado."
+  },
+  {
+    "id": "materiais-os-aguardando",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "full",
+    "relevantTables": [
+      "Empresa",
+      "OrdemServico",
+      "Material",
+      "OrdemServicoMaterial"
+    ],
+    "contextCharacters": 3041,
+    "generationMetrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 14635,
+      "inputTokens": 1197,
+      "outputTokens": 927,
+      "totalTokens": 2124
+    },
+    "generationSucceeded": true,
+    "staticValidationPassed": true,
+    "executionSucceeded": true,
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Empresa",
+        "Material",
+        "OrdemServico",
+        "OrdemServicoMaterial"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 1,
+      "durationMs": 208,
+      "rows": [
+        {
+          "codigo": "MAT-007",
+          "nome": "Mangueira hidráulica de alta pressão",
+          "quantidade": "2.000000000000000000000000000000"
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 1,
+      "durationMs": 211,
+      "rows": [
+        {
+          "codigo": "MAT-007",
+          "nome": "Mangueira hidráulica de alta pressão",
+          "total_quantidade": "2.000000000000000000000000000000"
+        }
+      ],
+      "error": null
+    },
+    "exactMatch": false,
+    "referenceProjectionMatch": false
+  },
+  {
+    "id": "ct07-agosto",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "full",
+    "relevantTables": [
+      "Empresa",
+      "Ativo",
+      "OrdemServico"
+    ],
+    "contextCharacters": 3041,
+    "generationMetrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 8608,
+      "inputTokens": 1197,
+      "outputTokens": 1436,
+      "totalTokens": 2633
+    },
+    "generationSucceeded": true,
+    "staticValidationPassed": true,
+    "executionSucceeded": false,
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Alerta",
+        "Ativo",
+        "Empresa",
+        "OrdemServico",
+        "ParadaAtivo"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 4,
+      "durationMs": 207,
+      "rows": [
+        {
+          "numero": "OS-2026-0112",
+          "titulo": "Desgaste dos freios - CT-07",
+          "status": "ENCERRADA",
+          "abertaEm": "2026-08-07T13:22:00.000Z",
+          "encerradaEm": "2026-08-07T21:25:00.000Z",
+          "tempoAguardandoPecaMinutos": null,
+          "custoTotal": "2067.800000000000000000000000000000"
+        },
+        {
+          "numero": "OS-2026-0114",
+          "titulo": "Pneu danificado - CT-07",
+          "status": "ENCERRADA",
+          "abertaEm": "2026-08-09T22:30:00.000Z",
+          "encerradaEm": "2026-08-11T10:47:00.000Z",
+          "tempoAguardandoPecaMinutos": null,
+          "custoTotal": "3784.000000000000000000000000000000"
+        },
+        {
+          "numero": "OS-2026-0118",
+          "titulo": "Falha na caixa de transmissão - CT-07",
+          "status": "ENCERRADA",
+          "abertaEm": "2026-08-13T17:54:00.000Z",
+          "encerradaEm": "2026-08-29T16:22:00.000Z",
+          "tempoAguardandoPecaMinutos": 20160,
+          "custoTotal": "13099.280000000000000000000000000000"
+        },
+        {
+          "numero": "OS-2026-0138",
+          "titulo": "Falha elétrica na partida - CT-07",
+          "status": "ENCERRADA",
+          "abertaEm": "2026-08-31T13:47:00.000Z",
+          "encerradaEm": "2026-08-31T23:57:00.000Z",
+          "tempoAguardandoPecaMinutos": null,
+          "custoTotal": "866.070000000000100000000000000000"
+        }
+      ],
+      "error": null
+    },
+    "generated": {
+      "success": false,
+      "rowCount": null,
+      "durationMs": 207,
+      "rows": null,
+      "error": "UNION types text and \"StatusParada\" cannot be matched"
+    },
+    "exactMatch": false,
+    "referenceProjectionMatch": false
+  },
+  {
+    "id": "alertas-criticos",
+    "model": "openai/gpt-oss-120b",
+    "contextVariant": "full",
+    "relevantTables": [
+      "Empresa",
+      "Alerta"
+    ],
+    "contextCharacters": 3041,
+    "generationMetrics": {
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 9689,
+      "inputTokens": 1191,
+      "outputTokens": 504,
+      "totalTokens": 1695
+    },
+    "generationSucceeded": true,
+    "staticValidationPassed": true,
+    "executionSucceeded": true,
+    "skipped": false,
+    "staticValidation": {
+      "valid": true,
+      "violations": [],
+      "tables": [
+        "Alerta",
+        "Empresa"
+      ],
+      "limit": 100
+    },
+    "reference": {
+      "success": true,
+      "rowCount": 0,
+      "durationMs": 206,
+      "rows": [],
+      "error": null
+    },
+    "generated": {
+      "success": true,
+      "rowCount": 0,
+      "durationMs": 208,
+      "rows": [],
+      "error": null
+    },
+    "exactMatch": true,
+    "referenceProjectionMatch": true
+  }
+]

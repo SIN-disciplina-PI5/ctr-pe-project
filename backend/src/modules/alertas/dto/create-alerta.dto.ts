@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { entityIdSchema } from "../../../common/schemas/entity-id.schema.js";
 
 export const createAlertaDto = z.object({
-  empresaId: z.string().cuid(),
+  empresaId: entityIdSchema,
   tipo: z.enum([
     "ATIVO_PARADO",
     "OS_ATRASADA",
@@ -13,9 +14,9 @@ export const createAlertaDto = z.object({
   severidade: z.enum(["INFO", "BAIXA", "MEDIA", "ALTA", "CRITICA"]).optional(),
   titulo: z.string().min(1),
   mensagem: z.string().min(1),
-  ativoId: z.string().cuid().optional(),
-  ordemServicoId: z.string().cuid().optional(),
-  usuarioId: z.string().cuid().optional(),
+  ativoId: entityIdSchema.optional(),
+  ordemServicoId: entityIdSchema.optional(),
+  usuarioId: entityIdSchema.optional(),
 });
 
 export type CreateAlertaDto = z.infer<typeof createAlertaDto>;

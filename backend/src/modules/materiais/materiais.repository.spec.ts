@@ -78,6 +78,7 @@ describe("MateriaisRepository", () => {
     ] as never);
 
     const result = await repository.findAll({
+      empresaId: "empresa-1",
       estoqueBaixo: true,
     });
 
@@ -86,12 +87,12 @@ describe("MateriaisRepository", () => {
   });
 
   it("should buscar por id", async () => {
-    const spy = jest.spyOn(prisma.material, "findUnique").mockResolvedValue({ id: "1" } as never);
+    const spy = jest.spyOn(prisma.material, "findFirst").mockResolvedValue({ id: "1" } as never);
 
-    const result = await repository.findById("1");
+    const result = await repository.findById("1", "empresa-1");
 
     expect(spy).toHaveBeenCalledWith({
-      where: { id: "1" },
+      where: { id: "1", empresaId: "empresa-1" },
       select: {
         id: true,
         empresaId: true,
@@ -168,13 +169,17 @@ describe("MateriaisRepository", () => {
   it("should atualizar material", async () => {
     const spy = jest.spyOn(prisma.material, "update").mockResolvedValue({ id: "1" } as never);
 
-    const result = await repository.update("1", {
-      nome: "Rolamento Atualizado",
-      ativo: false,
-    });
+    const result = await repository.update(
+      "1",
+      "empresa-1",
+      {
+        nome: "Rolamento Atualizado",
+        ativo: false,
+      },
+    );
 
     expect(spy).toHaveBeenCalledWith({
-      where: { id: "1" },
+      where: { id: "1", empresaId: "empresa-1" },
       data: {
         nome: "Rolamento Atualizado",
         ativo: false,
@@ -200,10 +205,10 @@ describe("MateriaisRepository", () => {
     const spy = jest.spyOn(prisma.material, "update").mockResolvedValue({ id: "1" } as never);
     const estoque = new Prisma.Decimal(42);
 
-    const result = await repository.updateEstoque("1", estoque);
+    const result = await repository.updateEstoque("1", "empresa-1", estoque);
 
     expect(spy).toHaveBeenCalledWith({
-      where: { id: "1" },
+      where: { id: "1", empresaId: "empresa-1" },
       data: { estoqueAtual: estoque },
       select: {
         id: true,
@@ -217,10 +222,10 @@ describe("MateriaisRepository", () => {
   it("should inativar material", async () => {
     const spy = jest.spyOn(prisma.material, "update").mockResolvedValue({ id: "1" } as never);
 
-    const result = await repository.delete("1");
+    const result = await repository.delete("1", "empresa-1");
 
     expect(spy).toHaveBeenCalledWith({
-      where: { id: "1" },
+      where: { id: "1", empresaId: "empresa-1" },
       data: { ativo: false },
       select: { id: true },
     });

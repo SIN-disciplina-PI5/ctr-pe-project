@@ -11,6 +11,8 @@ import {
 } from "./ativos.controller.js";
 import { AtivosService } from "./ativos.service.js";
 
+const authenticatedUser = { id: "user-1", empresaId: "empresa-1" };
+
 function makeResponse() {
   const res = {} as Response;
   res.status = jest.fn<typeof res.status>().mockReturnValue(res);
@@ -33,6 +35,7 @@ describe("ativos.controller", () => {
     jest.spyOn(AtivosService.prototype, "findAll").mockResolvedValue([{ id: "1" }] as never);
 
     const req = {
+      user: authenticatedUser,
       query: {
         empresaId: "empresa-1",
         localizacaoId: "loc-1",
@@ -61,12 +64,16 @@ describe("ativos.controller", () => {
     jest.spyOn(AtivosService.prototype, "findById").mockResolvedValue({ id: "1" } as never);
 
     const req = {
+      user: authenticatedUser,
       params: { id: "1" },
     } as unknown as Request;
 
     await findById(req, res, next);
 
-    expect(AtivosService.prototype.findById).toHaveBeenCalledWith("1");
+    expect(AtivosService.prototype.findById).toHaveBeenCalledWith(
+      "1",
+      "empresa-1",
+    );
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
@@ -74,6 +81,7 @@ describe("ativos.controller", () => {
     jest.spyOn(AtivosService.prototype, "create").mockResolvedValue({ id: "1" } as never);
 
     const req = {
+      user: authenticatedUser,
       body: {
         empresaId: "empresa-1",
         codigo: "AT-1",
@@ -90,15 +98,20 @@ describe("ativos.controller", () => {
     jest.spyOn(AtivosService.prototype, "update").mockResolvedValue({ id: "1" } as never);
 
     const req = {
+      user: authenticatedUser,
       params: { id: "1" },
       body: { nome: "Motor Atualizado" },
     } as unknown as Request;
 
     await update(req, res, next);
 
-    expect(AtivosService.prototype.update).toHaveBeenCalledWith("1", {
-      nome: "Motor Atualizado",
-    });
+    expect(AtivosService.prototype.update).toHaveBeenCalledWith(
+      "1",
+      "empresa-1",
+      {
+        nome: "Motor Atualizado",
+      },
+    );
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
@@ -109,13 +122,18 @@ describe("ativos.controller", () => {
     } as never);
 
     const req = {
+      user: authenticatedUser,
       params: { id: "1" },
       body: { status: "PARADO" },
     } as unknown as Request;
 
     await updateStatus(req, res, next);
 
-    expect(AtivosService.prototype.updateStatus).toHaveBeenCalledWith("1", "PARADO");
+    expect(AtivosService.prototype.updateStatus).toHaveBeenCalledWith(
+      "1",
+      "empresa-1",
+      "PARADO",
+    );
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
@@ -123,12 +141,16 @@ describe("ativos.controller", () => {
     jest.spyOn(AtivosService.prototype, "delete").mockResolvedValue({ id: "1" } as never);
 
     const req = {
+      user: authenticatedUser,
       params: { id: "1" },
     } as unknown as Request;
 
     await remove(req, res, next);
 
-    expect(AtivosService.prototype.delete).toHaveBeenCalledWith("1");
+    expect(AtivosService.prototype.delete).toHaveBeenCalledWith(
+      "1",
+      "empresa-1",
+    );
     expect(res.status).toHaveBeenCalledWith(204);
     expect(res.send).toHaveBeenCalled();
   });
@@ -138,6 +160,7 @@ describe("ativos.controller", () => {
     jest.spyOn(AtivosService.prototype, "create").mockRejectedValue(error);
 
     const req = {
+      user: authenticatedUser,
       body: {
         empresaId: "empresa-1",
       },

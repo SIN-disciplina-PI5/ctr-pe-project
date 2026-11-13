@@ -30,7 +30,7 @@ describe("OrdensServicoService", () => {
       status: "ABERTA",
     } as never);
 
-    const result = await service.findById("1");
+    const result = await service.findById("1", "empresa-1");
 
     expect(result).toEqual({
       id: "1",
@@ -41,7 +41,7 @@ describe("OrdensServicoService", () => {
   it("should lançar 404 quando O.S. não existir", async () => {
     jest.spyOn(OrdensServicoRepository.prototype, "findById").mockResolvedValue(null);
 
-    await expect(service.findById("1")).rejects.toBeInstanceOf(AppError);
+    await expect(service.findById("1", "empresa-1")).rejects.toBeInstanceOf(AppError);
   });
 
   it("should criar O.S. com número informado e sem alerta quando não impacta disponibilidade", async () => {
@@ -154,12 +154,8 @@ describe("OrdensServicoService", () => {
     ).rejects.toBeInstanceOf(AppError);
   });
 
-  it("should lançar 400 ao criar quando ativo for de outra empresa", async () => {
-    jest.spyOn(OrdensServicoRepository.prototype, "findAtivoById").mockResolvedValue({
-      id: "ativo-1",
-      empresaId: "empresa-2",
-      ativo: true,
-    } as never);
+  it("should lançar 404 ao criar quando ativo for de outra empresa", async () => {
+    jest.spyOn(OrdensServicoRepository.prototype, "findAtivoById").mockResolvedValue(null);
 
     await expect(
       service.create({
@@ -203,10 +199,15 @@ describe("OrdensServicoService", () => {
       status: "EM_EXECUCAO",
     } as never);
 
-    const result = await service.iniciar("1", "2026-06-11T10:00:00.000Z");
+    const result = await service.iniciar(
+      "1",
+      "empresa-1",
+      "2026-06-11T10:00:00.000Z",
+    );
 
     expect(OrdensServicoRepository.prototype.iniciar).toHaveBeenCalledWith(
       "1",
+      "empresa-1",
       new Date("2026-06-11T10:00:00.000Z"),
     );
     expect(result).toEqual({
@@ -221,7 +222,7 @@ describe("OrdensServicoService", () => {
       status: "ENCERRADA",
     } as never);
 
-    await expect(service.iniciar("1")).rejects.toBeInstanceOf(AppError);
+    await expect(service.iniciar("1", "empresa-1")).rejects.toBeInstanceOf(AppError);
   });
 
   it("should aguardar peça com O.S. em execução", async () => {
@@ -237,9 +238,17 @@ describe("OrdensServicoService", () => {
       .spyOn(AlertasRepository.prototype, "createOSAguardandoPeca")
       .mockResolvedValue({ id: "alerta-1" } as never);
 
-    const result = await service.aguardarPeca("1", "Falta peça");
+    const result = await service.aguardarPeca(
+      "1",
+      "empresa-1",
+      "Falta peça",
+    );
 
-    expect(OrdensServicoRepository.prototype.aguardarPeca).toHaveBeenCalledWith("1", "Falta peça");
+    expect(OrdensServicoRepository.prototype.aguardarPeca).toHaveBeenCalledWith(
+      "1",
+      "empresa-1",
+      "Falta peça",
+    );
     expect(alertaSpy).toHaveBeenCalledWith({
       ordemServicoId: "1",
       observacao: "Falta peça",
@@ -256,7 +265,9 @@ describe("OrdensServicoService", () => {
       status: "ABERTA",
     } as never);
 
-    await expect(service.aguardarPeca("1")).rejects.toBeInstanceOf(AppError);
+    await expect(
+      service.aguardarPeca("1", "empresa-1"),
+    ).rejects.toBeInstanceOf(AppError);
   });
 
   it("should retomar O.S. aguardando peça", async () => {
@@ -269,9 +280,13 @@ describe("OrdensServicoService", () => {
       status: "EM_EXECUCAO",
     } as never);
 
-    const result = await service.retomar("1", "Peça chegou");
+    const result = await service.retomar("1", "empresa-1", "Peça chegou");
 
-    expect(OrdensServicoRepository.prototype.retomar).toHaveBeenCalledWith("1", "Peça chegou");
+    expect(OrdensServicoRepository.prototype.retomar).toHaveBeenCalledWith(
+      "1",
+      "empresa-1",
+      "Peça chegou",
+    );
     expect(result).toEqual({
       id: "1",
       status: "EM_EXECUCAO",
@@ -284,7 +299,7 @@ describe("OrdensServicoService", () => {
       status: "ABERTA",
     } as never);
 
-    await expect(service.retomar("1")).rejects.toBeInstanceOf(AppError);
+    await expect(service.retomar("1", "empresa-1")).rejects.toBeInstanceOf(AppError);
   });
 
   it("should encerrar O.S. em execução", async () => {
@@ -297,7 +312,7 @@ describe("OrdensServicoService", () => {
       status: "ENCERRADA",
     } as never);
 
-    const result = await service.encerrar("1", {
+    const result = await service.encerrar("1", "empresa-1", {
       diagnostico: "Falha elétrica",
       solucao: "Troca de cabo",
       observacao: "OK",
@@ -306,6 +321,7 @@ describe("OrdensServicoService", () => {
 
     expect(OrdensServicoRepository.prototype.encerrar).toHaveBeenCalledWith(
       "1",
+      "empresa-1",
       expect.objectContaining({
         diagnostico: "Falha elétrica",
         solucao: "Troca de cabo",
@@ -325,7 +341,9 @@ describe("OrdensServicoService", () => {
       status: "ABERTA",
     } as never);
 
-    await expect(service.encerrar("1", {})).rejects.toBeInstanceOf(AppError);
+    await expect(
+      service.encerrar("1", "empresa-1", {}),
+    ).rejects.toBeInstanceOf(AppError);
   });
 
   it("should cancelar O.S. válida", async () => {
@@ -338,13 +356,14 @@ describe("OrdensServicoService", () => {
       status: "CANCELADA",
     } as never);
 
-    const result = await service.cancelar("1", {
+    const result = await service.cancelar("1", "empresa-1", {
       motivo: "Aberta por engano",
       canceladaEm: "2026-06-11T12:00:00.000Z",
     });
 
     expect(OrdensServicoRepository.prototype.cancelar).toHaveBeenCalledWith(
       "1",
+      "empresa-1",
       expect.objectContaining({
         motivo: "Aberta por engano",
         canceladaEm: new Date("2026-06-11T12:00:00.000Z"),
@@ -362,7 +381,9 @@ describe("OrdensServicoService", () => {
       status: "ENCERRADA",
     } as never);
 
-    await expect(service.cancelar("1", {})).rejects.toBeInstanceOf(AppError);
+    await expect(
+      service.cancelar("1", "empresa-1", {}),
+    ).rejects.toBeInstanceOf(AppError);
   });
 
   it("should atualizar O.S. convertendo prazoEm", async () => {
@@ -374,13 +395,14 @@ describe("OrdensServicoService", () => {
       id: "1",
     } as never);
 
-    const result = await service.update("1", {
+    const result = await service.update("1", "empresa-1", {
       titulo: "Atualizada",
       prazoEm: "2026-06-20T10:00:00.000Z",
     });
 
     expect(OrdensServicoRepository.prototype.update).toHaveBeenCalledWith(
       "1",
+      "empresa-1",
       expect.objectContaining({
         titulo: "Atualizada",
         prazoEm: new Date("2026-06-20T10:00:00.000Z"),
@@ -398,12 +420,13 @@ describe("OrdensServicoService", () => {
       id: "1",
     } as never);
 
-    await service.update("1", {
+    await service.update("1", "empresa-1", {
       prazoEm: null,
     });
 
     expect(OrdensServicoRepository.prototype.update).toHaveBeenCalledWith(
       "1",
+      "empresa-1",
       expect.objectContaining({
         prazoEm: null,
       }),

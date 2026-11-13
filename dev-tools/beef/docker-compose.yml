@@ -1,0 +1,12 @@
+services:
+  beef:
+    image: ilyaglow/beef
+    container_name: manutencao-conectada-beef-local
+    profiles: ["beef-local"]
+    environment:
+      BEEF_USER: beef
+      BEEF_PASSWORD: ${BEEF_PASS:?execute dev-tools/scripts/beef-setup.sh}
+    ports:
+      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:6789:6789"
+    restart: "no"

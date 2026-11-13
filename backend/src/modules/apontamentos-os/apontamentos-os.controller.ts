@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { ApontamentosOSService } from "./apontamentos-os.service.js";
 import { AppError } from "../../common/errors/AppError.js";
 import { ErrorCode } from "../../common/errors/error-code.js";
+import { getCurrentCompanyUser } from "../../common/utils/get-current-user.js";
 
 const service = new ApontamentosOSService();
 
@@ -27,8 +28,8 @@ export async function findById(req: Request, res: Response, next: NextFunction) 
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
+    const currentUser = getCurrentCompanyUser(req);
     const { ordemServicoId } = req.params as { ordemServicoId: string };
-    const usuarioId = req.user!.id;
 
     if (!req.body?.inicioEm) {
       throw new AppError({
@@ -50,7 +51,8 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
     const result = await service.create({
       ordemServicoId,
-      usuarioId,
+      usuarioId: currentUser.id,
+      empresaId: currentUser.empresaId,
       inicioEm,
       ...(req.body.descricao !== undefined && { descricao: req.body.descricao }),
       ...(req.body.custoHora !== undefined && { custoHora: req.body.custoHora }),

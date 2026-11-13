@@ -1,18 +1,39 @@
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
-import { View, TextInput, Pressable, ActivityIndicator, Alert } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Platform,
+  Pressable,
+  TextInput,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Logo, LogoIcon } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { authService } from "@/infrastructure/auth/auth.service";
+import {
+  authService,
+  type RecaptchaPlatform,
+} from "@/infrastructure/auth/auth.service";
+import {
+  getRecaptchaToken,
+  isRecaptchaConfigured,
+} from "@/infrastructure/auth/recaptcha.service";
 import {
   clearSession,
   setRefreshToken,
   setToken,
 } from "@/infrastructure/storage/token-storage";
 import { useAuthStore } from "@/store/auth-store";
+
+function getRecaptchaPlatform(): RecaptchaPlatform {
+  if (Platform.OS === "web") return "web";
+  if (Platform.OS === "android") return "android";
+  if (Platform.OS === "ios") return "ios";
+  throw new Error("Plataforma não suportada pelo reCAPTCHA.");
+}
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -21,6 +42,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [carregando, setCarregando] = useState(false);
+  const recaptchaConfigured = isRecaptchaConfigured();
 
   async function handleLogin() {
     if (!email || !senha) {
@@ -31,9 +53,13 @@ export default function LoginScreen() {
     try {
       setCarregando(true);
 
+      const recaptchaToken = await getRecaptchaToken("login");
+
       const data = await authService.login({
         email: email.trim(),
         password: senha,
+        ...(recaptchaToken ? { recaptchaToken } : {}),
+        recaptchaPlatform: getRecaptchaPlatform(),
       });
 
       if (!data.accessToken || !data.refreshToken) {
@@ -151,6 +177,14 @@ export default function LoginScreen() {
             </View>
 
             <View className="gap-3 mt-6">
+              {!recaptchaConfigured ? (
+                <View className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2">
+                  <Text className="text-xs text-amber-800">
+                    reCAPTCHA não configurado neste ambiente. O login continuará sem validação anti-robô.
+                  </Text>
+                </View>
+              ) : null}
+
               <Button
                 className="w-full bg-blue-900 active:bg-blue-950 h-12 rounded-xl shadow-md shadow-blue-900/10"
                 onPress={handleLogin}

@@ -13,8 +13,8 @@ export const dashboardRoutes = Router();
 
 dashboardRoutes.use(authMiddleware);
 
-dashboardRoutes.get("/resumo", requireRole(["ADMIN", "GESTOR", "SUPERVISOR"]), getResumo);
-dashboardRoutes.get("/ativos", requireRole(["ADMIN", "GESTOR", "SUPERVISOR"]), getAtivos);
-dashboardRoutes.get("/ordens-servico", requireRole(["ADMIN", "GESTOR", "SUPERVISOR"]), getOrdensServico);
-dashboardRoutes.get("/materiais", requireRole(["ADMIN", "GESTOR", "SUPERVISOR"]), getMateriais);
+dashboardRoutes.get("/resumo", requireRole(["ADMIN", "GESTOR", "SUPERVISOR", "TECNICO", "CONSULTA"]), getResumo);
+dashboardRoutes.get("/ativos", requireRole(["ADMIN", "GESTOR", "SUPERVISOR", "TECNICO", "CONSULTA"]), getAtivos);
+dashboardRoutes.get("/ordens-servico", requireRole(["ADMIN", "GESTOR", "SUPERVISOR", "TECNICO", "CONSULTA"]), getOrdensServico);
+dashboardRoutes.get("/materiais", requireRole(["ADMIN", "GESTOR", "SUPERVISOR", "TECNICO", "CONSULTA"]), getMateriais);
 dashboardRoutes.get("/custos", requireRole(["ADMIN", "GESTOR", "SUPERVISOR"]), getCustos);

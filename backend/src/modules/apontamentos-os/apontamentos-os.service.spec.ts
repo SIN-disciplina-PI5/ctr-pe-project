@@ -56,6 +56,7 @@ describe("ApontamentosOSService", () => {
     const result = await service.create({
       ordemServicoId: "os-1",
       usuarioId: "user-1",
+      empresaId: "empresa-1",
       inicioEm,
       descricao: "Teste",
       custoHora: 50,
@@ -78,6 +79,7 @@ describe("ApontamentosOSService", () => {
       service.create({
         ordemServicoId: "os-1",
         usuarioId: "user-1",
+        empresaId: "empresa-1",
         inicioEm: new Date(),
       }),
     ).rejects.toBeInstanceOf(AppError);
@@ -95,6 +97,7 @@ describe("ApontamentosOSService", () => {
       service.create({
         ordemServicoId: "os-1",
         usuarioId: "user-1",
+        empresaId: "empresa-1",
         inicioEm: new Date(),
       }),
     ).rejects.toBeInstanceOf(AppError);

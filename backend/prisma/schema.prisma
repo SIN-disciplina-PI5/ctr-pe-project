@@ -12,7 +12,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
 /**
  * ENUMS
  */
@@ -118,19 +117,23 @@ enum TipoAcaoAuditoria {
   CANCELAMENTO_OS
 }
 
+enum PapelMensagemConversaIA {
+  USUARIO
+  ASSISTENTE
+}
+
 /**
  * 1. EMPRESA
- *
  * Representa matriz, filial ou qualquer unidade empresarial principal.
  * No projeto de vocês, isso resolve a regra: primeiro escolhe empresa,
  * depois escolhe equipamento.
  */
 
 model Empresa {
-  id        String   @id @default(cuid())
-  codigo    String?  @unique
-  nome      String
-  ativa     Boolean  @default(true)
+  id     String  @id @default(cuid())
+  codigo String? @unique
+  nome   String
+  ativa  Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -143,25 +146,25 @@ model Empresa {
   paradas       ParadaAtivo[]
   alertas       Alerta[]
   logs          LogAuditoria[]
+  conversasIA   ConversaIA[]
 
   @@index([nome])
 }
 
 /**
  * 2. LOCALIZACAO
- *
  * Lugar onde o ativo está.
  * Exemplo: Oficina, Pátio, Galpão A, Linha 1, Setor de Manutenção.
  */
 
 model Localizacao {
-  id        String  @id @default(cuid())
+  id        String @id @default(cuid())
   empresaId String
 
-  codigo    String?
-  nome      String
-  tipo      String?
-  ativa     Boolean @default(true)
+  codigo String?
+  nome   String
+  tipo   String?
+  ativa  Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -177,7 +180,6 @@ model Localizacao {
 
 /**
  * 3. USUARIO
- *
  * Usuário do sistema.
  * Para simplificar, o perfil fica direto aqui.
  * Não criamos tabelas separadas de perfis e permissões agora.
@@ -188,10 +190,10 @@ model Usuario {
   empresaId String?
 
   nome      String
-  email     String  @unique
+  email     String        @unique
   senhaHash String
   perfil    PerfilUsuario
-  ativo     Boolean @default(true)
+  ativo     Boolean       @default(true)
 
   ultimoLoginEm DateTime?
 
@@ -200,22 +202,23 @@ model Usuario {
 
   empresa Empresa? @relation(fields: [empresaId], references: [id])
 
-  ordensSolicitadas OrdemServico[] @relation("SolicitanteOS")
-  ordensResponsavel OrdemServico[] @relation("ResponsavelOS")
+  ordensSolicitadas OrdemServico[]  @relation("SolicitanteOS")
+  ordensResponsavel OrdemServico[]  @relation("ResponsavelOS")
   apontamentos      ApontamentoOS[]
   alertas           Alerta[]
   logs              LogAuditoria[]
   refreshTokens     RefreshToken[]
+  conversasIA       ConversaIA[]
 
   @@index([empresaId])
   @@index([perfil])
 }
 
 model RefreshToken {
-  id        String   @id @default(cuid())
+  id        String @id @default(cuid())
   usuarioId String
 
-  tokenHash String   @unique
+  tokenHash String    @unique
   expiresAt DateTime
   revokedAt DateTime?
 
@@ -231,7 +234,6 @@ model RefreshToken {
 
 /**
  * 4. ATIVO
- *
  * Máquina, caminhão, equipamento ou componente.
  * Essa é uma das tabelas centrais do projeto.
  */
@@ -241,23 +243,23 @@ model Ativo {
   empresaId     String
   localizacaoId String?
 
-  codigo        String
-  nome          String
-  descricao     String?
+  codigo    String
+  nome      String
+  descricao String?
 
-  tipo          TipoAtivo
-  status        StatusAtivo @default(DISPONIVEL)
-  criticidade   Criticidade @default(MEDIA)
+  tipo        TipoAtivo
+  status      StatusAtivo @default(DISPONIVEL)
+  criticidade Criticidade @default(MEDIA)
 
-  marca         String?
-  modelo        String?
-  numeroSerie   String?
-  placa         String?
+  marca       String?
+  modelo      String?
+  numeroSerie String?
+  placa       String?
 
   horimetroAtual Decimal?
   odometroAtual  Decimal?
 
-  ativo         Boolean @default(true)
+  ativo Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -278,7 +280,6 @@ model Ativo {
 
 /**
  * 5. ORDEM DE SERVICO
- *
  * Representa a manutenção em si.
  * Aqui ficam O.S. aberta, em execução, aguardando peça, encerrada etc.
  */
@@ -292,21 +293,21 @@ model OrdemServico {
   solicitanteId String?
   responsavelId String?
 
-  numero        String
-  titulo        String
-  descricao     String
+  numero    String
+  titulo    String
+  descricao String
 
-  tipo          TipoOS      @default(CORRETIVA)
-  status        StatusOS    @default(ABERTA)
-  prioridade    Prioridade  @default(MEDIA)
+  tipo       TipoOS     @default(CORRETIVA)
+  status     StatusOS   @default(ABERTA)
+  prioridade Prioridade @default(MEDIA)
 
   impactaDisponibilidade Boolean @default(true)
 
-  abertaEm      DateTime  @default(now())
-  iniciadaEm    DateTime?
-  encerradaEm   DateTime?
-  canceladaEm   DateTime?
-  prazoEm       DateTime?
+  abertaEm    DateTime  @default(now())
+  iniciadaEm  DateTime?
+  encerradaEm DateTime?
+  canceladaEm DateTime?
+  prazoEm     DateTime?
 
   aguardandoPecaDesde        DateTime?
   tempoAguardandoPecaMinutos Int?
@@ -317,9 +318,9 @@ model OrdemServico {
   custoMaoObra   Decimal @default(0)
   custoTotal     Decimal @default(0)
 
-  diagnostico    String?
-  solucao        String?
-  observacao     String?
+  diagnostico String?
+  solucao     String?
+  observacao  String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -345,25 +346,24 @@ model OrdemServico {
 
 /**
  * 6. PARADA DO ATIVO
- *
  * Mede o tempo real em que a máquina ficou parada.
  * Essa tabela é essencial para dashboard de disponibilidade.
  */
 
 model ParadaAtivo {
-  id             String @id @default(cuid())
+  id             String  @id @default(cuid())
   empresaId      String
   ativoId        String
   ordemServicoId String?
 
-  status         StatusParada @default(ABERTA)
+  status StatusParada @default(ABERTA)
 
-  inicioEm       DateTime @default(now())
+  inicioEm       DateTime  @default(now())
   fimEm          DateTime?
   duracaoMinutos Int?
 
-  motivo         String?
-  programada     Boolean @default(false)
+  motivo                 String?
+  programada             Boolean @default(false)
   impactaDisponibilidade Boolean @default(true)
 
   createdAt DateTime @default(now())
@@ -380,7 +380,6 @@ model ParadaAtivo {
 
 /**
  * 7. MATERIAL
- *
  * Peças e materiais usados nas O.S.
  * Para simplificar, o estoque fica direto nesta tabela.
  */
@@ -393,13 +392,13 @@ model Material {
   nome      String
   descricao String?
 
-  unidade      String  @default("UN")
-  estoqueAtual Decimal @default(0)
+  unidade       String  @default("UN")
+  estoqueAtual  Decimal @default(0)
   estoqueMinimo Decimal @default(0)
 
   custoMedio Decimal @default(0)
 
-  ativo     Boolean @default(true)
+  ativo Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -414,7 +413,6 @@ model Material {
 
 /**
  * 8. MATERIAL USADO NA O.S.
- *
  * Liga uma O.S. aos materiais usados ou solicitados.
  */
 
@@ -423,11 +421,11 @@ model OrdemServicoMaterial {
   ordemServicoId String
   materialId     String
 
-  quantidade     Decimal @default(1)
-  custoUnitario  Decimal @default(0)
-  custoTotal     Decimal @default(0)
+  quantidade    Decimal @default(1)
+  custoUnitario Decimal @default(0)
+  custoTotal    Decimal @default(0)
 
-  status         StatusMaterialOS @default(SOLICITADO)
+  status StatusMaterialOS @default(SOLICITADO)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -441,7 +439,6 @@ model OrdemServicoMaterial {
 
 /**
  * 9. APONTAMENTO DA O.S.
- *
  * Registra tempo trabalhado pelo técnico.
  * Isso permite calcular mão de obra e tempo de execução.
  */
@@ -455,10 +452,10 @@ model ApontamentoOS {
   fimEm          DateTime?
   duracaoMinutos Int?
 
-  descricao      String?
+  descricao String?
 
-  custoHora      Decimal?
-  custoTotal     Decimal?
+  custoHora  Decimal?
+  custoTotal Decimal?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -472,28 +469,27 @@ model ApontamentoOS {
 
 /**
  * 10. ALERTA
- *
  * Alertas do sistema: máquina parada, O.S. atrasada,
  * aguardando peça, estoque baixo etc.
  */
 
 model Alerta {
-  id             String @id @default(cuid())
+  id             String  @id @default(cuid())
   empresaId      String
   ativoId        String?
   ordemServicoId String?
   usuarioId      String?
 
-  tipo           TipoAlerta
-  severidade     Severidade   @default(MEDIA)
-  status         StatusAlerta @default(ABERTO)
+  tipo       TipoAlerta
+  severidade Severidade   @default(MEDIA)
+  status     StatusAlerta @default(ABERTO)
 
-  titulo         String
-  mensagem       String
+  titulo   String
+  mensagem String
 
-  geradoEm       DateTime @default(now())
-  lidoEm         DateTime?
-  resolvidoEm    DateTime?
+  geradoEm    DateTime  @default(now())
+  lidoEm      DateTime?
+  resolvidoEm DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -511,13 +507,12 @@ model Alerta {
 
 /**
  * 11. LOG DE AUDITORIA
- *
  * Guarda alterações importantes.
  * Isso atende ao requisito de saber quem alterou informações.
  */
 
 model LogAuditoria {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   empresaId String?
   usuarioId String?
 
@@ -525,8 +520,8 @@ model LogAuditoria {
   entidadeId String
   acao       TipoAcaoAuditoria
 
-  antes      Json?
-  depois     Json?
+  antes  Json?
+  depois Json?
 
   createdAt DateTime @default(now())
 
@@ -536,4 +531,41 @@ model LogAuditoria {
   @@index([empresaId])
   @@index([usuarioId])
   @@index([entidade, entidadeId])
+}
+
+/**
+ * 12. CONVERSAS COM A IA
+ * Mantém o histórico separado por usuário e empresa para permitir
+ * contextualização sem misturar dados entre tenants.
+ */
+
+model ConversaIA {
+  id        String @id @default(cuid())
+  empresaId String
+  usuarioId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  empresa   Empresa              @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  usuario   Usuario              @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  mensagens MensagemConversaIA[]
+
+  @@index([empresaId, usuarioId, updatedAt])
+}
+
+model MensagemConversaIA {
+  id         String @id @default(cuid())
+  conversaId String
+
+  papel     PapelMensagemConversaIA
+  conteudo  String
+  intencao  String?
+  metadados Json?
+
+  createdAt DateTime @default(now())
+
+  conversa ConversaIA @relation(fields: [conversaId], references: [id], onDelete: Cascade)
+
+  @@index([conversaId, createdAt])
 }

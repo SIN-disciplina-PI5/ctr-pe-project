@@ -1,0 +1,75 @@
+{
+  "generatedAt": "2026-10-31T14:00:45.027Z",
+  "pricing": {
+    "snapshotDate": "2026-10-30",
+    "source": "https://console.groq.com/docs/models",
+    "models": {
+      "openai/gpt-oss-20b": {
+        "inputUsdPerMillionTokens": 0.075,
+        "outputUsdPerMillionTokens": 0.3
+      },
+      "openai/gpt-oss-120b": {
+        "inputUsdPerMillionTokens": 0.15,
+        "outputUsdPerMillionTokens": 0.6
+      }
+    }
+  },
+  "inputFiles": [
+    "spikes/text-to-sql/execution-120b-relevant.json",
+    "spikes/text-to-sql/execution-120b-relevant-snake-case.json"
+  ],
+  "summaries": [
+    {
+      "model": "openai/gpt-oss-120b",
+      "contextVariant": "relevant",
+      "contextNaming": "prisma",
+      "totalCases": 10,
+      "generatedCases": 10,
+      "generationSuccessPct": 100,
+      "staticValidCases": 10,
+      "staticValidationPct": 100,
+      "executedCases": 10,
+      "executionSuccessPct": 100,
+      "matchingCases": 5,
+      "answerAccuracyPct": 50,
+      "exactMatchCases": 2,
+      "semanticEvaluatedCases": 9,
+      "semanticMatchingCases": 8,
+      "semanticInconclusiveCases": 1,
+      "semanticAccuracyPct": 88.89,
+      "averageLatencyMs": 2577.6,
+      "averageContextCharacters": 1377.3,
+      "inputTokens": 6776,
+      "outputTokens": 5946,
+      "totalTokens": 12722,
+      "tokenMetricsCases": 10,
+      "estimatedCostUsd": 0.004584
+    },
+    {
+      "model": "openai/gpt-oss-120b",
+      "contextVariant": "relevant",
+      "contextNaming": "snake_case",
+      "totalCases": 10,
+      "generatedCases": 10,
+      "generationSuccessPct": 100,
+      "staticValidCases": 10,
+      "staticValidationPct": 100,
+      "executedCases": 10,
+      "executionSuccessPct": 100,
+      "matchingCases": 3,
+      "answerAccuracyPct": 30,
+      "exactMatchCases": 2,
+      "semanticEvaluatedCases": 9,
+      "semanticMatchingCases": 6,
+      "semanticInconclusiveCases": 1,
+      "semanticAccuracyPct": 66.67,
+      "averageLatencyMs": 1811.1,
+      "averageContextCharacters": 1397.2,
+      "inputTokens": 6529,
+      "outputTokens": 6131,
+      "totalTokens": 12660,
+      "tokenMetricsCases": 10,
+      "estimatedCostUsd": 0.004658
+    }
+  ]
+}
