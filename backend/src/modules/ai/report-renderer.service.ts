@@ -7,6 +7,7 @@ import {
 } from "pdf-lib";
 import type {
   GeneratedReport,
+  ReportChart,
   ReportTable,
 } from "./report-agent.service.js";
 
@@ -19,6 +20,8 @@ const BODY_FONT_SIZE = 10;
 const BODY_LINE_HEIGHT = 14;
 const TABLE_PADDING = 4;
 const TABLE_MAX_LINES_PER_CELL = 4;
+const CHART_HEIGHT = 220;
+const CHART_MAX_POINTS = 12;
 
 const COLORS = {
   primary: rgb(0.12, 0.16, 0.32),
@@ -28,6 +31,12 @@ const COLORS = {
   border: rgb(0.8, 0.81, 0.84),
   tableHeader: rgb(0.91, 0.91, 0.98),
   tableAlternate: rgb(0.97, 0.97, 0.99),
+  chartPalette: [
+    rgb(0.31, 0.28, 0.71),
+    rgb(0.06, 0.58, 0.53),
+    rgb(0.91, 0.45, 0.13),
+    rgb(0.76, 0.18, 0.35),
+  ],
 } as const;
 
 export interface ReportRendererInput {
@@ -359,6 +368,253 @@ function drawTable(context: RenderContext, table: ReportTable): void {
   context.y -= 12;
 }
 
+function chartLabels(chart: ReportChart): {
+  readonly labels: readonly string[];
+  readonly sampled: boolean;
+} {
+  const allLabels = [
+    ...new Set(
+      chart.series.flatMap((series) =>
+        series.data.map((point) => point.label),
+      ),
+    ),
+  ];
+  if (allLabels.length <= CHART_MAX_POINTS) {
+    return { labels: allLabels, sampled: false };
+  }
+
+  const sampledIndexes = new Set<number>();
+  for (let index = 0; index < CHART_MAX_POINTS; index += 1) {
+    sampledIndexes.add(
+      Math.round((index * (allLabels.length - 1)) / (CHART_MAX_POINTS - 1)),
+    );
+  }
+
+  return {
+    labels: [...sampledIndexes].map((index) => allLabels[index]!),
+    sampled: true,
+  };
+}
+
+function truncateText(
+  value: string,
+  font: PDFFont,
+  size: number,
+  maxWidth: number,
+): string {
+  const supported = textSupportedByFont(value, font);
+  if (textWidth(supported, font, size) <= maxWidth) return supported;
+
+  let truncated = supported;
+  while (
+    truncated &&
+    textWidth(`${truncated}...`, font, size) > maxWidth
+  ) {
+    truncated = truncated.slice(0, -1);
+  }
+  return `${truncated}...`;
+}
+
+function chartColor(index: number) {
+  return COLORS.chartPalette[index % COLORS.chartPalette.length]!;
+}
+
+function chartValueAt(
+  chart: ReportChart,
+  seriesIndex: number,
+  label: string,
+): number | null {
+  return (
+    chart.series[seriesIndex]?.data.find((point) => point.label === label)
+      ?.value ?? null
+  );
+}
+
+function drawChartLegend(
+  context: RenderContext,
+  chart: ReportChart,
+  top: number,
+): void {
+  let x = PAGE_MARGIN + 45;
+  const maxX = PAGE_WIDTH - PAGE_MARGIN;
+
+  for (const [index, series] of chart.series.entries()) {
+    const name = truncateText(
+      series.name,
+      context.regularFont,
+      7,
+      Math.max(30, maxX - x - 18),
+    );
+    const itemWidth = 14 + textWidth(name, context.regularFont, 7) + 12;
+    if (x + itemWidth > maxX) break;
+
+    context.page.drawRectangle({
+      x,
+      y: top - 7,
+      width: 8,
+      height: 8,
+      color: chartColor(index),
+    });
+    context.page.drawText(name, {
+      x: x + 12,
+      y: top - 7,
+      size: 7,
+      font: context.regularFont,
+      color: COLORS.text,
+    });
+    x += itemWidth;
+  }
+}
+
+function drawChart(context: RenderContext, chart: ReportChart): void {
+  const { labels, sampled } = chartLabels(chart);
+  const values = chart.series.flatMap((_, seriesIndex) =>
+    labels.flatMap((label) => {
+      const value = chartValueAt(chart, seriesIndex, label);
+      return value === null || !Number.isFinite(value) ? [] : [value];
+    }),
+  );
+  if (labels.length === 0 || values.length === 0) return;
+
+  ensureSpace(context, CHART_HEIGHT + 18);
+  const top = context.y;
+  const plotLeft = PAGE_MARGIN + 45;
+  const plotRight = PAGE_WIDTH - PAGE_MARGIN - 6;
+  const plotTop = top - 24;
+  const plotBottom = top - CHART_HEIGHT + 38;
+  const plotWidth = plotRight - plotLeft;
+  const plotHeight = plotTop - plotBottom;
+  const minimum = Math.min(0, ...values);
+  const maximum = Math.max(0, ...values);
+  const range = maximum - minimum || 1;
+  const yFor = (value: number) =>
+    plotBottom + ((value - minimum) / range) * plotHeight;
+  const zeroY = yFor(0);
+
+  drawChartLegend(context, chart, top - 2);
+
+  for (let index = 0; index <= 4; index += 1) {
+    const value = minimum + (range * index) / 4;
+    const y = yFor(value);
+    context.page.drawLine({
+      start: { x: plotLeft, y },
+      end: { x: plotRight, y },
+      thickness: index === 0 ? 0.8 : 0.35,
+      color: index === 0 ? COLORS.border : COLORS.tableHeader,
+    });
+    const label = formatCell(value);
+    context.page.drawText(label, {
+      x: plotLeft - textWidth(label, context.regularFont, 7) - 5,
+      y: y - 2,
+      size: 7,
+      font: context.regularFont,
+      color: COLORS.muted,
+    });
+  }
+
+  context.page.drawLine({
+    start: { x: plotLeft, y: plotBottom },
+    end: { x: plotLeft, y: plotTop },
+    thickness: 0.8,
+    color: COLORS.border,
+  });
+  context.page.drawLine({
+    start: { x: plotLeft, y: zeroY },
+    end: { x: plotRight, y: zeroY },
+    thickness: 0.8,
+    color: COLORS.muted,
+  });
+
+  const groupWidth = plotWidth / labels.length;
+  if (chart.type === "bar") {
+    const barWidth = Math.max(
+      2,
+      Math.min(22, (groupWidth * 0.72) / chart.series.length),
+    );
+
+    for (const [labelIndex, label] of labels.entries()) {
+      const groupStart = plotLeft + labelIndex * groupWidth;
+      const barsWidth = barWidth * chart.series.length;
+      const firstBarX = groupStart + (groupWidth - barsWidth) / 2;
+
+      for (const [seriesIndex] of chart.series.entries()) {
+        const value = chartValueAt(chart, seriesIndex, label);
+        if (value === null || !Number.isFinite(value)) continue;
+        const valueY = yFor(value);
+        context.page.drawRectangle({
+          x: firstBarX + seriesIndex * barWidth,
+          y: Math.min(zeroY, valueY),
+          width: Math.max(1, barWidth - 1),
+          height: Math.max(0.7, Math.abs(valueY - zeroY)),
+          color: chartColor(seriesIndex),
+        });
+      }
+    }
+  } else {
+    for (const [seriesIndex] of chart.series.entries()) {
+      let previous: { x: number; y: number } | null = null;
+
+      for (const [labelIndex, label] of labels.entries()) {
+        const value = chartValueAt(chart, seriesIndex, label);
+        if (value === null || !Number.isFinite(value)) {
+          previous = null;
+          continue;
+        }
+        const point = {
+          x: plotLeft + labelIndex * groupWidth + groupWidth / 2,
+          y: yFor(value),
+        };
+        if (previous) {
+          context.page.drawLine({
+            start: previous,
+            end: point,
+            thickness: 1.5,
+            color: chartColor(seriesIndex),
+          });
+        }
+        context.page.drawCircle({
+          x: point.x,
+          y: point.y,
+          size: 2.5,
+          color: chartColor(seriesIndex),
+        });
+        previous = point;
+      }
+    }
+  }
+
+  for (const [index, label] of labels.entries()) {
+    const maxLabelWidth = Math.max(12, groupWidth - 3);
+    const displayed = truncateText(
+      label,
+      context.regularFont,
+      6,
+      maxLabelWidth,
+    );
+    const center = plotLeft + index * groupWidth + groupWidth / 2;
+    context.page.drawText(displayed, {
+      x: center - textWidth(displayed, context.regularFont, 6) / 2,
+      y: plotBottom - 11,
+      size: 6,
+      font: context.regularFont,
+      color: COLORS.muted,
+    });
+  }
+
+  if (sampled) {
+    const note = `Visualização com ${labels.length} de todos os pontos; a tabela mantém os dados completos.`;
+    context.page.drawText(textSupportedByFont(note, context.regularFont), {
+      x: plotLeft,
+      y: plotBottom - 25,
+      size: 7,
+      font: context.regularFont,
+      color: COLORS.muted,
+    });
+  }
+
+  context.y = top - CHART_HEIGHT - 12;
+}
+
 export class PdfReportRenderer implements ReportRenderer {
   async render(input: ReportRendererInput): Promise<RenderedReportFile> {
     const document = await PDFDocument.create();
@@ -422,9 +678,10 @@ export class PdfReportRenderer implements ReportRenderer {
         spacingAfter: 5,
       });
       drawWrappedText(context, section.narrative, {
-        spacingAfter: section.table ? 8 : 14,
+        spacingAfter: section.table || section.chart ? 8 : 14,
       });
       if (section.table) drawTable(context, section.table);
+      if (section.chart) drawChart(context, section.chart);
     }
 
     const bytes = await document.save();
