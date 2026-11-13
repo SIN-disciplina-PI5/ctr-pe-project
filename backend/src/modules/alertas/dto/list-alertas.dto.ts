@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { entityIdSchema } from "../../../common/schemas/entity-id.schema.js";
 
 export const listAlertasDto = z.object({
-  empresaId: z.string().cuid().optional(),
+  empresaId: entityIdSchema.optional(),
   status: z.enum(["ABERTO", "LIDO", "RESOLVIDO", "IGNORADO"]).optional(),
   tipo: z
     .enum([
@@ -13,7 +14,7 @@ export const listAlertasDto = z.object({
       "OUTRO",
     ])
     .optional(),
-  usuarioId: z.string().cuid().optional(),
+  usuarioId: entityIdSchema.optional(),
 });
 
 export type ListAlertasDto = z.infer<typeof listAlertasDto>;

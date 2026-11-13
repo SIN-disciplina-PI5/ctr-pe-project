@@ -4,6 +4,8 @@ import type { NextFunction, Request, Response } from "express";
 import { findAll, findById } from "./auditoria.controller.js";
 import { AuditoriaService } from "./auditoria.service.js";
 
+const authenticatedUser = { id: "user-1", empresaId: "empresa-1" };
+
 function makeResponse() {
   const res = {} as Response;
   res.status = jest.fn<typeof res.status>().mockReturnValue(res);
@@ -25,6 +27,7 @@ describe("auditoria.controller", () => {
     jest.spyOn(AuditoriaService.prototype, "findAll").mockResolvedValue([{ id: "1" }] as never);
 
     const req = {
+      user: authenticatedUser,
       query: {
         empresaId: "empresa-1",
         usuarioId: "user-1",
@@ -52,12 +55,16 @@ describe("auditoria.controller", () => {
     jest.spyOn(AuditoriaService.prototype, "findById").mockResolvedValue({ id: "1" } as never);
 
     const req = {
+      user: authenticatedUser,
       params: { id: "1" },
     } as unknown as Request;
 
     await findById(req, res, next);
 
-    expect(AuditoriaService.prototype.findById).toHaveBeenCalledWith("1");
+    expect(AuditoriaService.prototype.findById).toHaveBeenCalledWith(
+      "1",
+      "empresa-1",
+    );
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
@@ -66,6 +73,7 @@ describe("auditoria.controller", () => {
     jest.spyOn(AuditoriaService.prototype, "findAll").mockRejectedValue(error);
 
     const req = {
+      user: authenticatedUser,
       query: {},
     } as unknown as Request;
 

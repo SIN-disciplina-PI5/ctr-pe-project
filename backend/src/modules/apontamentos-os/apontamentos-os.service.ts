@@ -8,6 +8,7 @@ import { OrdensServicoRepository } from "../ordens-servico/ordens-servico.reposi
 interface CreateApontamentoInput {
   ordemServicoId: string;
   usuarioId: string;
+  empresaId: string;
   inicioEm: Date;
   descricao?: string;
   custoHora?: number;
@@ -41,7 +42,10 @@ export class ApontamentosOSService {
   }
 
   async create(data: CreateApontamentoInput) {
-    const ordemServico = await this.ordensServicoRepository.findById(data.ordemServicoId);
+    const ordemServico = await this.ordensServicoRepository.findById(
+      data.ordemServicoId,
+      data.empresaId,
+    );
 
     if (!ordemServico) {
       throw new AppError({
@@ -61,7 +65,8 @@ export class ApontamentosOSService {
       });
     }
 
-    return this.repository.create(data);
+    const { empresaId: _, ...apontamento } = data;
+    return this.repository.create(apontamento);
   }
 
   async update(id: string, data: UpdateApontamentoInput) {

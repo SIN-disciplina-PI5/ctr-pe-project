@@ -1,20 +1,25 @@
 import type { NextFunction, Request, Response } from "express";
 import type { StatusAlerta, TipoAlerta } from "@prisma/client";
 import { AlertasService } from "./alertas.service.js";
+import { getCurrentUser } from "../../common/utils/get-current-user.js";
 
 const alertasService = new AlertasService();
 
 export async function findAll(req: Request, res: Response, next: NextFunction) {
   try {
-    const { empresaId, status, tipo, usuarioId } = req.query as {
-      empresaId?: string;
+    const currentUser = getCurrentUser(req);
+    if (!currentUser?.empresaId) {
+      return res.status(401).json({ error: "Empresa não identificada no token." });
+    }
+
+    const { status, tipo, usuarioId } = req.query as {
       status?: string;
       tipo?: string;
       usuarioId?: string;
     };
 
     const filters = {
-      ...(empresaId !== undefined && { empresaId }),
+      empresaId: currentUser.empresaId,
       ...(status !== undefined && { status: status as StatusAlerta }),
       ...(tipo !== undefined && { tipo: tipo as TipoAlerta }),
       ...(usuarioId !== undefined && { usuarioId }),
@@ -29,10 +34,9 @@ export async function findAll(req: Request, res: Response, next: NextFunction) {
 
 export async function findMe(req: Request, res: Response, next: NextFunction) {
   try {
-    const usuarioId = req.user?.id;
-
-    if (!usuarioId) {
-      return res.status(200).json([]);
+    const currentUser = getCurrentUser(req);
+    if (!currentUser?.empresaId) {
+      return res.status(401).json({ error: "Empresa não identificada no token." });
     }
 
     const { status, tipo } = req.query as {
@@ -41,11 +45,12 @@ export async function findMe(req: Request, res: Response, next: NextFunction) {
     };
 
     const filters = {
+      empresaId: currentUser.empresaId,
       ...(status !== undefined && { status: status as StatusAlerta }),
       ...(tipo !== undefined && { tipo: tipo as TipoAlerta }),
     };
 
-    const result = await alertasService.findByUsuario(usuarioId, filters);
+    const result = await alertasService.findByUsuario(currentUser.id, filters);
     return res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -54,8 +59,13 @@ export async function findMe(req: Request, res: Response, next: NextFunction) {
 
 export async function findById(req: Request, res: Response, next: NextFunction) {
   try {
+    const currentUser = getCurrentUser(req);
+    if (!currentUser?.empresaId) {
+      return res.status(401).json({ error: "Empresa não identificada no token." });
+    }
+
     const { id } = req.params as { id: string };
-    const result = await alertasService.findById(id);
+    const result = await alertasService.findById(id, currentUser.empresaId);
     return res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -64,7 +74,17 @@ export async function findById(req: Request, res: Response, next: NextFunction) 
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await alertasService.create(req.body);
+    const currentUser = getCurrentUser(req);
+    if (!currentUser?.empresaId) {
+      return res.status(401).json({ error: "Empresa não identificada no token." });
+    }
+
+    const { empresaId: _, ...bodyData } = req.body;
+
+    const result = await alertasService.create({
+      ...bodyData,
+      empresaId: currentUser.empresaId,
+    });
     return res.status(201).json(result);
   } catch (error) {
     next(error);
@@ -73,8 +93,13 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function marcarLido(req: Request, res: Response, next: NextFunction) {
   try {
+    const currentUser = getCurrentUser(req);
+    if (!currentUser?.empresaId) {
+      return res.status(401).json({ error: "Empresa não identificada no token." });
+    }
+
     const { id } = req.params as { id: string };
-    const result = await alertasService.marcarComoLido(id);
+    const result = await alertasService.marcarComoLido(id, currentUser.empresaId);
     return res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -83,8 +108,13 @@ export async function marcarLido(req: Request, res: Response, next: NextFunction
 
 export async function resolver(req: Request, res: Response, next: NextFunction) {
   try {
+    const currentUser = getCurrentUser(req);
+    if (!currentUser?.empresaId) {
+      return res.status(401).json({ error: "Empresa não identificada no token." });
+    }
+
     const { id } = req.params as { id: string };
-    const result = await alertasService.resolver(id);
+    const result = await alertasService.resolver(id, currentUser.empresaId);
     return res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -93,8 +123,13 @@ export async function resolver(req: Request, res: Response, next: NextFunction) 
 
 export async function ignorar(req: Request, res: Response, next: NextFunction) {
   try {
+    const currentUser = getCurrentUser(req);
+    if (!currentUser?.empresaId) {
+      return res.status(401).json({ error: "Empresa não identificada no token." });
+    }
+
     const { id } = req.params as { id: string };
-    const result = await alertasService.ignorar(id);
+    const result = await alertasService.ignorar(id, currentUser.empresaId);
     return res.status(200).json(result);
   } catch (error) {
     next(error);

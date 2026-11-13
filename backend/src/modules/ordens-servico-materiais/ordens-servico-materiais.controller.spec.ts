@@ -62,15 +62,20 @@ describe("ordens-servico-materiais.controller", () => {
 
     const req = {
       params: { ordemServicoId: "os-1" },
+      user: { id: "user-1", empresaId: "empresa-1" },
       body: { materialId: "mat-1", quantidade: 2 },
     } as unknown as Request;
 
     await create(req, res, next);
 
-    expect(OrdensServicoMateriaisService.prototype.create).toHaveBeenCalledWith("os-1", {
-      materialId: "mat-1",
-      quantidade: 2,
-    });
+    expect(OrdensServicoMateriaisService.prototype.create).toHaveBeenCalledWith(
+      "os-1",
+      "empresa-1",
+      {
+        materialId: "mat-1",
+        quantidade: 2,
+      },
+    );
     expect(res.status).toHaveBeenCalledWith(201);
   });
 

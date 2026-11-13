@@ -1,13 +1,23 @@
 import { z } from "zod";
+import { entityIdSchema } from "../../../common/schemas/entity-id.schema.js";
 
 export const createAtivoDto = z.object({
-  empresaId: z.string().cuid(),
-  localizacaoId: z.string().cuid().optional(),
+  empresaId: entityIdSchema,
+  localizacaoId: entityIdSchema.optional(),
   codigo: z.string().min(1),
   nome: z.string().min(1),
   descricao: z.string().optional(),
   tipo: z.enum(["MAQUINA", "CAMINHAO", "EQUIPAMENTO", "COMPONENTE", "OUTRO"]),
-  status: z.enum(["DISPONIVEL", "EM_USO", "PARADO", "EM_MANUTENCAO", "AGUARDANDO_PECA", "DESATIVADO"]).optional(),
+  status: z
+    .enum([
+      "DISPONIVEL",
+      "EM_USO",
+      "PARADO",
+      "EM_MANUTENCAO",
+      "AGUARDANDO_PECA",
+      "DESATIVADO",
+    ])
+    .optional(),
   criticidade: z.enum(["BAIXA", "MEDIA", "ALTA", "CRITICA"]).optional(),
   marca: z.string().optional(),
   modelo: z.string().optional(),

@@ -11,6 +11,8 @@ import {
 } from "./materiais.controller.js";
 import { MateriaisService } from "./materiais.service.js";
 
+const authenticatedUser = { id: "user-1", empresaId: "empresa-1" };
+
 function makeResponse() {
   const res = {} as Response;
   res.status = jest.fn<typeof res.status>().mockReturnValue(res);
@@ -33,6 +35,7 @@ describe("materiais.controller", () => {
     jest.spyOn(MateriaisService.prototype, "findAll").mockResolvedValue([{ id: "1" }] as never);
 
     const req = {
+      user: authenticatedUser,
       query: {
         empresaId: "empresa-1",
         search: "rolamento",
@@ -57,12 +60,16 @@ describe("materiais.controller", () => {
     jest.spyOn(MateriaisService.prototype, "findById").mockResolvedValue({ id: "1" } as never);
 
     const req = {
+      user: authenticatedUser,
       params: { id: "1" },
     } as unknown as Request;
 
     await findById(req, res, next);
 
-    expect(MateriaisService.prototype.findById).toHaveBeenCalledWith("1");
+    expect(MateriaisService.prototype.findById).toHaveBeenCalledWith(
+      "1",
+      "empresa-1",
+    );
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
@@ -70,6 +77,7 @@ describe("materiais.controller", () => {
     jest.spyOn(MateriaisService.prototype, "create").mockResolvedValue({ id: "1" } as never);
 
     const req = {
+      user: authenticatedUser,
       body: {
         empresaId: "empresa-1",
         codigo: "MAT-1",
@@ -86,15 +94,20 @@ describe("materiais.controller", () => {
     jest.spyOn(MateriaisService.prototype, "update").mockResolvedValue({ id: "1" } as never);
 
     const req = {
+      user: authenticatedUser,
       params: { id: "1" },
       body: { nome: "Material Atualizado" },
     } as unknown as Request;
 
     await update(req, res, next);
 
-    expect(MateriaisService.prototype.update).toHaveBeenCalledWith("1", {
-      nome: "Material Atualizado",
-    });
+    expect(MateriaisService.prototype.update).toHaveBeenCalledWith(
+      "1",
+      "empresa-1",
+      {
+        nome: "Material Atualizado",
+      },
+    );
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
@@ -102,16 +115,21 @@ describe("materiais.controller", () => {
     jest.spyOn(MateriaisService.prototype, "updateEstoque").mockResolvedValue({ id: "1" } as never);
 
     const req = {
+      user: authenticatedUser,
       params: { id: "1" },
       body: { operacao: "ENTRADA", quantidade: 5 },
     } as unknown as Request;
 
     await updateEstoque(req, res, next);
 
-    expect(MateriaisService.prototype.updateEstoque).toHaveBeenCalledWith("1", {
-      operacao: "ENTRADA",
-      quantidade: 5,
-    });
+    expect(MateriaisService.prototype.updateEstoque).toHaveBeenCalledWith(
+      "1",
+      "empresa-1",
+      {
+        operacao: "ENTRADA",
+        quantidade: 5,
+      },
+    );
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
@@ -119,12 +137,16 @@ describe("materiais.controller", () => {
     jest.spyOn(MateriaisService.prototype, "delete").mockResolvedValue({ id: "1" } as never);
 
     const req = {
+      user: authenticatedUser,
       params: { id: "1" },
     } as unknown as Request;
 
     await remove(req, res, next);
 
-    expect(MateriaisService.prototype.delete).toHaveBeenCalledWith("1");
+    expect(MateriaisService.prototype.delete).toHaveBeenCalledWith(
+      "1",
+      "empresa-1",
+    );
     expect(res.status).toHaveBeenCalledWith(204);
     expect(res.send).toHaveBeenCalled();
   });
@@ -134,6 +156,7 @@ describe("materiais.controller", () => {
     jest.spyOn(MateriaisService.prototype, "create").mockRejectedValue(error);
 
     const req = {
+      user: authenticatedUser,
       body: {
         empresaId: "empresa-1",
       },

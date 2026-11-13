@@ -102,7 +102,7 @@ Configurar o ambiente:
 
 1. verificar o arquivo `.env.example`;
 2. criar ou ajustar o arquivo `.env`;
-3. definir `EXPO_PUBLIC_API_URL` apontando para a API.
+3. definir `EXPO_PUBLIC_API_URL` apontando para a API, incluindo o prefixo `/api`.
 
 Exemplo local:
 
@@ -110,29 +110,13 @@ Exemplo local:
 EXPO_PUBLIC_API_URL=http://localhost:3333/api
 ```
 
-### Variáveis de desenvolvimento
+### Autenticação atual
 
-Enquanto a tela de login não está implementada, o frontend autentica as requisições com um token de desenvolvimento. Para exercitar as telas que dependem de autenticação (ex.: Ordens de Serviço), preencha no `.env`:
+O frontend possui tela de login. O usuário informa email e senha; o aplicativo chama `POST /auth/sign-in`, armazena os tokens da sessão e carrega o usuário autenticado por `GET /auth/me`.
 
-```env
-# token de acesso válido, obtido em POST /api/auth/sign-in
-EXPO_PUBLIC_DEV_TOKEN=
-# empresa usada por padrão nas telas
-EXPO_PUBLIC_DEV_EMPRESA_ID=
-# perfil simulado para exibir ações conforme permissão
-# (ADMIN, GESTOR, SUPERVISOR, TECNICO ou CONSULTA)
-EXPO_PUBLIC_DEV_PERFIL=ADMIN
-```
+Não é necessário copiar token para o `.env` nem simular perfil. O perfil e a empresa são obtidos do usuário autenticado. Para entrar, use uma conta ativa existente no banco configurado no backend.
 
-Para obter um token, faça login na API e copie o `accessToken` da resposta:
-
-```bash
-curl -X POST http://localhost:3333/api/auth/sign-in \
-  -H "Content-Type: application/json" \
-  -d '{"email":"<email>","password":"<senha>"}'
-```
-
-Essas variáveis são embutidas no bundle no momento do start do Expo; após alterá-las, reinicie o `npm run web`.
+Na web, a sessão é armazenada no `localStorage`. No Android e no iOS, os tokens são armazenados pelo `expo-secure-store`.
 
 ## Execução do frontend
 
@@ -198,8 +182,9 @@ EXPO_PUBLIC_API_URL=http://192.168.0.10:3333/api
 5. configurar o `.env` do frontend;
 6. instalar as dependências do frontend;
 7. iniciar o frontend;
-8. testar a API no Postman;
-9. testar o frontend no navegador ou no Expo Go.
+8. acessar a tela de login com uma conta ativa;
+9. testar a API no Postman quando necessário;
+10. testar o frontend no navegador ou no Expo Go.
 
 
 ### Equipe

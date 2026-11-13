@@ -31,7 +31,11 @@ export class OrdensServicoMateriaisService {
     return item;
   }
 
-  async create(ordemServicoId: string, data: CreateOSMaterialInput) {
+  async create(
+    ordemServicoId: string,
+    empresaId: string,
+    data: CreateOSMaterialInput,
+  ) {
     if (data.quantidade <= 0) {
       throw new AppError({
         message: "Quantidade deve ser maior que zero",
@@ -40,7 +44,10 @@ export class OrdensServicoMateriaisService {
       });
     }
 
-    const ordemServico = await this.ordensServicoRepository.findById(ordemServicoId);
+    const ordemServico = await this.ordensServicoRepository.findById(
+      ordemServicoId,
+      empresaId,
+    );
 
     if (!ordemServico) {
       throw new AppError({
@@ -50,7 +57,10 @@ export class OrdensServicoMateriaisService {
       });
     }
 
-    const material = await this.repository.findMaterialById(data.materialId);
+    const material = await this.repository.findMaterialByIdForEmpresa(
+      data.materialId,
+      empresaId,
+    );
 
     if (!material || !material.ativo) {
       throw new AppError({
