@@ -263,6 +263,44 @@ Authorization: Bearer <token>
 
 ---
 
+## Jobs de relatório (Feat 7 — Task 05)
+
+A geração de relatórios roda fora da requisição HTTP. O estado de cada pedido
+fica na tabela `JobRelatorioIA`, que é a fonte de verdade; o gatilho que
+dispara a execução é plugável e **ainda não foi escolhido** (decisão de
+processamento assíncrono pendente).
+
+Estados: `QUEUED` → `RUNNING` → `DONE` | `FAILED`, com `RUNNING` → `QUEUED`
+em erros transitórios.
+
+- **Idempotência:** a chave `(empresaId, usuarioId, chaveIdempotencia)` é
+  única. Repetir o pedido devolve o mesmo job; reutilizar a chave com outra
+  solicitação retorna 409.
+- **Claim atômico:** só um worker assume cada job (update condicional no
+  Postgres). Entregas duplicadas do gatilho são ignoradas.
+- **Lease com fencing:** cada execução recebe um `leaseToken` e um `leaseAte`
+  (padrão 330 s, acima do limite de 300 s do plano Hobby da Vercel). Toda
+  conclusão exige o token vigente; se o lease foi perdido, o PDF gerado é
+  descartado.
+- **Retry:** erros 5xx, 429 e inesperados são reprocessados com backoff
+  exponencial (30 s, 60 s, 120 s… até 10 min), até `REPORT_JOB_MAX_ATTEMPTS`.
+  Erros 4xx falham imediatamente. Mensagens de erros inesperados não são
+  persistidas.
+- **Recuperação:** jobs `RUNNING` com lease vencido voltam para `QUEUED` ou,
+  sem tentativas restantes, viram `FAILED` com `LEASE_EXPIRED`.
+
+Código: `src/modules/ai/report-job.*.ts`. Para ligar o gatilho definitivo,
+implemente `ReportJobDispatcher` e troque `createReportJobDispatcher()` em
+`report-job.factory.ts`; o consumidor chama `ReportJobProcessor.runJob(id)`.
+
+Enquanto o gatilho não existe, execute os jobs pendentes manualmente
+(somente desenvolvimento e validação):
+
+```bash
+npm run reports:jobs:run       # até 5 jobs
+npm run reports:jobs:run -- 10 # até 10 jobs
+```
+
 ## Perfis e permissões
 
 | Perfil | Descrição |

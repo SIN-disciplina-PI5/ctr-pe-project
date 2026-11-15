@@ -122,6 +122,13 @@ enum PapelMensagemConversaIA {
   ASSISTENTE
 }
 
+enum StatusJobRelatorioIA {
+  QUEUED
+  RUNNING
+  DONE
+  FAILED
+}
+
 enum TipoRelatorioIA {
   MANUTENCAO_MENSAL
   CUSTOS_POR_ATIVO
@@ -154,6 +161,7 @@ model Empresa {
   logs          LogAuditoria[]
   conversasIA   ConversaIA[]
   arquivosRelatorioIA ArquivoRelatorioIA[]
+  jobsRelatorioIA     JobRelatorioIA[]
 
   @@index([nome])
 }
@@ -217,6 +225,7 @@ model Usuario {
   refreshTokens     RefreshToken[]
   conversasIA       ConversaIA[]
   arquivosRelatorioIA ArquivoRelatorioIA[]
+  jobsRelatorioIA     JobRelatorioIA[]
 
   @@index([empresaId])
   @@index([perfil])
@@ -593,10 +602,44 @@ model ArquivoRelatorioIA {
   createdAt DateTime @default(now())
   expiresAt DateTime
 
-  empresa Empresa @relation(fields: [empresaId], references: [id])
-  usuario Usuario @relation(fields: [usuarioId], references: [id])
+  empresa Empresa         @relation(fields: [empresaId], references: [id])
+  usuario Usuario         @relation(fields: [usuarioId], references: [id])
+  job     JobRelatorioIA?
 
   @@index([empresaId, createdAt])
   @@index([empresaId, usuarioId, createdAt])
   @@index([expiresAt])
+}
+
+model JobRelatorioIA {
+  id        String @id @default(cuid())
+  empresaId String
+  usuarioId String
+
+  chaveIdempotencia String
+  solicitacao       String
+
+  status        StatusJobRelatorioIA @default(QUEUED)
+  tentativas    Int                  @default(0)
+  maxTentativas Int                  @default(3)
+  disponivelEm  DateTime             @default(now())
+  leaseToken    String?
+  leaseAte      DateTime?
+  iniciadoEm    DateTime?
+  concluidoEm   DateTime?
+  erroCodigo    String?
+  erroMensagem  String?
+  arquivoId     String?              @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  empresa Empresa             @relation(fields: [empresaId], references: [id])
+  usuario Usuario             @relation(fields: [usuarioId], references: [id])
+  arquivo ArquivoRelatorioIA? @relation(fields: [arquivoId], references: [id], onDelete: SetNull)
+
+  @@unique([empresaId, usuarioId, chaveIdempotencia])
+  @@index([status, disponivelEm])
+  @@index([status, leaseAte])
+  @@index([empresaId, usuarioId, createdAt])
 }

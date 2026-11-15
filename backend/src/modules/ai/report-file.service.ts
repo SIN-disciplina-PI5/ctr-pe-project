@@ -143,6 +143,17 @@ export class ReportFileService {
     return { metadata, content };
   }
 
+  /**
+   * Remove um arquivo recém-armazenado cujo job não pôde ser concluído (por
+   * exemplo, porque o lease foi assumido por outro worker). Se a remoção
+   * falhar, os metadados continuam com expiresAt e a limpeza por retenção
+   * remove o arquivo depois.
+   */
+  async discard(record: ReportFileRecord): Promise<void> {
+    await this.storage.delete(record.storagePathname);
+    await this.repository.deleteById(record.id);
+  }
+
   private validateScope(scope: ReportFileScope): void {
     if (!scope.empresaId.trim() || !scope.usuarioId.trim()) {
       throw new AppError({
