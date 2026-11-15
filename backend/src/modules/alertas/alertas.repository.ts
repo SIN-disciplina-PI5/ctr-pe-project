@@ -4,6 +4,18 @@ import type { Prisma, Severidade, StatusAlerta, TipoAlerta } from "@prisma/clien
 // Corrigido para "ABERTO" para alinhar com o Enum do Prisma Schema
 const ABERTO_OU_LIDO: StatusAlerta[] = ["ABERTO", "LIDO"];
 
+interface CreatePrevisaoRupturaAlertaData {
+  empresaId: string;
+  materialId: string;
+  materialCodigo: string;
+  materialNome: string;
+  unidade: string;
+  estoqueAtual: string;
+  estoqueMinimo: string;
+  consumoMedioMensal: string;
+  diasParaRuptura: number;
+}
+
 interface CreateEstoqueBaixoAlertaData {
   empresaId: string;
   materialId: string;
@@ -273,6 +285,49 @@ export class AlertasRepository {
         mensagem: { contains: materialId },
       },
       select: { id: true },
+    });
+  }
+
+  async createPrevisaoRupturaEstoque(data: CreatePrevisaoRupturaAlertaData) {
+    if (!data.empresaId) return null;
+
+    const alertaExistente = await this.findEstoqueBaixoAbertoPorMaterial(
+      data.empresaId,
+      data.materialId,
+    );
+
+    if (alertaExistente) {
+      return alertaExistente;
+    }
+
+    const severidade: Severidade = data.diasParaRuptura <= 7 ? "CRITICA" : "ALTA";
+    const prazoTexto =
+      data.diasParaRuptura <= 0
+        ? "Ruptura imediata"
+        : `Ruptura prevista em ${data.diasParaRuptura} dia(s)`;
+
+    return prisma.alerta.create({
+      data: {
+        empresaId: data.empresaId,
+        tipo: "ESTOQUE_BAIXO",
+        severidade,
+        status: "ABERTO" as StatusAlerta,
+        titulo: `${prazoTexto}: ${data.materialNome}`,
+        mensagem:
+          `Previsão proativa para ${data.materialNome} (${data.materialCodigo}): ` +
+          `${prazoTexto.toLowerCase()} com base no consumo médio de ${data.consumoMedioMensal} ${data.unidade}/mês. ` +
+          `Saldo atual: ${data.estoqueAtual} ${data.unidade} (mínimo estático: ${data.estoqueMinimo}). ` +
+          `materialId=${data.materialId}`,
+      },
+      select: {
+        id: true,
+        tipo: true,
+        severidade: true,
+        status: true,
+        titulo: true,
+        mensagem: true,
+        createdAt: true,
+      },
     });
   }
 

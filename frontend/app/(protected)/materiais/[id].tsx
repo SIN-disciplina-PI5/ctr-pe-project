@@ -3,6 +3,8 @@ import { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 
 import { PermissionGate } from "@/components/domain/permission-gate";
+import { MaterialPrevisaoRupturaCard } from "@/features/materiais/material-previsao-ruptura-card";
+import { MaterialPrevisaoRupturaCard } from "@/features/materiais/material-previsao-ruptura-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
