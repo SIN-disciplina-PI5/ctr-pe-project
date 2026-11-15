@@ -1,3 +1,4 @@
+import { performance } from "node:perf_hooks";
 import { z, type output } from "zod";
 import { AppError } from "../../common/errors/AppError.js";
 import { ErrorCode } from "../../common/errors/error-code.js";
@@ -105,6 +106,15 @@ export interface ReportSection {
   readonly narrative: string;
   readonly table: ReportTable | null;
   readonly chart: ReportChart | null;
+  readonly ungroundedNumbers: readonly string[];
+}
+
+export interface ReportGenerationSummary {
+  readonly totalSections: number;
+  readonly readySections: number;
+  readonly emptySections: number;
+  readonly refusedSections: number;
+  readonly totalLatencyMs: number;
 }
 
 export interface GeneratedReport {
@@ -113,6 +123,7 @@ export interface GeneratedReport {
   readonly title: string;
   readonly sections: readonly ReportSection[];
   readonly planningMetrics: GenerationMetrics;
+  readonly summary: ReportGenerationSummary;
 }
 
 export interface ReportAgent {
@@ -185,6 +196,89 @@ function chartOf(
   };
 }
 
+function parseNumericToken(token: string): number | null {
+  const cleaned = token.replace(/\s+/g, "");
+  if (!cleaned) return null;
+
+  if (/^\d{1,3}(?:\.\d{3})+(?:,\d+)?$/.test(cleaned)) {
+    const normalized = cleaned.replace(/\./g, "").replace(",", ".");
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  if (/^\d{1,3}(?:,\d{3})+(?:\.\d+)?$/.test(cleaned)) {
+    const normalized = cleaned.replace(/,/g, "");
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  const normalized = cleaned.replace(",", ".");
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function collectAllowedNumbers(rows: readonly QueryRow[]): Set<number> {
+  const allowed = new Set<number>([rows.length]);
+
+  for (const row of rows) {
+    for (const value of Object.values(row)) {
+      if (typeof value === "number" && Number.isFinite(value)) {
+        allowed.add(value);
+        continue;
+      }
+
+      if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        allowed.add(value.getUTCFullYear());
+        allowed.add(value.getUTCMonth() + 1);
+        allowed.add(value.getUTCDate());
+        continue;
+      }
+
+      if (typeof value === "string") {
+        const direct = chartValue(value);
+        if (direct !== null) allowed.add(direct);
+
+        const embedded = value.match(/\d+(?:[.,]\d+)?/g) ?? [];
+        for (const token of embedded) {
+          const parsed = parseNumericToken(token);
+          if (parsed !== null) allowed.add(parsed);
+        }
+      }
+    }
+  }
+
+  return allowed;
+}
+
+export function findUngroundedNumbers(
+  narrative: string,
+  rows: readonly QueryRow[],
+): readonly string[] {
+  const tokens =
+    narrative.match(
+      /(?<![A-Za-zÀ-ÿ0-9_-])\d+(?:[.,]\d+)*(?![A-Za-zÀ-ÿ0-9_-])/g,
+    ) ?? [];
+
+  if (tokens.length === 0) return [];
+
+  const allowed = collectAllowedNumbers(rows);
+  const ungrounded: string[] = [];
+
+  for (const token of tokens) {
+    const parsed = parseNumericToken(token);
+    if (parsed === null) continue;
+
+    const isGrounded = [...allowed].some(
+      (candidate) => Math.abs(candidate - parsed) < 1e-6,
+    );
+    if (!isGrounded && !ungrounded.includes(token)) {
+      ungrounded.push(token);
+    }
+  }
+
+  return ungrounded;
+}
+
 function providerError(error: LlmProviderError): AppError {
   return new AppError({
     message:
@@ -197,6 +291,15 @@ function providerError(error: LlmProviderError): AppError {
   });
 }
 
+function sectionFailureNarrative(error: unknown): string {
+  if (error instanceof LlmProviderError) {
+    return error.code === "TIMEOUT"
+      ? "A consulta desta seção excedeu o tempo limite."
+      : "Não foi possível consultar os dados desta seção no momento.";
+  }
+  return "Não foi possível processar os dados desta seção.";
+}
+
 export class ReportAgentService implements ReportAgent {
   constructor(
     private readonly provider: LlmProvider,
@@ -204,62 +307,20 @@ export class ReportAgentService implements ReportAgent {
   ) {}
 
   async generate(input: ReportAgentInput): Promise<GeneratedReport> {
-    let generation: StructuredGenerationResult<ReportPlan>;
-    try {
-      generation = await this.provider.generateStructured({
-        schemaName: "ctrpe_report_plan",
-        schema: reportPlanSchema,
-        systemPrompt: REPORT_PLAN_SYSTEM_PROMPT,
-        userPrompt: JSON.stringify({ request: input.request }),
-      });
-    } catch (error) {
-      if (error instanceof LlmProviderError) throw providerError(error);
-      throw error;
-    }
-
+    const startedAt = performance.now();
+    const generation = await this.planReport(input.request);
     const plan = reportPlanSchema.parse(generation.data);
-    const sections: ReportSection[] = [];
 
-    for (const section of plan.sections) {
-      const queryResult = await this.queryAgent.query({
-        question: section.question,
-        empresaId: input.empresaId,
-      });
+    const sections = await Promise.all(
+      plan.sections.map((section) =>
+        this.buildSection(section, input.empresaId),
+      ),
+    );
 
-      if (queryResult.status === "refused") {
-        sections.push({
-          id: section.id,
-          title: section.title,
-          status: "refused",
-          narrative: queryResult.reason,
-          table: null,
-          chart: null,
-        });
-        continue;
-      }
-
-      const rows = rowsOf(queryResult);
-      if (rows.length === 0) {
-        sections.push({
-          id: section.id,
-          title: section.title,
-          status: "empty",
-          narrative: "Nenhum dado foi encontrado para esta seção.",
-          table: null,
-          chart: null,
-        });
-        continue;
-      }
-
-      sections.push({
-        id: section.id,
-        title: section.title,
-        status: "ready",
-        narrative: queryResult.answer,
-        table: { columns: columnsOf(rows), rows },
-        chart: chartOf(section, rows),
-      });
-    }
+    const totalLatencyMs = Math.max(
+      0,
+      Math.round(performance.now() - startedAt),
+    );
 
     return {
       status: "generated",
@@ -267,6 +328,91 @@ export class ReportAgentService implements ReportAgent {
       title: plan.title,
       sections,
       planningMetrics: metricsOf(generation),
+      summary: {
+        totalSections: sections.length,
+        readySections: sections.filter((section) => section.status === "ready")
+          .length,
+        emptySections: sections.filter((section) => section.status === "empty")
+          .length,
+        refusedSections: sections.filter(
+          (section) => section.status === "refused",
+        ).length,
+        totalLatencyMs,
+      },
+    };
+  }
+
+  private async planReport(
+    request: string,
+  ): Promise<StructuredGenerationResult<ReportPlan>> {
+    try {
+      return await this.provider.generateStructured({
+        schemaName: "ctrpe_report_plan",
+        schema: reportPlanSchema,
+        systemPrompt: REPORT_PLAN_SYSTEM_PROMPT,
+        userPrompt: JSON.stringify({ request }),
+      });
+    } catch (error) {
+      if (error instanceof LlmProviderError) throw providerError(error);
+      throw error;
+    }
+  }
+
+  private async buildSection(
+    section: ReportPlan["sections"][number],
+    empresaId: string,
+  ): Promise<ReportSection> {
+    let queryResult: QueryAgentResult;
+    try {
+      queryResult = await this.queryAgent.query({
+        question: section.question,
+        empresaId,
+      });
+    } catch (error) {
+      return {
+        id: section.id,
+        title: section.title,
+        status: "refused",
+        narrative: sectionFailureNarrative(error),
+        table: null,
+        chart: null,
+        ungroundedNumbers: [],
+      };
+    }
+
+    if (queryResult.status === "refused") {
+      return {
+        id: section.id,
+        title: section.title,
+        status: "refused",
+        narrative: queryResult.reason,
+        table: null,
+        chart: null,
+        ungroundedNumbers: [],
+      };
+    }
+
+    const rows = rowsOf(queryResult);
+    if (rows.length === 0) {
+      return {
+        id: section.id,
+        title: section.title,
+        status: "empty",
+        narrative: "Nenhum dado foi encontrado para esta seção.",
+        table: null,
+        chart: null,
+        ungroundedNumbers: [],
+      };
+    }
+
+    return {
+      id: section.id,
+      title: section.title,
+      status: "ready",
+      narrative: queryResult.answer,
+      table: { columns: columnsOf(rows), rows },
+      chart: chartOf(section, rows),
+      ungroundedNumbers: findUngroundedNumbers(queryResult.answer, rows),
     };
   }
 }
