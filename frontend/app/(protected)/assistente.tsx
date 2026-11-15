@@ -1,208 +1,25 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  TextInput,
-  View,
-} from "react-native";
-import { Bot, ChevronDown, ChevronUp, Plus, Send } from "lucide-react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ScrollView, View } from "react-native";
+import { Plus } from "lucide-react-native";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useSendChatMessage } from "@/features/assistente/assistente.hooks";
-import type {
-  ChatViewMessage,
-  GeneratedReport,
-  QueryRow,
-  QueryResultBlock,
-} from "@/features/assistente/assistente.types";
+import type { ChatViewMessage } from "@/features/assistente/assistente.types";
 import {
   extractGeneratedReport,
   extractQueryBlocks,
-  formatCell,
 } from "@/features/assistente/assistente.utils";
+import { ChatEmptyState } from "@/features/assistente/components/chat-empty-state";
+import { ChatInputBar } from "@/features/assistente/components/chat-input-bar";
+import {
+  AssistantMessage,
+  ChatTypingIndicator,
+  UserMessage,
+} from "@/features/assistente/components/chat-messages";
 import { useSelectedEmpresaId } from "@/hooks/use-selected-empresa";
-
-function DataTable({
-  id,
-  rows,
-  columns: configuredColumns,
-}: {
-  id: string;
-  rows: QueryRow[];
-  columns?: string[];
-}) {
-  const columns = useMemo(
-    () =>
-      configuredColumns?.length
-        ? configuredColumns
-        : Array.from(new Set(rows.flatMap((row) => Object.keys(row)))),
-    [configuredColumns, rows],
-  );
-
-  if (rows.length === 0) return null;
-
-  return (
-    <ScrollView horizontal className="rounded-md border border-border">
-      <View>
-        <View className="flex-row bg-muted">
-          {columns.map((column) => (
-            <View
-              key={column}
-              className="min-w-32 border-r border-border px-3 py-2"
-            >
-              <Text className="text-xs font-semibold text-foreground">
-                {column}
-              </Text>
-            </View>
-          ))}
-        </View>
-        {rows.map((row, rowIndex) => (
-          <View
-            key={`${id}-${rowIndex}`}
-            className="flex-row border-t border-border"
-          >
-            {columns.map((column) => (
-              <View
-                key={column}
-                className="min-w-32 border-r border-border px-3 py-2"
-              >
-                <Text className="text-xs text-foreground">
-                  {formatCell(row[column])}
-                </Text>
-              </View>
-            ))}
-          </View>
-        ))}
-      </View>
-    </ScrollView>
-  );
-}
-
-function QueryTable({ block }: { block: QueryResultBlock }) {
-  return (
-    <View className="gap-2">
-      {block.purpose ? (
-        <Text className="text-xs font-medium text-muted-foreground">
-          {block.purpose}
-        </Text>
-      ) : null}
-      <DataTable id={block.id} rows={block.rowsUsed} />
-    </View>
-  );
-}
-
-function GeneratedReportView({ report }: { report: GeneratedReport }) {
-  return (
-    <View className="gap-3 rounded-lg border border-border bg-background px-3 py-3">
-      <Text className="font-semibold text-foreground">{report.title}</Text>
-      {report.sections.map((section) => (
-        <View key={section.id} className="gap-2">
-          <Text className="text-sm font-semibold text-foreground">
-            {section.title}
-          </Text>
-          <Text className="text-sm leading-5 text-muted-foreground">
-            {section.narrative}
-          </Text>
-          {section.table ? (
-            <DataTable
-              id={`report-${section.id}`}
-              rows={section.table.rows}
-              columns={section.table.columns}
-            />
-          ) : null}
-          {section.chart?.series.map((series) => (
-            <View key={series.name} className="gap-1">
-              <Text className="text-xs font-semibold text-muted-foreground">
-                {series.name}
-              </Text>
-              {series.data.map((point) => (
-                <View
-                  key={`${series.name}-${point.label}`}
-                  className="flex-row justify-between gap-4"
-                >
-                  <Text className="text-xs text-foreground">{point.label}</Text>
-                  <Text className="text-xs font-medium text-foreground">
-                    {formatCell(point.value)}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          ))}
-        </View>
-      ))}
-    </View>
-  );
-}
-
-function AssistantMessage({ message }: { message: ChatViewMessage }) {
-  const [showSql, setShowSql] = useState(false);
-  const blocks = message.queryBlocks ?? [];
-
-  return (
-    <View className="max-w-[92%] self-start gap-3 rounded-xl border border-border bg-card px-4 py-3">
-      <View className="flex-row items-center gap-2">
-        <Icon as={Bot} size={16} className="text-primary" />
-        <Text className="text-xs font-semibold text-muted-foreground">
-          Assistente
-        </Text>
-      </View>
-      <Text className="text-sm leading-5 text-foreground">
-        {message.content}
-      </Text>
-
-      {blocks.map((block) => (
-        <QueryTable key={block.id} block={block} />
-      ))}
-
-      {message.report ? <GeneratedReportView report={message.report} /> : null}
-
-      {blocks.length > 0 ? (
-        <View className="gap-2">
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => setShowSql((value) => !value)}
-            className="flex-row items-center gap-2 self-start"
-          >
-            <Icon
-              as={showSql ? ChevronUp : ChevronDown}
-              size={14}
-              className="text-muted-foreground"
-            />
-            <Text className="text-xs font-medium text-muted-foreground">
-              {showSql ? "Ocultar SQL" : "Visualizar SQL"}
-            </Text>
-          </Pressable>
-          {showSql
-            ? blocks.map((block) => (
-                <View key={block.id} className="rounded-md bg-muted px-3 py-2">
-                  <Text
-                    selectable
-                    className="font-mono text-xs text-foreground"
-                  >
-                    {block.sql}
-                  </Text>
-                </View>
-              ))
-            : null}
-        </View>
-      ) : null}
-    </View>
-  );
-}
-
-function UserMessage({ message }: { message: ChatViewMessage }) {
-  return (
-    <View className="max-w-[85%] self-end rounded-xl bg-primary px-4 py-3">
-      <Text className="text-sm leading-5 text-primary-foreground">
-        {message.content}
-      </Text>
-    </View>
-  );
-}
 
 function errorMessageOf(error: unknown): string {
   if (
@@ -236,20 +53,20 @@ export default function AssistenteScreen() {
   const [messages, setMessages] = useState<ChatViewMessage[]>([]);
   const [error, setError] = useState<string>();
 
-  function newConversation() {
+  const resetConversation = useCallback(() => {
     setConversationId(undefined);
     setMessages([]);
     setInput("");
     setError(undefined);
     mutation.reset();
-  }
+  }, [mutation]);
 
   useEffect(() => {
-    newConversation();
-  }, [empresaId]);
+    resetConversation();
+  }, [empresaId, resetConversation]);
 
-  async function sendMessage() {
-    const message = input.trim();
+  async function submitPrompt(rawText: string) {
+    const message = rawText.trim();
     if (!message || mutation.isPending || !empresaId) return;
 
     const userMessage: ChatViewMessage = {
@@ -284,47 +101,42 @@ export default function AssistenteScreen() {
     }
   }
 
+  const isInputDisabled = mutation.isPending || !empresaId;
+  const canSend = Boolean(input.trim()) && !isInputDisabled;
+
   return (
-    <View className="flex-1 bg-background px-4 py-5">
-      <View className="mx-auto w-full max-w-5xl flex-1 gap-4">
+    <View className="min-h-0 flex-1 bg-background px-4 py-4 lg:px-8 lg:py-6">
+      <View className="mx-auto min-h-0 w-full max-w-6xl flex-1 gap-3 lg:gap-4">
         <View className="flex-row items-center justify-between gap-4">
-          <View className="min-w-0 flex-1 gap-1">
-            <Text className="text-2xl font-bold text-foreground">
+          <View className="min-w-0 flex-1 gap-0.5">
+            <Text className="text-xl font-bold text-foreground lg:text-2xl">
               Assistente
             </Text>
-            <Text className="text-sm text-muted-foreground">
+            <Text className="text-xs text-muted-foreground lg:text-sm">
               Consulte os dados de manutenção da empresa selecionada.
             </Text>
           </View>
-          <Button variant="outline" onPress={newConversation}>
+          <Button variant="outline" onPress={resetConversation}>
             <Icon as={Plus} size={16} className="text-foreground" />
             <Text>Nova conversa</Text>
           </Button>
         </View>
 
-        <Card className="min-h-0 flex-1 py-0">
+        <Card className="min-h-0 flex-1 overflow-hidden py-0">
           <CardContent className="min-h-0 flex-1 px-0 py-0">
             <ScrollView
               ref={scrollRef}
-              className="flex-1"
-              contentContainerClassName="gap-3 px-4 py-4"
+              className="min-h-0 flex-1"
+              contentContainerClassName="flex-grow gap-3 px-4 py-4 lg:px-6"
               onContentSizeChange={() =>
                 scrollRef.current?.scrollToEnd({ animated: true })
               }
             >
               {messages.length === 0 ? (
-                <View className="items-center gap-3 px-6 py-16">
-                  <View className="h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                    <Icon as={Bot} size={24} className="text-primary" />
-                  </View>
-                  <Text className="text-center font-semibold text-foreground">
-                    Como posso ajudar com a manutenção?
-                  </Text>
-                  <Text className="max-w-xl text-center text-sm text-muted-foreground">
-                    Pergunte sobre ativos, ordens de serviço, paradas, materiais
-                    ou custos.
-                  </Text>
-                </View>
+                <ChatEmptyState
+                  disabled={isInputDisabled}
+                  onSelectPrompt={submitPrompt}
+                />
               ) : (
                 messages.map((message) =>
                   message.role === "user" ? (
@@ -335,14 +147,7 @@ export default function AssistenteScreen() {
                 )
               )}
 
-              {mutation.isPending ? (
-                <View className="flex-row items-center gap-2 self-start rounded-xl border border-border bg-card px-4 py-3">
-                  <ActivityIndicator size="small" />
-                  <Text className="text-sm text-muted-foreground">
-                    Analisando...
-                  </Text>
-                </View>
-              ) : null}
+              {mutation.isPending ? <ChatTypingIndicator /> : null}
             </ScrollView>
           </CardContent>
         </Card>
@@ -359,27 +164,13 @@ export default function AssistenteScreen() {
           </Text>
         ) : null}
 
-        <View className="flex-row items-end gap-2">
-          <TextInput
-            accessibilityLabel="Mensagem"
-            multiline
-            value={input}
-            onChangeText={setInput}
-            onSubmitEditing={sendMessage}
-            placeholder="Digite sua pergunta..."
-            placeholderTextColor="#6b7280"
-            editable={!mutation.isPending && !!empresaId}
-            className="max-h-32 min-h-12 flex-1 rounded-md border border-input bg-background px-3 py-3 text-sm text-foreground"
-          />
-          <Button
-            accessibilityLabel="Enviar mensagem"
-            size="icon"
-            disabled={!input.trim() || mutation.isPending || !empresaId}
-            onPress={sendMessage}
-          >
-            <Icon as={Send} size={18} className="text-primary-foreground" />
-          </Button>
-        </View>
+        <ChatInputBar
+          value={input}
+          disabled={isInputDisabled}
+          canSend={canSend}
+          onChangeText={setInput}
+          onSend={() => submitPrompt(input)}
+        />
       </View>
     </View>
   );
