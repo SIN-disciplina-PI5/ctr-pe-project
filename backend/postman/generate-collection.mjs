@@ -458,6 +458,17 @@ const collection = {
           expected: 400,
         }),
         request({
+          name: "Chat rejeita conversa inexistente do usuário",
+          method: "POST",
+          path: "/api/ai/chat",
+          token: "token_consulta_a",
+          body: {
+            message: "Quais ativos estão em manutenção?",
+            conversationId: "{{missing_id}}",
+          },
+          expected: 404,
+        }),
+        request({
           name: "Query valida payload antes do provedor",
           method: "POST",
           path: "/api/ai/query",
