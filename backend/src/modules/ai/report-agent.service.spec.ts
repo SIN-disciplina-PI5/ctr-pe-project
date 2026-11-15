@@ -10,7 +10,11 @@ import type {
   QueryAgentResult,
   QueryAgentService,
 } from "./query-agent.service.js";
-import { ReportAgentService, type ReportPlan } from "./report-agent.service.js";
+import {
+  findUngroundedNumbers,
+  ReportAgentService,
+  type ReportPlan,
+} from "./report-agent.service.js";
 import { REPORT_PLAN_SYSTEM_PROMPT } from "./report-prompts.config.js";
 
 class FakeProvider implements LlmProvider {
@@ -43,7 +47,10 @@ class FakeQueryAgent {
   public readonly calls: Array<{ question: string; empresaId?: string }> = [];
 
   constructor(
-    private readonly results: Readonly<Record<string, QueryAgentResult>>,
+    private readonly results: Readonly<
+      Record<string, QueryAgentResult | Error>
+    >,
+    private readonly delayMs = 0,
   ) {}
 
   async query(input: {
@@ -51,9 +58,14 @@ class FakeQueryAgent {
     empresaId?: string;
   }): Promise<QueryAgentResult> {
     this.calls.push(input);
+    if (this.delayMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, this.delayMs));
+    }
     const result = this.results[input.question];
-    if (!result)
+    if (!result) {
       throw new Error(`Resultado não configurado: ${input.question}`);
+    }
+    if (result instanceof Error) throw result;
     return result;
   }
 }
@@ -109,10 +121,11 @@ function plan(
 
 function serviceFor(
   reportPlan: ReportPlan,
-  results: Readonly<Record<string, QueryAgentResult>>,
+  results: Readonly<Record<string, QueryAgentResult | Error>>,
+  delayMs = 0,
 ) {
   const provider = new FakeProvider(reportPlan);
-  const queryAgent = new FakeQueryAgent(results);
+  const queryAgent = new FakeQueryAgent(results, delayMs);
   const service = new ReportAgentService(
     provider,
     queryAgent as unknown as QueryAgentService,
@@ -152,6 +165,7 @@ describe("ReportAgentService", () => {
         {
           status: "ready",
           narrative: "Foram encerradas 18 ordens em outubro.",
+          ungroundedNumbers: [],
           table: { columns: ["mes", "total"], rows },
           chart: {
             type: "line",
@@ -166,6 +180,12 @@ describe("ReportAgentService", () => {
           },
         },
       ],
+      summary: {
+        totalSections: 1,
+        readySections: 1,
+        emptySections: 0,
+        refusedSections: 0,
+      },
       planningMetrics: {
         provider: "fake",
         model: "fake-report-model",
@@ -193,7 +213,10 @@ describe("ReportAgentService", () => {
         },
       }),
       {
-        [question]: singleAnswer("AT-001 possui o maior custo total.", rows),
+        [question]: singleAnswer(
+          "AT-001 possui o maior custo total, com R$ 1.250,50.",
+          rows,
+        ),
       },
     );
 
@@ -203,6 +226,7 @@ describe("ReportAgentService", () => {
     });
 
     expect(result.sections[0]?.table?.rows).toEqual(rows);
+    expect(result.sections[0]?.ungroundedNumbers).toEqual([]);
     expect(result.sections[0]?.chart?.series[0]?.data).toEqual([
       { label: "AT-001", value: 1250.5 },
       { label: "AT-002", value: 810 },
@@ -247,6 +271,7 @@ describe("ReportAgentService", () => {
 
     expect(result.sections[0]).toMatchObject({
       status: "ready",
+      ungroundedNumbers: [],
       table: {
         columns: ["mes", "disponibilidade", "paradas"],
         rows: [{ mes: "2026-10", disponibilidade: 94.2 }, { paradas: 4 }],
@@ -278,8 +303,15 @@ describe("ReportAgentService", () => {
         narrative: "Nenhum dado foi encontrado para esta seção.",
         table: null,
         chart: null,
+        ungroundedNumbers: [],
       },
     ]);
+    expect(result.summary).toMatchObject({
+      totalSections: 1,
+      readySections: 0,
+      emptySections: 1,
+      refusedSections: 0,
+    });
   });
 
   it("preserva uma seção recusada sem expor SQL ou criar dados", async () => {
@@ -303,6 +335,7 @@ describe("ReportAgentService", () => {
       narrative: "A seção solicitada está fora do contexto permitido.",
       table: null,
       chart: null,
+      ungroundedNumbers: [],
     });
   });
 
@@ -329,6 +362,78 @@ describe("ReportAgentService", () => {
 
     expect(result.sections[0]?.status).toBe("ready");
     expect(result.sections[0]?.chart).toBeNull();
+  });
+
+  it("executa múltiplas seções em paralelo mantendo a ordem do plano e isolando falhas pontuais", async () => {
+    const multiPlan: ReportPlan = {
+      reportType: "monthly_maintenance",
+      title: "Relatório Mensal Consolidado",
+      sections: [
+        {
+          id: "ordens",
+          title: "Ordens Encerradas",
+          question: "Pergunta 1",
+          visualization: { type: "none", categoryKey: null, valueKey: null },
+        },
+        {
+          id: "falha-pontual",
+          title: "Custos Extras",
+          question: "Pergunta 2",
+          visualization: { type: "none", categoryKey: null, valueKey: null },
+        },
+        {
+          id: "vazia",
+          title: "Pendências",
+          question: "Pergunta 3",
+          visualization: { type: "none", categoryKey: null, valueKey: null },
+        },
+      ],
+    };
+
+    const { service, queryAgent } = serviceFor(
+      multiPlan,
+      {
+        "Pergunta 1": singleAnswer("Total de 7 ordens encerradas.", [
+          { total: 7 },
+        ]),
+        "Pergunta 2": new LlmProviderError("TIMEOUT", "timeout interno"),
+        "Pergunta 3": singleAnswer("Sem registros.", []),
+      },
+      15,
+    );
+
+    const result = await service.generate({
+      request: "Relatório completo",
+      empresaId: "empresa-1",
+    });
+
+    expect(queryAgent.calls).toHaveLength(3);
+    expect(result.sections.map((s) => ({ id: s.id, status: s.status }))).toEqual([
+      { id: "ordens", status: "ready" },
+      { id: "falha-pontual", status: "refused" },
+      { id: "vazia", status: "empty" },
+    ]);
+    expect(result.sections[1]?.narrative).toBe(
+      "A consulta desta seção excedeu o tempo limite.",
+    );
+    expect(result.summary).toMatchObject({
+      totalSections: 3,
+      readySections: 1,
+      emptySections: 1,
+      refusedSections: 1,
+    });
+  });
+
+  it("sinaliza números na narrativa que não constam nos dados retornados", () => {
+    const ungrounded = findUngroundedNumbers(
+      "Foram registradas 12 ordens, com custo médio de 999,99 e 2 ativos.",
+      [
+        { ativo: "AT-01", total: 12 },
+        { ativo: "AT-02", total: 5 },
+      ],
+    );
+
+    expect(ungrounded).toEqual(["999,99"]);
   });
 
   it("converte timeout do planejador em erro seguro", async () => {
