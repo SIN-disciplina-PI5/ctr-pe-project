@@ -128,6 +128,13 @@ enum TipoRelatorioIA {
   DISPONIBILIDADE
 }
 
+enum StatusJobRelatorioIA {
+  QUEUED
+  RUNNING
+  DONE
+  FAILED
+}
+
 /**
  * 1. EMPRESA
  * Representa matriz, filial ou qualquer unidade empresarial principal.
@@ -154,6 +161,7 @@ model Empresa {
   logs          LogAuditoria[]
   conversasIA   ConversaIA[]
   arquivosRelatorioIA ArquivoRelatorioIA[]
+  jobsRelatorioIA JobRelatorioIA[]
 
   @@index([nome])
 }
@@ -217,6 +225,7 @@ model Usuario {
   refreshTokens     RefreshToken[]
   conversasIA       ConversaIA[]
   arquivosRelatorioIA ArquivoRelatorioIA[]
+  jobsRelatorioIA JobRelatorioIA[]
 
   @@index([empresaId])
   @@index([perfil])
@@ -596,7 +605,40 @@ model ArquivoRelatorioIA {
   empresa Empresa @relation(fields: [empresaId], references: [id])
   usuario Usuario @relation(fields: [usuarioId], references: [id])
 
+  jobRelatorioIA JobRelatorioIA?
+
   @@index([empresaId, createdAt])
   @@index([empresaId, usuarioId, createdAt])
   @@index([expiresAt])
+}
+
+model JobRelatorioIA {
+  id        String @id @default(cuid())
+  empresaId String
+  usuarioId String
+
+  solicitacao    String
+  idempotencyKey String
+
+  status        StatusJobRelatorioIA @default(QUEUED)
+  tentativas    Int                  @default(0)
+  triggerRunId  String?              @unique
+  erro          String?              @db.Text
+
+  arquivoRelatorioIAId String? @unique
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  startedAt  DateTime?
+  finishedAt DateTime?
+  
+
+  empresa Empresa @relation(fields: [empresaId], references: [id])
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  arquivoRelatorioIA ArquivoRelatorioIA? @relation(fields: [arquivoRelatorioIAId], references: [id], onDelete: SetNull)
+
+  @@unique([empresaId, usuarioId, idempotencyKey])
+  @@index([empresaId, usuarioId, createdAt])
+  @@index([status, updatedAt])
 }
