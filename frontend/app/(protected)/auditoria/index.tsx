@@ -47,6 +47,7 @@ const ENTIDADE_LABELS: Record<string, string> = {
   "ordens-servico-materiais": "Material de O.S.",
   "apontamentos-os": "Apontamento de O.S.",
   alertas: "Alerta",
+  relatorio_ia: "Relatório de IA",
 };
 
 function getActionVariant(

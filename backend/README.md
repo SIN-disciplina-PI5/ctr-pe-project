@@ -107,6 +107,21 @@ npm run test:watch
 
 > Os testes e2e requerem banco ativo com seed aplicado.
 
+### Testes da Feat 7 (relatórios)
+
+```bash
+# Unitários: jobs, rotas, PDF, storage e limpeza (sem banco)
+npm run test:unit -- report
+
+# E2E do fluxo completo com duas empresas (banco com base sintética)
+npm run test:integration -- report-flow
+
+# PDF de exemplo para conferência visual
+npm run reports:sample-pdf
+```
+
+O roteiro de teste manual está em `docs/feat7-relatorios-teste-manual.md`.
+
 ---
 
 ## Rotas da API
