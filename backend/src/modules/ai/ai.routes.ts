@@ -5,7 +5,9 @@ import { validate } from "../../common/middlewares/validate.middleware.js";
 import { chat } from "./chat.controller.js";
 import { chatDto } from "./dto/chat.dto.js";
 import { generateQueryDto } from "./dto/generate-query.dto.js";
+import { troubleshootDto } from "./dto/troubleshoot.dto.js";
 import { executeQuery, generateQuery } from "./query-generation.controller.js";
+import { troubleshootAsset } from "./troubleshoot.controller.js";
 
 export const aiRouter = Router();
 
@@ -13,3 +15,9 @@ aiRouter.use(authMiddleware);
 aiRouter.post("/chat", aiChatRateLimiter, validate(chatDto), chat);
 aiRouter.post("/query", validate(generateQueryDto), executeQuery);
 aiRouter.post("/query/generate", validate(generateQueryDto), generateQuery);
+aiRouter.post(
+  "/troubleshoot",
+  aiChatRateLimiter,
+  validate(troubleshootDto),
+  troubleshootAsset,
+);

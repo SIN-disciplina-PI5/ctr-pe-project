@@ -29,20 +29,22 @@ describe("rotas internas de consulta da IA", () => {
     else process.env["JWT_SECRET"] = originalSecret;
   });
 
-  it.each(["/api/ai/chat", "/api/ai/query", "/api/ai/query/generate"])(
-    "exige autenticação em %s",
-    async (path) => {
-      const response = await api
-        .post(path)
-        .send(
-          path.endsWith("/chat")
-            ? { message: "Quais ativos estão parados?" }
-            : { question: "Quais ativos estão parados?" },
-        );
+  it.each([
+    "/api/ai/chat",
+    "/api/ai/query",
+    "/api/ai/query/generate",
+    "/api/ai/troubleshoot",
+  ])("exige autenticação em %s", async (path) => {
+    const payload = path.endsWith("/chat")
+      ? { message: "Quais ativos estão parados?" }
+      : path.endsWith("/troubleshoot")
+        ? { ativoId: "cm1234567890abcdef1234567" }
+        : { question: "Quais ativos estão parados?" };
 
-      expect(response.status).toBe(401);
-    },
-  );
+    const response = await api.post(path).send(payload);
+
+    expect(response.status).toBe(401);
+  });
 
   it.each(["/api/ai/query", "/api/ai/query/generate"])(
     "valida o payload antes de acionar serviços em %s",
@@ -59,6 +61,19 @@ describe("rotas internas de consulta da IA", () => {
       });
     },
   );
+
+  it("valida payload do endpoint de diagnóstico de ativos", async () => {
+    const response = await api
+      .post("/api/ai/troubleshoot")
+      .set("Authorization", `Bearer ${token()}`)
+      .send({});
+
+    expect(response.status).toBe(400);
+    expect(response.body).toMatchObject({
+      error: "Dados inválidos.",
+      errorCode: "VALIDATION_ERROR",
+    });
+  });
 
   it("valida mensagem e identificador de conversa do chat", async () => {
     const response = await api

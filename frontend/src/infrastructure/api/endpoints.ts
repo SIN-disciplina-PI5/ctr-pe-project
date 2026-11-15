@@ -1,6 +1,7 @@
 export const endpoints = {
   ai: {
     chat: "/ai/chat",
+    troubleshoot: "/ai/troubleshoot",
   },
   ordensServico: {
     list: "/ordens-servico",
