@@ -12,6 +12,7 @@ export type AppPermission =
   | "dashboardRead"
   | "costsRead"
   | "assistantUse"
+  | "reportsUse"
   | "maintenanceRead"
   | "auditRead"
   | "companiesRead"
@@ -36,6 +37,8 @@ export const APP_PERMISSIONS: Record<
   dashboardRead: ALL_PROFILES,
   costsRead: ["ADMIN", "GESTOR", "SUPERVISOR"],
   assistantUse: ALL_PROFILES,
+  // O backend exige usuário vinculado a empresa; a tela trata o ADMIN global.
+  reportsUse: ALL_PROFILES,
   maintenanceRead: ALL_PROFILES,
   auditRead: ["ADMIN", "GESTOR"],
   companiesRead: ALL_PROFILES,

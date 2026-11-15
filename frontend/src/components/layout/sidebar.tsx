@@ -7,6 +7,7 @@ import {
   Building2,
   CirclePause,
   ClipboardList,
+  FileDown,
   FileText,
   LayoutDashboard,
   LogOut,
@@ -44,6 +45,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/indicadores", label: "Indicadores", icon: BarChart3, permission: "dashboardRead" },
       { href: "/desempenho", label: "Desempenho", icon: TrendingUp, permission: "costsRead" },
       { href: "/assistente", label: "Assistente", icon: MessageSquareText, permission: "assistantUse" },
+      { href: "/relatorios", label: "Relatórios", icon: FileDown, permission: "reportsUse" },
     ],
   },
   {
