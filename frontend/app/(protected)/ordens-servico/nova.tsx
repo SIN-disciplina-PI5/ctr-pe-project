@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useForm } from "react-hook-form";
 import { Pressable, ScrollView, View } from "react-native";
 
@@ -32,7 +32,13 @@ export default function NovaOrdemServicoScreen() {
 
 function NovaOrdemServicoContent() {
   const router = useRouter();
-  const empresaId = useSelectedEmpresaId();
+  const params = useLocalSearchParams<{
+    ativoId?: string;
+    empresaId?: string;
+    tipo?: TipoOS;
+  }>();
+  const selectedEmpresaId = useSelectedEmpresaId();
+  const empresaId = params.empresaId ?? selectedEmpresaId;
   const createMutation = useCreateOrdemServico();
 
   const {
@@ -45,11 +51,11 @@ function NovaOrdemServicoContent() {
     resolver: zodResolver(createOrdemServicoSchema),
     defaultValues: {
       empresaId: empresaId ?? "",
-      ativoId: "",
+      ativoId: params.ativoId ?? "",
       titulo: "",
       descricao: "",
       prioridade: "MEDIA",
-      tipo: "CORRETIVA",
+      tipo: params.tipo ?? "CORRETIVA",
     },
   });
 

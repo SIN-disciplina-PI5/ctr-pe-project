@@ -55,6 +55,30 @@ export class AtivosService {
     return this.ativosRepository.findAll(filters);
   }
 
+  static extractCodigoFromQrPayload(rawPayload: string): string {
+    const trimmed = decodeURIComponent(rawPayload).trim();
+    const prefixMatch = trimmed.match(/^CTRPE:ATIVO:(.+)$/i);
+    if (prefixMatch?.[1]) return prefixMatch[1].trim();
+    const pathMatch = trimmed.match(/\/ativos\/qr\/([^/?#]+)/i);
+    if (pathMatch?.[1]) return pathMatch[1].trim();
+    return trimmed;
+  }
+
+  async findByCodigo(rawCodigo: string, empresaId: string) {
+    const codigo = AtivosService.extractCodigoFromQrPayload(rawCodigo);
+    const ativo = await this.ativosRepository.findByCodigo(empresaId, codigo);
+
+    if (!ativo) {
+      throw new AppError({
+        message: "Ativo não encontrado para o código informado",
+        statusCode: 404,
+        errorCode: ErrorCode.NOT_FOUND,
+      });
+    }
+
+    return ativo;
+  }
+
   async findById(id: string, empresaId: string) {
     const ativo = await this.ativosRepository.findById(id, empresaId);
 

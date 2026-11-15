@@ -32,6 +32,17 @@ export async function findAll(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+export async function findByCodigo(req: Request, res: Response, next: NextFunction) {
+  try {
+    const currentUser = getCurrentCompanyUser(req);
+    const { codigo } = req.params as { codigo: string };
+    const result = await ativosService.findByCodigo(codigo, currentUser.empresaId);
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function findById(req: Request, res: Response, next: NextFunction) {
   try {
     const currentUser = getCurrentCompanyUser(req);
