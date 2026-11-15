@@ -1,9 +1,11 @@
+import { performance } from "node:perf_hooks";
 import { AppError } from "../../common/errors/AppError.js";
 import { ErrorCode } from "../../common/errors/error-code.js";
 import type { AuthUser } from "../../common/types/auth-user.js";
 import type {
   ConversationRepositoryPort,
   ConversationScope,
+  ConversationSnapshot,
 } from "./conversation.repository.js";
 import { LlmProviderError } from "./llm-provider.js";
 import type {
@@ -23,6 +25,7 @@ export interface ChatResult {
   readonly message: string;
   readonly status: OrchestratorResult["status"];
   readonly intent: OrchestratorResult["intent"];
+  readonly latencyMs: number;
   readonly result: OrchestratorResult;
 }
 
@@ -48,6 +51,14 @@ function safeProviderError(error: LlmProviderError): AppError {
   });
 }
 
+function conversationNotFoundError(): AppError {
+  return new AppError({
+    message: "Conversa não encontrada.",
+    statusCode: 404,
+    errorCode: ErrorCode.NOT_FOUND,
+  });
+}
+
 export class ChatService {
   constructor(
     private readonly repository: ConversationRepositoryPort,
@@ -55,7 +66,42 @@ export class ChatService {
   ) {}
 
   async chat(input: ChatInput): Promise<ChatResult> {
-    const empresaId = input.actor.empresaId?.trim();
+    const startedAt = performance.now();
+    const scope = this.resolveScope(input.actor);
+    const conversation = await this.loadConversation(
+      input.conversationId,
+      scope,
+    );
+    const orchestration = await this.executeOrchestration(
+      input.message,
+      scope.empresaId,
+      conversation,
+    );
+
+    const assistantMessage = assistantMessageOf(orchestration);
+    const conversationId = await this.persistExchange({
+      scope,
+      conversationId: conversation?.id,
+      userMessage: input.message,
+      assistantMessage,
+      orchestration,
+    });
+
+    const latencyMs = Math.max(0, Math.round(performance.now() - startedAt));
+
+    return {
+      id: conversationId,
+      conversationId,
+      message: assistantMessage,
+      status: orchestration.status,
+      intent: orchestration.intent,
+      latencyMs,
+      result: orchestration,
+    };
+  }
+
+  private resolveScope(actor: AuthUser): ConversationScope {
+    const empresaId = actor.empresaId?.trim();
     if (!empresaId) {
       throw new AppError({
         message: "É necessário selecionar uma empresa para usar o assistente.",
@@ -64,26 +110,38 @@ export class ChatService {
       });
     }
 
-    const scope: ConversationScope = {
+    return {
       empresaId,
-      usuarioId: input.actor.id,
+      usuarioId: actor.id,
     };
-    const conversation = input.conversationId
-      ? await this.repository.findWithHistory(input.conversationId, scope)
-      : null;
+  }
 
-    if (input.conversationId && !conversation) {
-      throw new AppError({
-        message: "Conversa não encontrada.",
-        statusCode: 404,
-        errorCode: ErrorCode.NOT_FOUND,
-      });
+  private async loadConversation(
+    conversationId: string | undefined,
+    scope: ConversationScope,
+  ): Promise<ConversationSnapshot | null> {
+    if (!conversationId) return null;
+
+    const conversation = await this.repository.findWithHistory(
+      conversationId,
+      scope,
+    );
+
+    if (!conversation) {
+      throw conversationNotFoundError();
     }
 
-    let orchestration: OrchestratorResult;
+    return conversation;
+  }
+
+  private async executeOrchestration(
+    message: string,
+    empresaId: string,
+    conversation: ConversationSnapshot | null,
+  ): Promise<OrchestratorResult> {
     try {
-      orchestration = await this.orchestrator.handle({
-        message: input.message,
+      return await this.orchestrator.handle({
+        message,
         empresaId,
         ...(conversation ? { history: conversation.history } : {}),
       });
@@ -91,32 +149,30 @@ export class ChatService {
       if (error instanceof LlmProviderError) throw safeProviderError(error);
       throw error;
     }
+  }
 
-    const assistantMessage = assistantMessageOf(orchestration);
-    const conversationId = await this.repository.saveExchange({
-      ...scope,
-      ...(conversation ? { conversationId: conversation.id } : {}),
-      userMessage: input.message,
-      assistantMessage,
-      intent: orchestration.intent,
-      status: orchestration.status,
+  private async persistExchange(params: {
+    scope: ConversationScope;
+    conversationId?: string | undefined;
+    userMessage: string;
+    assistantMessage: string;
+    orchestration: OrchestratorResult;
+  }): Promise<string> {
+    const savedId = await this.repository.saveExchange({
+      ...params.scope,
+      ...(params.conversationId
+        ? { conversationId: params.conversationId }
+        : {}),
+      userMessage: params.userMessage,
+      assistantMessage: params.assistantMessage,
+      intent: params.orchestration.intent,
+      status: params.orchestration.status,
     });
 
-    if (!conversationId) {
-      throw new AppError({
-        message: "Conversa não encontrada.",
-        statusCode: 404,
-        errorCode: ErrorCode.NOT_FOUND,
-      });
+    if (!savedId) {
+      throw conversationNotFoundError();
     }
 
-    return {
-      id: conversationId,
-      conversationId,
-      message: assistantMessage,
-      status: orchestration.status,
-      intent: orchestration.intent,
-      result: orchestration,
-    };
+    return savedId;
   }
 }
