@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { Plus } from "lucide-react-native";
 
@@ -47,23 +47,28 @@ function errorMessageOf(error: unknown): string {
 export default function AssistenteScreen() {
   const empresaId = useSelectedEmpresaId();
   const mutation = useSendChatMessage();
+  const { reset: resetMutation } = mutation;
   const scrollRef = useRef<ScrollView>(null);
   const [conversationId, setConversationId] = useState<string>();
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatViewMessage[]>([]);
   const [error, setError] = useState<string>();
 
-  const resetConversation = useCallback(() => {
+  function resetConversation() {
     setConversationId(undefined);
     setMessages([]);
     setInput("");
     setError(undefined);
-    mutation.reset();
-  }, [mutation]);
+    resetMutation();
+  }
 
   useEffect(() => {
-    resetConversation();
-  }, [empresaId, resetConversation]);
+    setConversationId(undefined);
+    setMessages([]);
+    setInput("");
+    setError(undefined);
+    resetMutation();
+  }, [empresaId, resetMutation]);
 
   async function submitPrompt(rawText: string) {
     const message = rawText.trim();
