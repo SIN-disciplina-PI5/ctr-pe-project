@@ -1,6 +1,14 @@
 export const endpoints = {
   ai: {
     chat: "/ai/chat",
+    troubleshoot: "/ai/troubleshoot",
+  },
+  planosManutencao: {
+    list: "/planos-manutencao",
+    create: "/planos-manutencao",
+    byId: (id: string) => `/planos-manutencao/${id}`,
+    gerarOS: (id: string) => `/planos-manutencao/${id}/gerar-os`,
+    processarVencidos: "/planos-manutencao/processar-vencidos",
   },
   ordensServico: {
     list: "/ordens-servico",

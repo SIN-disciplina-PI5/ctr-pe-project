@@ -1,9 +1,10 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { ActivityIndicator, View, Alert } from "react-native";
+import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
 
 import { PermissionGate } from "@/components/domain/permission-gate";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { AtivoPlanosPreventivosCard } from "@/features/ativos/ativo-planos-preventivos-card";
 import {
   useAtivo,
   useDeleteAtivo,
@@ -79,7 +80,10 @@ export default function AtivoDetailScreen() {
   }
 
   return (
-    <View className="flex-1 bg-background px-4 py-6">
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 24 }}
+    >
       <View className="mb-6 flex-row items-center justify-between gap-4">
         <View className="flex-1">
           <Text className="text-2xl font-bold">{ativo.nome}</Text>
@@ -111,6 +115,8 @@ export default function AtivoDetailScreen() {
         <Text>Descrição: {ativo.descricao ?? "-"}</Text>
       </View>
 
+      <AtivoPlanosPreventivosCard ativoId={ativo.id} />
+
       <PermissionGate permission="assetsManage">
         <View className="mt-6 gap-3 rounded-xl border border-border bg-card p-4">
           <Text className="text-lg font-semibold">Alterar status</Text>
@@ -126,7 +132,7 @@ export default function AtivoDetailScreen() {
                 <Text>{status}</Text>
               </Button>
             ))}
-        </View>
+          </View>
         </View>
       </PermissionGate>
 
@@ -140,6 +146,6 @@ export default function AtivoDetailScreen() {
           <Text>{deleteAtivo.isPending ? "Excluindo..." : "Excluir ativo"}</Text>
         </Button>
       </PermissionGate>
-    </View>
+    </ScrollView>
   );
 }
