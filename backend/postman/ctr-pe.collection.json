@@ -2774,6 +2774,39 @@
           ]
         },
         {
+          "name": "Chat rejeita conversa inexistente do usuário",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_consulta_a}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Quais ativos estão em manutenção?\",\n  \"conversationId\": \"{{missing_id}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/ai/chat"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', () => pm.expect([404]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Query valida payload antes do provedor",
           "request": {
             "method": "POST",

@@ -15,6 +15,14 @@ function getService(): ChatService {
   return service;
 }
 
+export function setChatService(customService: ChatService): void {
+  service = customService;
+}
+
+export function resetChatService(): void {
+  service = undefined;
+}
+
 export async function chat(req: Request, res: Response, next: NextFunction) {
   try {
     const actor = getCurrentUser(req);
