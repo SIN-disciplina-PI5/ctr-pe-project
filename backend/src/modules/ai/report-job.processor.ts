@@ -45,6 +45,12 @@ export interface RunAvailableSummary {
   readonly outcomes: readonly ReportJobRunOutcome[];
 }
 
+export interface DispatchAvailableSummary {
+  readonly recovered: { readonly requeued: number; readonly failed: number };
+  readonly dispatched: number;
+  readonly failed: number;
+}
+
 export interface ReportJobProcessorOptions {
   readonly leaseMs?: number;
   readonly retryPolicy?: RetryPolicy;
@@ -133,6 +139,30 @@ export class ReportJobProcessor {
     return { recovered, outcomes };
   }
 
+  /**
+   * Varredura de segurança para gatilhos externos: recupera leases vencidos e
+   * dispara de novo os jobs prontos, sem executá-los aqui. Cobre disparos
+   * perdidos (ex.: falha de rede ao chamar o gatilho na criação do pedido).
+   */
+  async dispatchAvailable(limit = DEFAULT_RUN_LIMIT): Promise<DispatchAvailableSummary> {
+    const recovered = await this.repository.recoverExpired(this.now());
+    const ids = await this.repository.findRunnableIds(this.now(), limit);
+    let dispatched = 0;
+    let failed = 0;
+
+    for (const jobId of ids) {
+      try {
+        await this.dispatcher.dispatch({ jobId, reason: "sweep" });
+        dispatched += 1;
+      } catch {
+        failed += 1;
+        this.log("error", "dispatch_failed", { jobId, reason: "sweep" });
+      }
+    }
+
+    return { recovered, dispatched, failed };
+  }
+
   private async execute(
     job: ReportJobRecord,
     leaseToken: string,
@@ -213,7 +243,12 @@ export class ReportJobProcessor {
       }
 
       try {
-        await this.dispatcher.dispatch({ jobId: job.id, delayMs });
+        await this.dispatcher.dispatch({
+          jobId: job.id,
+          delayMs,
+          attempt: job.tentativas,
+          reason: "retry",
+        });
       } catch {
         // O job está QUEUED com disponivelEm; a varredura o encontra.
         this.log("error", "dispatch_failed", { jobId: job.id });

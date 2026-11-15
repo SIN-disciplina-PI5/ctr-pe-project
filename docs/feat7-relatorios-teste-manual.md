@@ -10,13 +10,16 @@ data, ambiente e responsável no final.
   e um usuário ativo em cada uma.
 - Backend com `GROQ_API_KEY`, `AI_READONLY_DATABASE_URL` e
   `BLOB_READ_WRITE_TOKEN` configurados.
-- Enquanto o gatilho de produção não existir, alguém roda
-  `npm run reports:jobs:run` no backend para processar os pedidos.
+- Gatilho: com `REPORT_JOB_DISPATCHER=trigger`, as tasks do Trigger.dev
+  processam os pedidos sozinhas (`npm run trigger:dev` em desenvolvimento ou
+  tasks publicadas com `npm run trigger:deploy`). No modo manual, rode
+  `npm run reports:jobs:run` no backend após cada pedido.
 
 ## 1. Solicitação e processamento (usuário da empresa A)
 - [ ] Na tela **Relatórios**, solicitar "Manutenção mensal", período "Mês anterior".
 - [ ] O pedido aparece na lista como **Na fila**, com o aviso "Atualizando a cada 5 s".
-- [ ] Rodar `npm run reports:jobs:run`. O status muda para **Gerando** e depois **Pronto** sem recarregar a página.
+- [ ] Aguardar o processamento (ou rodar `npm run reports:jobs:run` no modo manual). O status muda para **Gerando** e depois **Pronto** sem recarregar a página.
+- [ ] No painel do Trigger.dev, conferir a execução da task `generate-report` com o `jobId` do pedido.
 - [ ] O aviso de atualização some quando não há mais pedidos ativos.
 
 ## 2. Download e conteúdo do PDF
@@ -41,7 +44,11 @@ data, ambiente e responsável no final.
 - [ ] Solicitar 6 relatórios em menos de 10 minutos: o sexto mostra o aviso de limite.
 - [ ] Antes de processar, chamar o download pelo Postman: resposta **409**.
 
-## 6. Auditoria
+## 6. Recuperação pelo Trigger.dev
+- [ ] Com `REPORT_JOB_DISPATCHER=trigger`, parar o `trigger:dev` logo após uma task iniciar (simula queda do worker).
+- [ ] Religar e aguardar até 16 min (lease) + 5 min (varredura): o pedido volta a ser processado e chega a **Pronto**.
+
+## 7. Auditoria
 - [ ] Na tela **Auditoria** (ADMIN ou GESTOR), há um registro de criação para cada pedido,
       sem o texto do pedido.
 

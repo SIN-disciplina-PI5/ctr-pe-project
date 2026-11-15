@@ -28,6 +28,8 @@
     "reports:cleanup": "tsx scripts/reporting/cleanup-expired-reports.ts",
     "reports:jobs:run": "tsx scripts/reporting/run-report-jobs.ts",
     "reports:sample-pdf": "tsx scripts/reporting/render-sample-report.ts",
+    "trigger:dev": "npx trigger.dev@4.8.5 dev",
+    "trigger:deploy": "npx trigger.dev@4.8.5 deploy",
     "db:reset-synthetic": "tsx scripts/synthetic-data/reset-and-seed.ts",
     "spike:provider-smoke": "tsx spikes/text-to-sql/run-provider-smoke.ts",
     "spike:generate-sql": "tsx spikes/text-to-sql/run-generation.ts",
@@ -51,6 +53,7 @@
     "@google-cloud/recaptcha-enterprise": "^7.2.0",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "@trigger.dev/sdk": "4.8.5",
     "@vercel/blob": "^2.9.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
@@ -67,6 +70,7 @@
     "zod": "^4.4.2"
   },
   "devDependencies": {
+    "@trigger.dev/build": "4.8.5",
     "@faker-js/faker": "^10.6.0",
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
