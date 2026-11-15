@@ -45,9 +45,23 @@ export function createReportJobService(
     environment,
     "REPORT_JOB_MAX_ATTEMPTS",
   );
+  // O storage só é criado no primeiro download: criar, consultar e listar
+  // relatórios não dependem do token do Vercel Blob.
+  let fileService: ReportFileService | undefined;
+  const downloads: Pick<ReportFileService, "getDownload"> = {
+    getDownload: (id, scope) => {
+      fileService ??= new ReportFileService(
+        createReportStorage(environment),
+        new ReportFileRepository(),
+      );
+      return fileService.getDownload(id, scope);
+    },
+  };
+
   return new ReportJobService(
     new ReportJobRepository(),
     createReportJobDispatcher(),
+    downloads,
     maxAttempts === undefined ? {} : { maxAttempts },
   );
 }

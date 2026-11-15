@@ -38,6 +38,24 @@ export interface ReportJobRecord extends ReportJobScope {
   readonly updatedAt: Date;
 }
 
+/** Resumo do arquivo gerado, obtido por join com ArquivoRelatorioIA. */
+export interface ReportJobFileSummary {
+  readonly titulo: string;
+  readonly tipo: "MANUTENCAO_MENSAL" | "CUSTOS_POR_ATIVO" | "DISPONIBILIDADE";
+  readonly tamanhoBytes: number;
+  readonly expiresAt: Date;
+}
+
+export interface ReportJobDetails extends ReportJobRecord {
+  readonly arquivo: ReportJobFileSummary | null;
+}
+
+export interface ListOwnedReportJobsInput {
+  readonly status?: ReportJobStatus;
+  readonly skip: number;
+  readonly take: number;
+}
+
 export interface ReportJobError {
   readonly code: string;
   readonly message: string;
@@ -71,7 +89,12 @@ export interface ReportJobRepositoryPort {
   createOrGetExisting(
     input: CreateReportJobInput,
   ): Promise<{ readonly job: ReportJobRecord; readonly created: boolean }>;
-  findOwned(id: string, scope: ReportJobScope): Promise<ReportJobRecord | null>;
+  findOwned(id: string, scope: ReportJobScope): Promise<ReportJobDetails | null>;
+  /** Jobs do usuário na empresa, do mais recente para o mais antigo. */
+  listOwned(
+    scope: ReportJobScope,
+    input: ListOwnedReportJobsInput,
+  ): Promise<{ readonly items: ReportJobDetails[]; readonly total: number }>;
   /** Assume o job se estiver disponível; devolve null se outro worker já o tiver. */
   claim(id: string, input: ClaimReportJobInput): Promise<ReportJobRecord | null>;
   /** IDs de jobs prontos para execução, do mais antigo para o mais novo. */
@@ -99,11 +122,22 @@ export interface ReportJobRepositoryPort {
 }
 
 export type ReportJobViewStatus = "queued" | "running" | "done" | "failed";
+export type ReportJobViewType =
+  | "monthly_maintenance"
+  | "asset_costs"
+  | "availability";
 
-/** Representação pública do job, base do contrato da Task 06. */
+const VIEW_TYPE: Record<ReportJobFileSummary["tipo"], ReportJobViewType> = {
+  MANUTENCAO_MENSAL: "monthly_maintenance",
+  CUSTOS_POR_ATIVO: "asset_costs",
+  DISPONIBILIDADE: "availability",
+};
+
+/** Representação pública do job: contrato das rotas /api/ai/reports. */
 export interface ReportJobView {
   readonly id: string;
   readonly status: ReportJobViewStatus;
+  readonly request: string;
   readonly attempts: number;
   readonly maxAttempts: number;
   readonly createdAt: string;
@@ -112,18 +146,47 @@ export interface ReportJobView {
   readonly nextAttemptAt: string | null;
   readonly error: ReportJobError | null;
   readonly reportFileId: string | null;
+  readonly report: {
+    readonly title: string;
+    readonly type: ReportJobViewType;
+    readonly sizeBytes: number;
+    readonly expiresAt: string;
+  } | null;
+  /** Concluído, mas o arquivo já passou da retenção de 30 dias. */
+  readonly expired: boolean;
+  /** Presente somente quando o PDF está pronto e dentro da retenção. */
+  readonly downloadUrl: string | null;
 }
 
-export function toReportJobView(job: ReportJobRecord): ReportJobView {
+export const REPORTS_BASE_PATH = "/api/ai/reports";
+
+/**
+ * Converte o job em resposta pública. `arquivo` ausente (undefined) significa
+ * que o resumo não foi carregado; null significa que o arquivo não existe
+ * mais (removido pela limpeza de retenção).
+ */
+export function toReportJobView(
+  job: ReportJobRecord & { readonly arquivo?: ReportJobFileSummary | null },
+  now: Date = new Date(),
+): ReportJobView {
   const isRetryPending = job.status === "QUEUED" && job.tentativas > 0;
   const hasError =
     (job.status === "FAILED" || isRetryPending) &&
     job.erroCodigo !== null &&
     job.erroMensagem !== null;
+  const isDone = job.status === "DONE";
+  const fileExpired =
+    isDone &&
+    (job.arquivoId === null ||
+      job.arquivo === null ||
+      (job.arquivo !== undefined &&
+        job.arquivo.expiresAt.getTime() <= now.getTime()));
+  const fileAvailable = isDone && !fileExpired;
 
   return {
     id: job.id,
     status: job.status.toLowerCase() as ReportJobViewStatus,
+    request: job.solicitacao,
     attempts: job.tentativas,
     maxAttempts: job.maxTentativas,
     createdAt: job.createdAt.toISOString(),
@@ -133,7 +196,18 @@ export function toReportJobView(job: ReportJobRecord): ReportJobView {
     error: hasError
       ? { code: job.erroCodigo!, message: job.erroMensagem! }
       : null,
-    reportFileId: job.status === "DONE" ? job.arquivoId : null,
+    reportFileId: fileAvailable ? job.arquivoId : null,
+    report:
+      fileAvailable && job.arquivo
+        ? {
+            title: job.arquivo.titulo,
+            type: VIEW_TYPE[job.arquivo.tipo],
+            sizeBytes: job.arquivo.tamanhoBytes,
+            expiresAt: job.arquivo.expiresAt.toISOString(),
+          }
+        : null,
+    expired: fileExpired,
+    downloadUrl: fileAvailable ? `${REPORTS_BASE_PATH}/${job.id}/download` : null,
   };
 }
 

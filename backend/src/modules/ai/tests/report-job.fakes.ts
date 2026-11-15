@@ -11,8 +11,11 @@ import type {
 import type {
   ClaimReportJobInput,
   CreateReportJobInput,
+  ListOwnedReportJobsInput,
   RecoverExpiredSummary,
+  ReportJobDetails,
   ReportJobError,
+  ReportJobFileSummary,
   ReportJobRecord,
   ReportJobRepositoryPort,
   ReportJobScope,
@@ -31,6 +34,8 @@ type MutableJob = { -readonly [K in keyof ReportJobRecord]: ReportJobRecord[K] }
  */
 export class InMemoryReportJobRepository implements ReportJobRepositoryPort {
   readonly jobs = new Map<string, MutableJob>();
+  /** Resumos de ArquivoRelatorioIA por id, simulando o join do Prisma. */
+  readonly files = new Map<string, ReportJobFileSummary>();
   private sequence = 0;
 
   constructor(private readonly companies: Record<string, string> = {}) {}
@@ -78,7 +83,37 @@ export class InMemoryReportJobRepository implements ReportJobRepositoryPort {
     ) {
       return null;
     }
-    return { ...job };
+    return this.details(job);
+  }
+
+  async listOwned(scope: ReportJobScope, input: ListOwnedReportJobsInput) {
+    const owned = [...this.jobs.values()]
+      .filter(
+        (job) =>
+          job.empresaId === scope.empresaId &&
+          job.usuarioId === scope.usuarioId &&
+          (input.status === undefined || job.status === input.status),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return {
+      items: owned
+        .slice(input.skip, input.skip + input.take)
+        .map((job) => this.details(job)),
+      total: owned.length,
+    };
+  }
+
+  /** Força um estado para testar consulta, listagem e download. */
+  setState(id: string, changes: Partial<MutableJob>): void {
+    const job = this.jobs.get(id);
+    if (!job) throw new Error(`Job ${id} inexistente.`);
+    Object.assign(job, changes);
+  }
+
+  private details(job: MutableJob): ReportJobDetails {
+    const arquivo =
+      job.arquivoId === null ? null : (this.files.get(job.arquivoId) ?? null);
+    return { ...job, arquivo };
   }
 
   async claim(id: string, input: ClaimReportJobInput) {

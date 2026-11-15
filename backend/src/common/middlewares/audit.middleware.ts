@@ -27,6 +27,7 @@ function resolverAcao(method: string, path: string): TipoAcaoAuditoria | null {
 
 function resolverEntidade(baseUrl: string, originalUrl: string): string {
   if (originalUrl.startsWith("/api/ai/chat")) return "conversa_ia";
+  if (originalUrl.startsWith("/api/ai/reports")) return "relatorio_ia";
 
   const segmentos = baseUrl.split("/").filter(Boolean);
   return segmentos[segmentos.length - 1] ?? "desconhecida";
@@ -36,6 +37,13 @@ function sanitizarRespostaAuditada(
   originalUrl: string,
   corpo: Record<string, unknown> | undefined,
 ): unknown {
+  if (originalUrl.startsWith("/api/ai/reports")) {
+    // O texto do pedido pode conter informação comercial: só metadados.
+    return {
+      id: corpo?.["id"] ?? null,
+      status: corpo?.["status"] ?? null,
+    };
+  }
   if (!originalUrl.startsWith("/api/ai/chat")) return corpo;
 
   return {
@@ -63,6 +71,7 @@ export function auditMiddleware(
 
   res.on("finish", () => {
     if (res.statusCode < 200 || res.statusCode >= 300) return;
+    if (res.locals["skipAudit"] === true) return;
 
     const baseUrl = req.baseUrl || req.originalUrl;
     if (ROTAS_IGNORADAS.some((rota) => baseUrl.startsWith(rota))) return;

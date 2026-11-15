@@ -3,7 +3,9 @@ import { prisma } from "../../prisma/prisma.client.js";
 import type {
   ClaimReportJobInput,
   CreateReportJobInput,
+  ListOwnedReportJobsInput,
   RecoverExpiredSummary,
+  ReportJobDetails,
   ReportJobError,
   ReportJobRecord,
   ReportJobRepositoryPort,
@@ -33,6 +35,18 @@ const reportJobSelect = {
   arquivoId: true,
   createdAt: true,
   updatedAt: true,
+} satisfies Prisma.JobRelatorioIASelect;
+
+const reportJobDetailsSelect = {
+  ...reportJobSelect,
+  arquivo: {
+    select: {
+      titulo: true,
+      tipo: true,
+      tamanhoBytes: true,
+      expiresAt: true,
+    },
+  },
 } satisfies Prisma.JobRelatorioIASelect;
 
 function isUniqueViolation(error: unknown): boolean {
@@ -85,11 +99,34 @@ export class ReportJobRepository implements ReportJobRepositoryPort {
   async findOwned(
     id: string,
     scope: ReportJobScope,
-  ): Promise<ReportJobRecord | null> {
+  ): Promise<ReportJobDetails | null> {
     return prisma.jobRelatorioIA.findFirst({
       where: { id, empresaId: scope.empresaId, usuarioId: scope.usuarioId },
-      select: reportJobSelect,
+      select: reportJobDetailsSelect,
     });
+  }
+
+  async listOwned(
+    scope: ReportJobScope,
+    input: ListOwnedReportJobsInput,
+  ): Promise<{ items: ReportJobDetails[]; total: number }> {
+    const where = {
+      empresaId: scope.empresaId,
+      usuarioId: scope.usuarioId,
+      ...(input.status === undefined ? {} : { status: input.status }),
+    } satisfies Prisma.JobRelatorioIAWhereInput;
+
+    const [items, total] = await prisma.$transaction([
+      prisma.jobRelatorioIA.findMany({
+        where,
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        skip: input.skip,
+        take: input.take,
+        select: reportJobDetailsSelect,
+      }),
+      prisma.jobRelatorioIA.count({ where }),
+    ]);
+    return { items, total };
   }
 
   async claim(

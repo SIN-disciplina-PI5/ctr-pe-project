@@ -255,6 +255,38 @@ Authorization: Bearer <token>
 | GET | `/api/auditoria` | ADMIN, GESTOR | Lista registros de auditoria |
 | GET | `/api/auditoria/:id` | ADMIN, GESTOR | Busca registro por ID |
 
+### Relatórios de IA (Feat 7 — Task 06)
+
+Todas as rotas exigem autenticação e usuário vinculado a uma empresa. Cada
+usuário só vê e baixa os próprios relatórios, dentro da própria empresa.
+
+| Método | Rota | Descrição |
+|---|---|---|
+| POST | `/api/ai/reports` | Solicita um relatório. Responde **202** com o job `queued` e o cabeçalho `Location` |
+| GET | `/api/ai/reports` | Lista os relatórios do usuário (`status`, `page`, `pageSize`) |
+| GET | `/api/ai/reports/:id` | Consulta o status: `queued`, `running`, `done` ou `failed` |
+| GET | `/api/ai/reports/:id/download` | Baixa o PDF. **409** se ainda não concluído; **404** se expirado ou de outra empresa |
+
+Corpo do `POST` (informe `reportType`, `request` ou ambos):
+
+```json
+{
+  "reportType": "monthly_maintenance",
+  "period": { "start": "2026-10-01", "end": "2026-10-31" },
+  "request": "Destaque as ordens de serviço atrasadas."
+}
+```
+
+- `reportType`: `monthly_maintenance`, `asset_costs` ou `availability`.
+- `period`: opcional, datas `AAAA-MM-DD`, no máximo 366 dias.
+- Cabeçalho opcional `Idempotency-Key` (8 a 128 caracteres): repetir o pedido
+  com a mesma chave devolve o mesmo job, com `Idempotent-Replayed: true`.
+- Limite: 5 solicitações a cada 10 minutos por usuário e empresa.
+- `downloadUrl` só aparece quando o status é `done` e o arquivo está dentro
+  da retenção de 30 dias; depois disso o job fica com `expired: true`.
+- A criação é auditada (`relatorio_ia`) somente com `id` e `status`; o texto
+  do pedido não vai para a auditoria. Downloads são registrados em log.
+
 ### Health check
 
 | Método | Rota | Descrição |
