@@ -1,21 +1,30 @@
-import "dotenv/config";
-import { app } from './app.js';
+import { RedisMemoryServer } from 'redis-memory-server';
 
-const port = Number(process.env.PORT) || 3333;
+async function bootstrap() {
+  const redisServer = new RedisMemoryServer();
+  await redisServer.getHost();
+  const redisPort = await redisServer.getPort();
 
-const server = app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+  process.env.REDIS_HOST = '127.0.0.1';
+  process.env.REDIS_PORT = redisPort.toString();
 
-// MITIGAÇÃO CONTRA SLOWLORIS:
-// 1. Limita o tempo para recebimento completo dos cabeçalhos HTTP (5s)
-server.headersTimeout = 5000;
+  const dotenv = await import("dotenv");
+  dotenv.config();
+  const { app } = await import('./app.js');
 
-// 2. Limita o tempo total de recebimento da requisição (10s)
-server.requestTimeout = 10000;
+  const port = Number(process.env.PORT) || 3333;
 
-// 3. Reduz o tempo de inatividade para reutilização de socket (5s)
-server.keepAliveTimeout = 5000;
+  const server = app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
 
-// 4. Limita o total de conexões simultâneas aceitas por instância
-server.maxConnections = 500;
+  server.headersTimeout = 5000;
+  server.requestTimeout = 10000;
+  server.keepAliveTimeout = 5000;
+  server.maxConnections = 500;
+
+  await import('./modules/ai/queue/reportQueue.js');
+  await import('./modules/ai/queue/reportWorker.js');
+}
+
+bootstrap().catch(console.error);

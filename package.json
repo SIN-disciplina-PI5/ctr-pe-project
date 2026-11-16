@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "redis-memory-server": "^0.17.2"
+  }
+}
