@@ -111,6 +111,12 @@ export function OSDiagnosticoIACard({ ordemServicoId }: Props) {
       </CardHeader>
 
       <CardContent className="gap-3">
+        <Text variant="small" className="text-muted-foreground">
+          Sugestão de apoio baseada no histórico. Valide o diagnóstico, o
+          manual do fabricante e os procedimentos de segurança antes de
+          qualquer intervenção.
+        </Text>
+
         {!diagnostico && !isLoading && !errorMessage ? (
           <Text variant="muted">
             Cruza o sintoma desta OS com o histórico de manutenção do ativo
