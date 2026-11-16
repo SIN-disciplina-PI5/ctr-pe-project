@@ -6,6 +6,7 @@ import { chat } from "./chat.controller.js";
 import { chatDto } from "./dto/chat.dto.js";
 import { generateQueryDto } from "./dto/generate-query.dto.js";
 import { executeQuery, generateQuery } from "./query-generation.controller.js";
+import { requestReport, getReportStatus } from "./report-queue.controller.js";
 
 export const aiRouter = Router();
 
@@ -13,3 +14,5 @@ aiRouter.use(authMiddleware);
 aiRouter.post("/chat", aiChatRateLimiter, validate(chatDto), chat);
 aiRouter.post("/query", validate(generateQueryDto), executeQuery);
 aiRouter.post("/query/generate", validate(generateQueryDto), generateQuery);
+aiRouter.post("/reports/request", requestReport);
+aiRouter.get("/reports/status/:jobId", getReportStatus);
