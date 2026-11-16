@@ -39,6 +39,7 @@ export interface ReportFileRepositoryPort {
   findOwned(id: string, scope: ReportFileScope): Promise<ReportFileRecord | null>;
   findExpired(expiresBefore: Date, limit: number): Promise<ReportFileRecord[]>;
   deleteExpired(id: string, expiresBefore: Date): Promise<boolean>;
+  deleteById(id: string): Promise<boolean>;
 }
 
 export class ReportFileRepository implements ReportFileRepositoryPort {
@@ -78,6 +79,13 @@ export class ReportFileRepository implements ReportFileRepositoryPort {
   async deleteExpired(id: string, expiresBefore: Date): Promise<boolean> {
     const result = await prisma.arquivoRelatorioIA.deleteMany({
       where: { id, expiresAt: { lte: expiresBefore } },
+    });
+    return result.count === 1;
+  }
+
+  async deleteById(id: string): Promise<boolean> {
+    const result = await prisma.arquivoRelatorioIA.deleteMany({
+      where: { id },
     });
     return result.count === 1;
   }

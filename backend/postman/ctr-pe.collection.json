@@ -2269,6 +2269,95 @@
               }
             }
           ]
+        },
+        {
+          "name": "POST /api/ai/reports",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ai/reports"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/ai/reports",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/ai/reports"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/ai/reports/{{missing_id}}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/ai/reports/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/ai/reports/{{missing_id}}/download",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/ai/reports/{{missing_id}}/download"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.expect([401]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -2866,6 +2955,114 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status 400', () => pm.expect([400]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Relatório valida payload antes de enfileirar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_consulta_a}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/ai/reports"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.expect([400]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar relatórios do próprio usuário",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_consulta_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/ai/reports"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.expect([200]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Status de relatório inexistente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_consulta_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/ai/reports/{{missing_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', () => pm.expect([404]).to.include(pm.response.code));",
+                  "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Download de relatório inexistente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_consulta_a}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/ai/reports/{{missing_id}}/download"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', () => pm.expect([404]).to.include(pm.response.code));",
                   "pm.test('não expõe stack trace', () => pm.expect(pm.response.text().toLowerCase()).not.to.include('at process.'));"
                 ]
               }

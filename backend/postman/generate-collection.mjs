@@ -80,6 +80,10 @@ export const protectedRoutes = [
   ["POST", "/api/ai/chat"],
   ["POST", "/api/ai/query"],
   ["POST", "/api/ai/query/generate"],
+  ["POST", "/api/ai/reports"],
+  ["GET", "/api/ai/reports"],
+  ["GET", "/api/ai/reports/{{missing_id}}"],
+  ["GET", "/api/ai/reports/{{missing_id}}/download"],
 ];
 
 const jsonHeader = { key: "Content-Type", value: "application/json" };
@@ -483,6 +487,35 @@ const collection = {
           token: "token_consulta_a",
           body: { question: "" },
           expected: 400,
+        }),
+        request({
+          name: "Relatório valida payload antes de enfileirar",
+          method: "POST",
+          path: "/api/ai/reports",
+          token: "token_consulta_a",
+          body: {},
+          expected: 400,
+        }),
+        request({
+          name: "Listar relatórios do próprio usuário",
+          method: "GET",
+          path: "/api/ai/reports",
+          token: "token_consulta_a",
+          expected: 200,
+        }),
+        request({
+          name: "Status de relatório inexistente",
+          method: "GET",
+          path: "/api/ai/reports/{{missing_id}}",
+          token: "token_consulta_a",
+          expected: 404,
+        }),
+        request({
+          name: "Download de relatório inexistente",
+          method: "GET",
+          path: "/api/ai/reports/{{missing_id}}/download",
+          token: "token_consulta_a",
+          expected: 404,
         }),
       ],
     },
