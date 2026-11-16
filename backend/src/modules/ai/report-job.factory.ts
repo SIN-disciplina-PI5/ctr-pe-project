@@ -12,6 +12,8 @@ import {
   type ReportJobDispatcher,
 } from "./report-job.dispatcher.js";
 import { ReportJobProcessor } from "./report-job.processor.js";
+import { loadQStashPublishConfig } from "./report-job.qstash-config.js";
+import { QStashReportJobDispatcher } from "./report-job.qstash-dispatcher.js";
 import { ReportJobRepository } from "./report-job.repository.js";
 import { ReportJobService } from "./report-job.service.js";
 import { TriggerDevReportJobDispatcher } from "./report-job.trigger-dispatcher.js";
@@ -32,17 +34,19 @@ function optionalPositiveInteger(
 }
 
 /**
- * Ponto único de troca do gatilho. REPORT_JOB_DISPATCHER=trigger liga o
- * Trigger.dev (exige TRIGGER_SECRET_KEY no backend); sem a variável, os jobs
- * ficam QUEUED até alguém rodar `npm run reports:jobs:run`.
+ * Ponto único de troca do gatilho. REPORT_JOB_DISPATCHER seleciona QStash,
+ * Trigger.dev ou o processamento manual.
  */
 export function createReportJobDispatcher(
   environment: NodeJS.ProcessEnv = process.env,
 ): ReportJobDispatcher {
   const mode = environment["REPORT_JOB_DISPATCHER"]?.trim() || "manual";
+  if (mode === "qstash") {
+    return new QStashReportJobDispatcher(loadQStashPublishConfig(environment));
+  }
   if (mode === "trigger") return new TriggerDevReportJobDispatcher();
   if (mode === "manual") return new ManualReportJobDispatcher();
-  throw new Error("REPORT_JOB_DISPATCHER deve ser 'manual' ou 'trigger'.");
+  throw new Error("REPORT_JOB_DISPATCHER deve ser 'manual', 'qstash' ou 'trigger'.");
 }
 
 export function createReportJobService(

@@ -21,6 +21,7 @@ import { dashboardRoutes } from "./modules/dashboard/dashboard.routes.js";
 import { auditoriaRouter } from "./modules/auditoria/auditoria.routes.js";
 import { localizacoesRouter } from "./modules/localizacoes/localizacoes.routes.js";
 import { aiRouter } from "./modules/ai/ai.routes.js";
+import { qstashReportJobsRouter } from "./modules/ai/report-job.qstash-routes.js";
 import { planosManutencaoRouter } from "./modules/planos-manutencao/planos-manutencao.routes.js";
 
 const require = createRequire(import.meta.url);
@@ -34,6 +35,11 @@ app.use(helmet());
 app.use(cors());
 app.use(morgan("dev"));
 app.use(requestContextMiddleware);
+app.use(
+  "/api/internal/qstash",
+  express.raw({ type: "application/json", limit: "16kb" }),
+  qstashReportJobsRouter,
+);
 app.use(express.json());
 app.use(auditMiddleware);
 
