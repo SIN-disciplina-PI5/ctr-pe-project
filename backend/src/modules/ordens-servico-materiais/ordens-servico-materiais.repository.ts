@@ -49,6 +49,13 @@
         });
     }
 
+    async findByIdForEmpresa(id: string, empresaId: string) {
+        return prisma.ordemServicoMaterial.findFirst({
+        where: { id, ordemServico: { empresaId } },
+        select: osMaterialSelect,
+        });
+    }
+
     async findMaterialById(materialId: string) {
         return prisma.material.findUnique({
         where: { id: materialId },

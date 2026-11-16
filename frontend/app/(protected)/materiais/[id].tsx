@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 
 import { PermissionGate } from "@/components/domain/permission-gate";
+import { MaterialPrevisaoRupturaCard } from "@/features/materiais/material-previsao-ruptura-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -10,6 +11,17 @@ import {
   useMaterial,
   useUpdateMaterialEstoque,
 } from "@/features/materiais/materiais.hooks";
+import { notify } from "@/store/toast-store";
+
+function estoqueErrorMessage(error: unknown): string {
+  const message = (
+    error as { response?: { data?: { error?: unknown } } }
+  )?.response?.data?.error;
+
+  return typeof message === "string" && message.trim()
+    ? message
+    : "Não foi possível atualizar o estoque.";
+}
 
 export default function MaterialDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -20,33 +32,42 @@ export default function MaterialDetailScreen() {
   const [novoEstoque, setNovoEstoque] = useState("");
 
   async function handleEntrada() {
-    await updateEstoque.mutateAsync({
-      operacao: "ENTRADA",
-      quantidade: Number(quantidade),
-      motivo: "Entrada manual pelo app",
-    });
-
-    setQuantidade("");
+    try {
+      await updateEstoque.mutateAsync({
+        operacao: "ENTRADA",
+        quantidade: Number(quantidade),
+        motivo: "Entrada manual pelo app",
+      });
+      setQuantidade("");
+    } catch (error) {
+      notify.error("Erro ao atualizar estoque", estoqueErrorMessage(error));
+    }
   }
 
   async function handleSaida() {
-    await updateEstoque.mutateAsync({
-      operacao: "SAIDA",
-      quantidade: Number(quantidade),
-      motivo: "Saída manual pelo app",
-    });
-
-    setQuantidade("");
+    try {
+      await updateEstoque.mutateAsync({
+        operacao: "SAIDA",
+        quantidade: Number(quantidade),
+        motivo: "Saída manual pelo app",
+      });
+      setQuantidade("");
+    } catch (error) {
+      notify.error("Erro ao atualizar estoque", estoqueErrorMessage(error));
+    }
   }
 
   async function handleAjuste() {
-    await updateEstoque.mutateAsync({
-      operacao: "AJUSTE",
-      novoEstoque: Number(novoEstoque),
-      motivo: "Ajuste manual pelo app",
-    });
-
-    setNovoEstoque("");
+    try {
+      await updateEstoque.mutateAsync({
+        operacao: "AJUSTE",
+        novoEstoque: Number(novoEstoque),
+        motivo: "Ajuste manual pelo app",
+      });
+      setNovoEstoque("");
+    } catch (error) {
+      notify.error("Erro ao atualizar estoque", estoqueErrorMessage(error));
+    }
   }
 
   if (isLoading) {
@@ -97,6 +118,8 @@ export default function MaterialDetailScreen() {
         <Text>Custo médio: R$ {material.custoMedio}</Text>
         <Text>Descrição: {material.descricao ?? "-"}</Text>
       </View>
+
+      <MaterialPrevisaoRupturaCard materialId={material.id} />
 
       <PermissionGate permission="materialsManage">
         <View className="mt-6 gap-4 rounded-xl border border-border bg-card p-4">

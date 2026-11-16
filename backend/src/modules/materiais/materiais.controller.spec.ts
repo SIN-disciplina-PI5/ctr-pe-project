@@ -5,10 +5,14 @@ import {
   create,
   findAll,
   findById,
+  getPrevisaoRupturaEmpresa,
+  getPrevisaoRupturaMaterial,
   remove,
   update,
   updateEstoque,
+  verificarPrevisaoRupturaEmpresa,
 } from "./materiais.controller.js";
+import { EstoqueForecastService } from "./estoque-forecast.service.js";
 import { MateriaisService } from "./materiais.service.js";
 
 const authenticatedUser = { id: "user-1", empresaId: "empresa-1" };
@@ -70,6 +74,61 @@ describe("materiais.controller", () => {
       "1",
       "empresa-1",
     );
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("should calcular previsão da empresa com parâmetros convertidos", async () => {
+    jest
+      .spyOn(EstoqueForecastService.prototype, "calcularPrevisaoEmpresa")
+      .mockResolvedValue({ itens: [] } as never);
+    const req = {
+      user: authenticatedUser,
+      query: { janelaDias: "30", horizonteAlertaDias: "10" },
+    } as unknown as Request;
+
+    await getPrevisaoRupturaEmpresa(req, res, next);
+
+    expect(
+      EstoqueForecastService.prototype.calcularPrevisaoEmpresa,
+    ).toHaveBeenCalledWith("empresa-1", {
+      janelaDias: 30,
+      horizonteAlertaDias: 10,
+    });
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("should calcular previsão de material somente na empresa autenticada", async () => {
+    jest
+      .spyOn(EstoqueForecastService.prototype, "calcularPrevisaoMaterial")
+      .mockResolvedValue({ materialId: "mat-1" } as never);
+    const req = {
+      user: authenticatedUser,
+      params: { id: "mat-1" },
+      query: {},
+    } as unknown as Request;
+
+    await getPrevisaoRupturaMaterial(req, res, next);
+
+    expect(
+      EstoqueForecastService.prototype.calcularPrevisaoMaterial,
+    ).toHaveBeenCalledWith("empresa-1", "mat-1", {});
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("should verificar alertas de ruptura somente na empresa autenticada", async () => {
+    jest
+      .spyOn(EstoqueForecastService.prototype, "processarAlertasRupturaEmpresa")
+      .mockResolvedValue({ alertasDisparados: 1 } as never);
+    const req = {
+      user: authenticatedUser,
+      query: {},
+    } as unknown as Request;
+
+    await verificarPrevisaoRupturaEmpresa(req, res, next);
+
+    expect(
+      EstoqueForecastService.prototype.processarAlertasRupturaEmpresa,
+    ).toHaveBeenCalledWith("empresa-1", {});
     expect(res.status).toHaveBeenCalledWith(200);
   });
 

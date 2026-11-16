@@ -100,12 +100,17 @@ describe("ordens-servico-materiais.controller", () => {
 
     const req = {
       params: { id: "1" },
+      user: { id: "user-1", empresaId: "empresa-1" },
       body: { quantidade: 2 },
     } as unknown as Request;
 
     await consumir(req, res, next);
 
-    expect(OrdensServicoMateriaisService.prototype.consumir).toHaveBeenCalledWith("1", 2);
+    expect(OrdensServicoMateriaisService.prototype.consumir).toHaveBeenCalledWith(
+      "1",
+      "empresa-1",
+      2,
+    );
     expect(res.status).toHaveBeenCalledWith(200);
   });
 

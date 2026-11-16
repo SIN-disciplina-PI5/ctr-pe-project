@@ -44,3 +44,23 @@ export type UpdateEstoqueMaterialInput = {
   novoEstoque?: number;
   motivo?: string;
 };
+
+export type NivelRiscoRuptura =
+  | "RUPTURA_IMINENTE"
+  | "ATENCAO_RUPTURA"
+  | "ABAIXO_MINIMO"
+  | "SAUDAVEL"
+  | "SEM_CONSUMO_RECENTE";
+
+export type PrevisaoRupturaMaterial = {
+  materialId: string;
+  unidade: string;
+  estoqueAtual: number;
+  estoqueMinimo: number;
+  consumoMedioMensal: number;
+  consumoMedioDiario: number;
+  diasParaRuptura: number | null;
+  dataRupturaPrevista: string | null;
+  risco: NivelRiscoRuptura;
+  sugestaoReposicao: number;
+};

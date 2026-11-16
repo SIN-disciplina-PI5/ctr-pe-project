@@ -4,6 +4,7 @@ import {
   createMaterial,
   deleteMaterial,
   getMaterialById,
+  getPrevisaoRupturaMaterial,
   listMateriais,
   updateMaterial,
   updateMaterialEstoque,
@@ -28,6 +29,14 @@ export function useMaterial(id: string) {
   return useQuery({
     queryKey: [...MATERIAIS_QUERY_KEY, id],
     queryFn: () => getMaterialById(id),
+    enabled: Boolean(id),
+  });
+}
+
+export function usePrevisaoRupturaMaterial(id: string) {
+  return useQuery({
+    queryKey: [...MATERIAIS_QUERY_KEY, "previsao-ruptura", id],
+    queryFn: () => getPrevisaoRupturaMaterial(id),
     enabled: Boolean(id),
   });
 }

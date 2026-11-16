@@ -1,8 +1,21 @@
 import type { Request, Response, NextFunction } from "express";
+import { EstoqueForecastService } from "./estoque-forecast.service.js";
 import { MateriaisService } from "./materiais.service.js";
 import { getCurrentCompanyUser } from "../../common/utils/get-current-user.js";
 
 const materiaisService = new MateriaisService();
+const estoqueForecastService = new EstoqueForecastService();
+
+function getForecastOptions(req: Request) {
+  return {
+    ...(req.query.janelaDias !== undefined && {
+      janelaDias: Number(req.query.janelaDias),
+    }),
+    ...(req.query.horizonteAlertaDias !== undefined && {
+      horizonteAlertaDias: Number(req.query.horizonteAlertaDias),
+    }),
+  };
+}
 
 export async function findAll(req: Request, res: Response, next: NextFunction) {
   try {
@@ -85,6 +98,51 @@ export async function remove(req: Request, res: Response, next: NextFunction) {
 
     await materiaisService.delete(id, currentUser.empresaId);
     return res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getPrevisaoRupturaEmpresa(req: Request, res: Response, next: NextFunction) {
+  try {
+    const currentUser = getCurrentCompanyUser(req);
+    const result = await estoqueForecastService.calcularPrevisaoEmpresa(
+      currentUser.empresaId,
+      getForecastOptions(req),
+    );
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getPrevisaoRupturaMaterial(req: Request, res: Response, next: NextFunction) {
+  try {
+    const currentUser = getCurrentCompanyUser(req);
+    const { id } = req.params as { id: string };
+    const result = await estoqueForecastService.calcularPrevisaoMaterial(
+      currentUser.empresaId,
+      id,
+      getForecastOptions(req),
+    );
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function verificarPrevisaoRupturaEmpresa(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const currentUser = getCurrentCompanyUser(req);
+    const result = await estoqueForecastService.processarAlertasRupturaEmpresa(
+      currentUser.empresaId,
+      getForecastOptions(req),
+    );
+    return res.status(200).json(result);
   } catch (error) {
     next(error);
   }

@@ -3,6 +3,7 @@ import { AppError } from "../../common/errors/AppError.js";
 import { ErrorCode } from "../../common/errors/error-code.js";
 import { Prisma } from "@prisma/client";
 import { OrdensServicoRepository } from "../ordens-servico/ordens-servico.repository.js";
+import { EstoqueForecastService } from "../materiais/estoque-forecast.service.js";
 
 interface CreateOSMaterialInput {
   materialId: string;
@@ -18,6 +19,7 @@ interface UpdateOSMaterialInput {
 export class OrdensServicoMateriaisService {
   private repository = new OrdensServicoMateriaisRepository();
   private ordensServicoRepository = new OrdensServicoRepository();
+  private estoqueForecastService = new EstoqueForecastService();
 
   async findByOrdemServico(ordemServicoId: string) {
     return this.repository.findByOrdemServico(ordemServicoId);
@@ -88,8 +90,16 @@ export class OrdensServicoMateriaisService {
     return this.repository.update(id, data);
   }
 
-  async consumir(id: string, quantidade?: number) {
-    const item = await this.findById(id);
+  async consumir(id: string, empresaId: string, quantidade?: number) {
+    const item = await this.repository.findByIdForEmpresa(id, empresaId);
+
+    if (!item) {
+      throw new AppError({
+        message: "Material da O.S. não encontrado",
+        statusCode: 404,
+        errorCode: ErrorCode.NOT_FOUND,
+      });
+    }
 
     if (item.status !== "SOLICITADO") throw new AppError({ message: "Apenas itens com status SOLICITADO podem ser consumidos", statusCode: 400, errorCode: ErrorCode.VALIDATION_ERROR });
 
@@ -101,7 +111,22 @@ export class OrdensServicoMateriaisService {
 
     if (new Prisma.Decimal(material.estoqueAtual).lessThan(qtd)) throw new AppError({ message: "Estoque insuficiente", statusCode: 400, errorCode: ErrorCode.VALIDATION_ERROR });
 
-    return this.repository.consumir(id, qtd);
+    const itemConsumido = await this.repository.consumir(id, qtd);
+
+    try {
+      await this.estoqueForecastService.avaliarEDispararAlertaProativo(
+        empresaId,
+        item.materialId,
+      );
+    } catch (error) {
+      console.error("Falha ao avaliar previsão de ruptura após consumo de material.", {
+        empresaId,
+        materialId: item.materialId,
+        error: error instanceof Error ? error.message : "Erro desconhecido",
+      });
+    }
+
+    return itemConsumido;
   }
 
   async devolver(id: string, quantidade?: number) {

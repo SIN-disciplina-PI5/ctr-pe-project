@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { AppError } from "../../common/errors/AppError.js";
 import { ErrorCode } from "../../common/errors/error-code.js";
 import { AlertasRepository } from "../alertas/alertas.repository.js";
+import { EstoqueForecastService } from "./estoque-forecast.service.js";
 import { MateriaisRepository } from "./materiais.repository.js";
 
 interface CreateMaterialInput {
@@ -43,6 +44,7 @@ interface UpdateEstoqueInput {
 export class MateriaisService {
   private materiaisRepository = new MateriaisRepository();
   private alertasRepository = new AlertasRepository();
+  private estoqueForecastService = new EstoqueForecastService();
 
   async findAll(filters: FindAllFilters) {
     return this.materiaisRepository.findAll(filters);
@@ -199,6 +201,12 @@ export class MateriaisService {
         estoqueAtual: estoqueAtualizado.toString(),
         estoqueMinimo: estoqueMinimo.toString(),
       });
+    }
+
+    if (input.operacao !== "ENTRADA") {
+      await this.estoqueForecastService
+        .avaliarEDispararAlertaProativo(empresaId, material.id)
+        .catch(() => null);
     }
 
     return materialAtualizado;

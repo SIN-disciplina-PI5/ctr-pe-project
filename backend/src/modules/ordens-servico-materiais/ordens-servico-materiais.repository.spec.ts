@@ -61,6 +61,23 @@ describe("OrdensServicoMateriaisRepository cost totals", () => {
     expect(Number(update?.data.custoTotal)).toBe(350);
   });
 
+  it("busca o item de material dentro da empresa informada", async () => {
+    const findFirstSpy = jest
+      .spyOn(prisma.ordemServicoMaterial, "findFirst")
+      .mockResolvedValue(null);
+
+    await repository.findByIdForEmpresa("item_000001", "empresa_000001");
+
+    expect(findFirstSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          id: "item_000001",
+          ordemServico: { empresaId: "empresa_000001" },
+        },
+      }),
+    );
+  });
+
   it("mantém somente a mão de obra no total após devolver todos os materiais", async () => {
     const tx = createTransactionMock();
     tx.ordemServicoMaterial.findUniqueOrThrow.mockResolvedValue({

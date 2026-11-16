@@ -4,6 +4,7 @@ import type {
   CreateMaterialInput,
   ListMateriaisParams,
   Material,
+  PrevisaoRupturaMaterial,
   UpdateEstoqueMaterialInput,
   UpdateMaterialInput,
 } from "./materiais.types";
@@ -31,6 +32,15 @@ export async function listMateriais(params?: ListMateriaisParams): Promise<Mater
 
 export async function getMaterialById(id: string): Promise<Material> {
   const { data } = await apiClient.get<Material>(`${BASE_URL}/${id}`);
+  return data;
+}
+
+export async function getPrevisaoRupturaMaterial(
+  id: string,
+): Promise<PrevisaoRupturaMaterial> {
+  const { data } = await apiClient.get<PrevisaoRupturaMaterial>(
+    `${BASE_URL}/${id}/previsao-ruptura`,
+  );
   return data;
 }
 

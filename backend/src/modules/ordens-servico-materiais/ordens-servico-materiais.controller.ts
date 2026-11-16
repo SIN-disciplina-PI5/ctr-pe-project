@@ -51,9 +51,10 @@ export async function update(req: Request, res: Response, next: NextFunction) {
 
 export async function consumir(req: Request, res: Response, next: NextFunction) {
   try {
+    const currentUser = getCurrentCompanyUser(req);
     const { id } = req.params as { id: string };
     const { quantidade } = req.body as { quantidade?: number };
-    const result = await service.consumir(id, quantidade);
+    const result = await service.consumir(id, currentUser.empresaId, quantidade);
     return res.status(200).json(result);
   } catch (error) {
     next(error);
