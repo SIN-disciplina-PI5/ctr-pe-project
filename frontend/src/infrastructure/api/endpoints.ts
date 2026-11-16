@@ -1,6 +1,8 @@
 export const endpoints = {
   ai: {
     chat: "/ai/chat",
+    requestReport: "/ai/reports/request",
+    reportStatus: (jobId: string) => `/ai/reports/status/${jobId}`,
   },
   ordensServico: {
     list: "/ordens-servico",

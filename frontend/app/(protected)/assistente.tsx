@@ -5,14 +5,16 @@ import {
   ScrollView,
   TextInput,
   View,
+  Alert,
 } from "react-native";
-import { Bot, ChevronDown, ChevronUp, Plus, Send } from "lucide-react-native";
+import { Bot, ChevronDown, ChevronUp, Plus, Send, FileText } from "lucide-react-native";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useSendChatMessage } from "@/features/assistente/assistente.hooks";
+import { requestReport } from "@/features/assistente/assistente.service";
 import type {
   ChatViewMessage,
   GeneratedReport,
@@ -235,6 +237,8 @@ export default function AssistenteScreen() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatViewMessage[]>([]);
   const [error, setError] = useState<string>();
+  
+  const [isRequestingReport, setIsRequestingReport] = useState(false);
 
   function newConversation() {
     setConversationId(undefined);
@@ -247,6 +251,33 @@ export default function AssistenteScreen() {
   useEffect(() => {
     newConversation();
   }, [empresaId]);
+
+  // Função com os espiões ativados!
+  async function handleRequestReport() {
+    if (!empresaId) return;
+    
+    setIsRequestingReport(true);
+    try {
+      console.log("1. A preparar pedido de relatório...");
+      console.log("2. A empresa selecionada é:", empresaId);
+      
+      const response = await requestReport({ 
+        userId: empresaId, 
+        filters: { empresaId } 
+      });
+      
+      console.log("3. Sucesso! Resposta do backend:", response);
+      Alert.alert(
+        "Relatório Solicitado",
+        `O teu relatório está a ser processado (Job ID: ${response.jobId}). Podes verificar o status mais tarde.`
+      );
+    } catch (reqError) {
+      console.error("🔥 ERRO AO PEDIR RELATÓRIO:", reqError);
+      Alert.alert("Erro", "Não foi possível solicitar o relatório.");
+    } finally {
+      setIsRequestingReport(false);
+    }
+  }
 
   async function sendMessage() {
     const message = input.trim();
@@ -296,10 +327,27 @@ export default function AssistenteScreen() {
               Consulte os dados de manutenção da empresa selecionada.
             </Text>
           </View>
-          <Button variant="outline" onPress={newConversation}>
-            <Icon as={Plus} size={16} className="text-foreground" />
-            <Text>Nova conversa</Text>
-          </Button>
+          
+          <View className="flex-row gap-2">
+            <Button 
+              variant="outline" 
+              onPress={handleRequestReport}
+              disabled={isRequestingReport || !empresaId}
+            >
+              {isRequestingReport ? (
+                <ActivityIndicator size="small" color="#6b7280" />
+              ) : (
+                <Icon as={FileText} size={16} className="text-foreground" />
+              )}
+              <Text className="ml-2">Gerar Relatório</Text>
+            </Button>
+
+            <Button variant="outline" onPress={newConversation}>
+              <Icon as={Plus} size={16} className="text-foreground" />
+              <Text className="ml-2">Nova conversa</Text>
+            </Button>
+          </View>
+
         </View>
 
         <Card className="min-h-0 flex-1 py-0">
