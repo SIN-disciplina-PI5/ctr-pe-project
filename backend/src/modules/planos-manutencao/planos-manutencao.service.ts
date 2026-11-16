@@ -128,6 +128,16 @@ export class PlanosManutencaoService {
       });
     }
 
+    if (input.responsavelId) {
+      await this.ensureResponsavelDaEmpresa(empresaId, input.responsavelId);
+    }
+    if (input.materiais && input.materiais.length > 0) {
+      await this.ensureMateriaisDaEmpresa(
+        empresaId,
+        input.materiais.map((item) => item.materialId),
+      );
+    }
+
     const now = new Date();
     const proximaExecucaoEm = input.proximaExecucaoEm
       ? new Date(input.proximaExecucaoEm)
@@ -169,6 +179,10 @@ export class PlanosManutencaoService {
     input: UpdatePlanoManutencaoDto,
   ) {
     await this.findById(id, empresaId);
+
+    if (typeof input.responsavelId === "string") {
+      await this.ensureResponsavelDaEmpresa(empresaId, input.responsavelId);
+    }
 
     return this.db.planoManutencao.update({
       where: { id },
@@ -226,6 +240,27 @@ export class PlanosManutencaoService {
     }
 
     const ordemServico = await this.db.$transaction(async (tx) => {
+      const claimed = await tx.planoManutencao.updateMany({
+        where: {
+          id: plano.id,
+          empresaId,
+          ativo: true,
+          proximaExecucaoEm: plano.proximaExecucaoEm,
+        },
+        data: {
+          ultimaExecucaoEm: referenceDate,
+          proximaExecucaoEm: addDays(referenceDate, plano.periodicidadeDias),
+        },
+      });
+
+      if (claimed.count !== 1) {
+        throw new AppError({
+          message: "Plano já processado por outra execução ou está inativo.",
+          statusCode: 409,
+          errorCode: ErrorCode.CONFLICT,
+        });
+      }
+
       const createdOS = await tx.ordemServico.create({
         data: {
           empresaId,
@@ -260,14 +295,6 @@ export class PlanosManutencaoService {
                 },
               }
             : {}),
-        },
-      });
-
-      await tx.planoManutencao.update({
-        where: { id: plano.id },
-        data: {
-          ultimaExecucaoEm: referenceDate,
-          proximaExecucaoEm: addDays(referenceDate, plano.periodicidadeDias),
         },
       });
 
@@ -357,6 +384,51 @@ export class PlanosManutencaoService {
       osGeradas,
       alertasCriados,
     };
+  }
+
+  private async ensureResponsavelDaEmpresa(
+    empresaId: string,
+    responsavelId: string,
+  ): Promise<void> {
+    const responsavel = await this.db.usuario.findFirst({
+      where: { id: responsavelId, empresaId, ativo: true },
+      select: { id: true },
+    });
+
+    if (!responsavel) {
+      throw new AppError({
+        message: "Responsável não encontrado ou inativo.",
+        statusCode: 404,
+        errorCode: ErrorCode.NOT_FOUND,
+      });
+    }
+  }
+
+  private async ensureMateriaisDaEmpresa(
+    empresaId: string,
+    materialIds: readonly string[],
+  ): Promise<void> {
+    const uniqueIds = [...new Set(materialIds)];
+    if (uniqueIds.length !== materialIds.length) {
+      throw new AppError({
+        message: "Não repita materiais no mesmo plano.",
+        statusCode: 400,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      });
+    }
+
+    const materiais = await this.db.material.findMany({
+      where: { id: { in: uniqueIds }, empresaId, ativo: true },
+      select: { id: true },
+    });
+
+    if (materiais.length !== uniqueIds.length) {
+      throw new AppError({
+        message: "Um ou mais materiais não foram encontrados ou estão inativos.",
+        statusCode: 404,
+        errorCode: ErrorCode.NOT_FOUND,
+      });
+    }
   }
 
   private async generateNextOSNumero(empresaId: string): Promise<string> {

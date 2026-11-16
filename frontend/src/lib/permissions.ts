@@ -27,6 +27,8 @@ export type AppPermission =
   | "materialsManage"
   | "workOrdersCreate"
   | "workOrdersManage"
+  | "preventivePlansManage"
+  | "preventivePlansGenerate"
   | "stopsManage"
   | "alertsManage";
 
@@ -53,6 +55,8 @@ export const APP_PERMISSIONS: Record<
   materialsManage: ["ADMIN", "SUPERVISOR"],
   workOrdersCreate: ["ADMIN", "SUPERVISOR"],
   workOrdersManage: ["ADMIN", "SUPERVISOR"],
+  preventivePlansManage: ["ADMIN", "GESTOR", "SUPERVISOR"],
+  preventivePlansGenerate: ["ADMIN", "GESTOR", "SUPERVISOR", "TECNICO"],
   stopsManage: ["ADMIN", "SUPERVISOR"],
   alertsManage: ["ADMIN", "GESTOR", "SUPERVISOR"],
 };

@@ -134,7 +134,7 @@ export function AtivoPlanosPreventivosCard({ ativoId }: Props) {
     <Card className="mt-6">
       <CardHeader className="flex-row items-center justify-between gap-2">
         <CardTitle>Planos Preventivos</CardTitle>
-        <PermissionGate permission="assetsManage">
+        <PermissionGate permission="preventivePlansManage">
           <Button
             size="sm"
             variant={showForm ? "outline" : "default"}
@@ -214,20 +214,22 @@ export function AtivoPlanosPreventivosCard({ ativoId }: Props) {
                       : ""}
                   </Text>
 
-                  <View className="flex-row justify-end pt-1">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={generatingId === plano.id}
-                      onPress={() => handleGerarOS(plano)}
-                    >
-                      <Text>
-                        {generatingId === plano.id
-                          ? "Gerando O.S..."
-                          : "Gerar O.S. agora"}
-                      </Text>
-                    </Button>
-                  </View>
+                  <PermissionGate permission="preventivePlansGenerate">
+                    <View className="flex-row justify-end pt-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={generatingId === plano.id}
+                        onPress={() => handleGerarOS(plano)}
+                      >
+                        <Text>
+                          {generatingId === plano.id
+                            ? "Gerando O.S..."
+                            : "Gerar O.S. agora"}
+                        </Text>
+                      </Button>
+                    </View>
+                  </PermissionGate>
                 </View>
               );
             })}

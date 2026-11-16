@@ -11,7 +11,7 @@ describe("PlanosManutencaoService", () => {
       titulo: "[Preventiva] Lubrificação e inspeção trimestral",
       tipo: "PREVENTIVA",
     }));
-    const planoUpdateMock = jest.fn(async () => ({}));
+    const planoUpdateManyMock = jest.fn(async () => ({ count: 1 }));
     const alertaCreateMock = jest.fn(async () => ({}));
 
     const mockDb = {
@@ -66,7 +66,7 @@ describe("PlanosManutencaoService", () => {
         async (callback: (tx: unknown) => Promise<unknown>) =>
           callback({
             ordemServico: { create: osCreateMock },
-            planoManutencao: { update: planoUpdateMock },
+            planoManutencao: { updateMany: planoUpdateManyMock },
             alerta: { create: alertaCreateMock },
           }),
       ),
@@ -86,8 +86,13 @@ describe("PlanosManutencaoService", () => {
       "OLE-320 (Óleo ISO VG 320)",
     ]);
     expect(osCreateMock).toHaveBeenCalledTimes(1);
-    expect(planoUpdateMock).toHaveBeenCalledWith({
-      where: { id: "plano-1" },
+    expect(planoUpdateManyMock).toHaveBeenCalledWith({
+      where: {
+        id: "plano-1",
+        empresaId: "emp-1",
+        ativo: true,
+        proximaExecucaoEm: referenceDate,
+      },
       data: {
         ultimaExecucaoEm: referenceDate,
         proximaExecucaoEm: new Date("2027-02-13T10:00:00.000Z"),
