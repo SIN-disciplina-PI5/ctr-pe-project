@@ -300,6 +300,31 @@ function sectionFailureNarrative(error: unknown): string {
   return "Não foi possível processar os dados desta seção.";
 }
 
+const REPORT_SECTION_CONCURRENCY = 2;
+
+async function mapWithConcurrency<T, TResult>(
+  items: readonly T[],
+  concurrency: number,
+  mapper: (item: T) => Promise<TResult>,
+): Promise<TResult[]> {
+  const entries = items.map((item, index) => ({ item, index }));
+  const results = new Array<TResult>(items.length);
+  let nextEntry = 0;
+
+  async function worker(): Promise<void> {
+    while (true) {
+      const entry = entries[nextEntry];
+      nextEntry += 1;
+      if (!entry) return;
+      results[entry.index] = await mapper(entry.item);
+    }
+  }
+
+  const workerCount = Math.min(concurrency, entries.length);
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+  return results;
+}
+
 export class ReportAgentService implements ReportAgent {
   constructor(
     private readonly provider: LlmProvider,
@@ -311,10 +336,10 @@ export class ReportAgentService implements ReportAgent {
     const generation = await this.planReport(input.request);
     const plan = reportPlanSchema.parse(generation.data);
 
-    const sections = await Promise.all(
-      plan.sections.map((section) =>
-        this.buildSection(section, input.empresaId),
-      ),
+    const sections = await mapWithConcurrency(
+      plan.sections,
+      REPORT_SECTION_CONCURRENCY,
+      (section) => this.buildSection(section, input.empresaId),
     );
 
     const totalLatencyMs = Math.max(
