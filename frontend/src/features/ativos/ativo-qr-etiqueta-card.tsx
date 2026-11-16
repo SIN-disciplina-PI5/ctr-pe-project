@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { Alert, Platform, View } from "react-native";
 
+import { PermissionGate } from "@/components/domain/permission-gate";
 import { QrCodeSvg } from "@/components/domain/qr-code-svg";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -86,9 +87,11 @@ export function AtivoQrEtiquetaCard({
           <Button variant="outline" onPress={handleCopyPayload}>
             <Text>Copiar código QR</Text>
           </Button>
-          <Button onPress={handleOpenServiceRequest}>
-            <Text>Abrir chamado neste ativo</Text>
-          </Button>
+          <PermissionGate permission="workOrdersCreate">
+            <Button onPress={handleOpenServiceRequest}>
+              <Text>Abrir chamado neste ativo</Text>
+            </Button>
+          </PermissionGate>
         </View>
       </CardContent>
     </Card>

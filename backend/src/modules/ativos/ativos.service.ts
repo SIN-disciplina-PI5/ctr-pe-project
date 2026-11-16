@@ -56,7 +56,14 @@ export class AtivosService {
   }
 
   static extractCodigoFromQrPayload(rawPayload: string): string {
-    const trimmed = decodeURIComponent(rawPayload).trim();
+    const trimmed = rawPayload.trim();
+    if (!trimmed || trimmed.length > 300) {
+      throw new AppError({
+        message: "Payload do QR Code inválido",
+        statusCode: 400,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      });
+    }
     const prefixMatch = trimmed.match(/^CTRPE:ATIVO:(.+)$/i);
     if (prefixMatch?.[1]) return prefixMatch[1].trim();
     const pathMatch = trimmed.match(/\/ativos\/qr\/([^/?#]+)/i);

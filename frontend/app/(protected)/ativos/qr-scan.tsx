@@ -1,7 +1,13 @@
 import { router } from "expo-router";
+import {
+  CameraView,
+  type BarcodeScanningResult,
+  useCameraPermissions,
+} from "expo-camera";
 import { useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 
+import { PermissionGate } from "@/components/domain/permission-gate";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +22,8 @@ export default function AtivoQrScanScreen() {
   const [isSearching, setIsSearching] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [matchedAtivo, setMatchedAtivo] = useState<Ativo | null>(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
 
   const { data: ativos } = useAtivos();
 
@@ -44,6 +52,29 @@ export default function AtivoQrScanScreen() {
     }
   }
 
+  async function handleOpenCamera() {
+    const permission = cameraPermission?.granted
+      ? cameraPermission
+      : await requestCameraPermission();
+
+    if (!permission.granted) {
+      setErrorMessage(
+        "Permita o acesso à câmera para ler a etiqueta ou informe o código manualmente.",
+      );
+      return;
+    }
+
+    setErrorMessage(null);
+    setIsCameraActive(true);
+  }
+
+  function handleBarcodeScanned(result: BarcodeScanningResult) {
+    if (!isCameraActive) return;
+    setIsCameraActive(false);
+    setRawCode(result.data);
+    void handleLookup(result.data);
+  }
+
   return (
     <ScrollView
       className="flex-1 bg-background"
@@ -61,6 +92,35 @@ export default function AtivoQrScanScreen() {
           <CardTitle>Leitura da etiqueta</CardTitle>
         </CardHeader>
         <CardContent className="gap-3">
+          {isCameraActive ? (
+            <View
+              style={{
+                aspectRatio: 1.4,
+                borderRadius: 8,
+                overflow: "hidden",
+                width: "100%",
+              }}
+            >
+              <CameraView
+                style={{ flex: 1 }}
+                facing="back"
+                barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
+                onBarcodeScanned={handleBarcodeScanned}
+              />
+            </View>
+          ) : null}
+
+          <Button
+            variant="outline"
+            onPress={() =>
+              isCameraActive
+                ? setIsCameraActive(false)
+                : void handleOpenCamera()
+            }
+          >
+            <Text>{isCameraActive ? "Fechar câmera" : "Ler com câmera"}</Text>
+          </Button>
+
           <Input
             autoFocus
             value={rawCode}
@@ -95,20 +155,22 @@ export default function AtivoQrScanScreen() {
             </Text>
 
             <View className="flex-row flex-wrap gap-2 pt-1">
-              <Button
-                onPress={() =>
-                  router.push({
-                    pathname: "/ordens-servico/nova",
-                    params: {
-                      ativoId: matchedAtivo.id,
-                      empresaId: matchedAtivo.empresaId,
-                      tipo: "CORRETIVA",
-                    },
-                  })
-                }
-              >
-                <Text>Abrir O.S. Corretiva</Text>
-              </Button>
+              <PermissionGate permission="workOrdersCreate">
+                <Button
+                  onPress={() =>
+                    router.push({
+                      pathname: "/ordens-servico/nova",
+                      params: {
+                        ativoId: matchedAtivo.id,
+                        empresaId: matchedAtivo.empresaId,
+                        tipo: "CORRETIVA",
+                      },
+                    })
+                  }
+                >
+                  <Text>Abrir O.S. Corretiva</Text>
+                </Button>
+              </PermissionGate>
               <Button
                 variant="outline"
                 onPress={() => router.push(`/ativos/${matchedAtivo.id}`)}
