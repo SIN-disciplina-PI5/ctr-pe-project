@@ -50,11 +50,16 @@ export default function AtivosScreen() {
           </Text>
         </View>
 
-        <PermissionGate permission="assetsManage">
-          <Button onPress={() => router.push("/ativos/novo")}>
-            <Text>Novo</Text>
+        <View className="flex-row items-center gap-2">
+          <Button variant="outline" onPress={() => router.push("/ativos/qr-scan")}>
+            <Text>Ler QR</Text>
           </Button>
-        </PermissionGate>
+          <PermissionGate permission="assetsManage">
+            <Button onPress={() => router.push("/ativos/novo")}>
+              <Text>Novo</Text>
+            </Button>
+          </PermissionGate>
+        </View>
       </View>
 
       <View className="mb-4">

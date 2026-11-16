@@ -6,13 +6,14 @@ import { createAtivoDto } from "./dto/create-ativo.dto.js";
 import { updateAtivoDto } from "./dto/update-ativo.dto.js";
 import { listAtivosDto } from "./dto/list-ativos.dto.js";
 import { updateStatusAtivoDto } from "./dto/update-ativo.dto.js";
-import { findAll, findById, create, update, updateStatus, remove } from "./ativos.controller.js";
+import { findAll, findByCodigo, findById, create, update, updateStatus, remove } from "./ativos.controller.js";
 
 export const ativosRouter = Router();
 
 ativosRouter.use(authMiddleware);
 
 ativosRouter.get("/", validate(listAtivosDto, "query"), findAll);
+ativosRouter.get("/codigo/:codigo", findByCodigo);
 ativosRouter.get("/:id", findById);
 ativosRouter.post("/", requireRole(["ADMIN", "SUPERVISOR"]), validate(createAtivoDto), create);
 ativosRouter.patch("/:id", requireRole(["ADMIN", "SUPERVISOR"]), validate(updateAtivoDto), update);
