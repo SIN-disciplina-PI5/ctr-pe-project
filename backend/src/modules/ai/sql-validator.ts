@@ -7,7 +7,9 @@ const SQL_PARSER_WASM_URL = new URL(
   import.meta.url,
 );
 
-void readFileSync(SQL_PARSER_WASM_URL);
+if (process.env["VERCEL"] === "1") {
+  void readFileSync(SQL_PARSER_WASM_URL);
+}
 type AstRecord = Record<string, unknown>;
 
 export const AI_ALLOWED_SQL_FUNCTIONS = [

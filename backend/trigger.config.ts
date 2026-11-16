@@ -2,7 +2,7 @@ import { defineConfig } from "@trigger.dev/sdk";
 import { prismaExtension } from "@trigger.dev/build/extensions/prisma";
 
 export default defineConfig({
-  project: "proj_tetldmuohrqkaiaudkjp",
+  project: "proj_tvlwaaavsmyxhuqzrqjp",
   runtime: "node-24",
   logLevel: "log",
   // Teto global; as tasks de relatório definem limites menores.
@@ -19,6 +19,9 @@ export default defineConfig({
   },
   dirs: ["./src/trigger"],
   build: {
+    // O parser carrega um arquivo WASM ao lado do próprio pacote. Mantê-lo
+    // externo preserva essa estrutura no runtime do Trigger.dev.
+    external: ["pgsql-parser", "libpg-query"],
     // Prisma 7 com driver adapter (@prisma/adapter-pg): modo "modern".
     extensions: [prismaExtension({ mode: "modern" })],
   },
