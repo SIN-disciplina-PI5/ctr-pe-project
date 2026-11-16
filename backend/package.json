@@ -40,7 +40,8 @@
     "spike:compare-models": "tsx spikes/text-to-sql/run-model-comparison.ts",
     "spike:compare-retries": "tsx spikes/text-to-sql/run-retry-comparison.ts",
     "spike:evaluate-tenant-filter": "tsx spikes/text-to-sql/run-tenant-filter-evaluation.ts",
-    "spike:evaluate-tenant-rls": "tsx spikes/text-to-sql/run-rls-tenant-isolation.ts"
+    "spike:evaluate-tenant-rls": "tsx spikes/text-to-sql/run-rls-tenant-isolation.ts",
+    "preventiva:processar": "tsx scripts/preventive/process-preventive-plans.ts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"

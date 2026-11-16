@@ -162,6 +162,7 @@ model Empresa {
   conversasIA   ConversaIA[]
   arquivosRelatorioIA ArquivoRelatorioIA[]
   jobsRelatorioIA     JobRelatorioIA[]
+  planosManutencao   PlanoManutencao[]
 
   @@index([nome])
 }
@@ -226,6 +227,7 @@ model Usuario {
   conversasIA       ConversaIA[]
   arquivosRelatorioIA ArquivoRelatorioIA[]
   jobsRelatorioIA     JobRelatorioIA[]
+  planosResponsavel   PlanoManutencao[] @relation("ResponsavelPlano")
 
   @@index([empresaId])
   @@index([perfil])
@@ -286,7 +288,8 @@ model Ativo {
 
   ordensServico OrdemServico[]
   paradas       ParadaAtivo[]
-  alertas       Alerta[]
+  alertas          Alerta[]
+  planosManutencao PlanoManutencao[]
 
   @@unique([empresaId, codigo])
   @@index([empresaId, status])
@@ -307,8 +310,9 @@ model OrdemServico {
   localizacaoId String?
   ativoId       String
 
-  solicitanteId String?
-  responsavelId String?
+  solicitanteId      String?
+  responsavelId      String?
+  planoManutencaoId  String?
 
   numero    String
   titulo    String
@@ -346,8 +350,9 @@ model OrdemServico {
   localizacao Localizacao? @relation(fields: [localizacaoId], references: [id])
   ativo       Ativo        @relation(fields: [ativoId], references: [id])
 
-  solicitante Usuario? @relation("SolicitanteOS", fields: [solicitanteId], references: [id])
-  responsavel Usuario? @relation("ResponsavelOS", fields: [responsavelId], references: [id])
+  solicitante     Usuario?         @relation("SolicitanteOS", fields: [solicitanteId], references: [id])
+  responsavel     Usuario?         @relation("ResponsavelOS", fields: [responsavelId], references: [id])
+  planoManutencao PlanoManutencao? @relation(fields: [planoManutencaoId], references: [id])
 
   paradas      ParadaAtivo[]
   materiais    OrdemServicoMaterial[]
@@ -422,7 +427,8 @@ model Material {
 
   empresa Empresa @relation(fields: [empresaId], references: [id])
 
-  ordensServico OrdemServicoMaterial[]
+  ordensServico     OrdemServicoMaterial[]
+  planosManutencao  PlanoManutencaoMaterial[]
 
   @@unique([empresaId, codigo])
   @@index([empresaId, nome])
@@ -642,4 +648,55 @@ model JobRelatorioIA {
   @@index([status, disponivelEm])
   @@index([status, leaseAte])
   @@index([empresaId, usuarioId, createdAt])
+}
+
+/**
+ * 13. PLANOS DE MANUTENCAO PREVENTIVA
+ */
+
+model PlanoManutencao {
+  id                     String     @id @default(cuid())
+  empresaId              String
+  ativoId                String
+  responsavelId          String?
+
+  titulo                 String
+  descricao              String
+  prioridade             Prioridade @default(MEDIA)
+  periodicidadeDias      Int
+  antecedenciaAlertaDias Int        @default(3)
+  checklist              Json?
+
+  ultimaExecucaoEm       DateTime?
+  proximaExecucaoEm      DateTime
+  ativo                  Boolean    @default(true)
+
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @updatedAt
+
+  empresa       Empresa                   @relation(fields: [empresaId], references: [id])
+  ativoRef      Ativo                     @relation(fields: [ativoId], references: [id])
+  responsavel   Usuario?                  @relation("ResponsavelPlano", fields: [responsavelId], references: [id])
+  materiais     PlanoManutencaoMaterial[]
+  ordensServico OrdemServico[]
+
+  @@index([empresaId, ativo])
+  @@index([empresaId, proximaExecucaoEm])
+  @@index([ativoId])
+}
+
+model PlanoManutencaoMaterial {
+  id                String   @id @default(cuid())
+  planoManutencaoId String
+  materialId        String
+  quantidade        Decimal  @default(1)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  planoManutencao PlanoManutencao @relation(fields: [planoManutencaoId], references: [id], onDelete: Cascade)
+  material        Material        @relation(fields: [materialId], references: [id])
+
+  @@unique([planoManutencaoId, materialId])
+  @@index([materialId])
 }
