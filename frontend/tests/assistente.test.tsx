@@ -5,6 +5,11 @@ import { renderWithProviders } from "./utils/render-with-providers";
 
 const mockMutateAsync = jest.fn();
 const mockReset = jest.fn();
+const mockPush = jest.fn();
+
+jest.mock("expo-router", () => ({
+  router: { push: mockPush },
+}));
 
 jest.mock("@/hooks/use-selected-empresa", () => ({
   useSelectedEmpresaId: () => "empresa-1",
@@ -86,6 +91,14 @@ describe("AssistenteScreen", () => {
     expect(
       screen.getByText("Como posso ajudar com a manutenção?"),
     ).toBeTruthy();
+  });
+
+  it("abre a página moderna de relatórios", () => {
+    renderWithProviders(<AssistenteScreen />);
+
+    fireEvent.press(screen.getByLabelText("Abrir relatórios"));
+
+    expect(mockPush).toHaveBeenCalledWith("/relatorios");
   });
 
   it("envia o identificador no follow-up da mesma conversa", async () => {

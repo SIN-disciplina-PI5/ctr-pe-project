@@ -1,6 +1,7 @@
+import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, View } from "react-native";
-import { Plus } from "lucide-react-native";
+import { FileText, Plus } from "lucide-react-native";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -121,10 +122,20 @@ export default function AssistenteScreen() {
               Consulte os dados de manutenção da empresa selecionada.
             </Text>
           </View>
-          <Button variant="outline" onPress={resetConversation}>
-            <Icon as={Plus} size={16} className="text-foreground" />
-            <Text>Nova conversa</Text>
-          </Button>
+          <View className="flex-row flex-wrap justify-end gap-2">
+            <Button
+              accessibilityLabel="Abrir relatórios"
+              variant="outline"
+              onPress={() => router.push("/relatorios")}
+            >
+              <Icon as={FileText} size={16} className="text-foreground" />
+              <Text>Relatórios</Text>
+            </Button>
+            <Button variant="outline" onPress={resetConversation}>
+              <Icon as={Plus} size={16} className="text-foreground" />
+              <Text>Nova conversa</Text>
+            </Button>
+          </View>
         </View>
 
         <Card className="min-h-0 flex-1 overflow-hidden py-0">
