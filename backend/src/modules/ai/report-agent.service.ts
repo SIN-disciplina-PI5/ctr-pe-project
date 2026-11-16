@@ -300,7 +300,7 @@ function sectionFailureNarrative(error: unknown): string {
   return "Não foi possível processar os dados desta seção.";
 }
 
-const REPORT_SECTION_CONCURRENCY = 2;
+const REPORT_SECTION_CONCURRENCY = 1;
 
 async function mapWithConcurrency<T, TResult>(
   items: readonly T[],

@@ -45,6 +45,8 @@ class FakeProvider implements LlmProvider {
 
 class FakeQueryAgent {
   public readonly calls: Array<{ question: string; empresaId?: string }> = [];
+  public maxConcurrentCalls = 0;
+  private activeCalls = 0;
 
   constructor(
     private readonly results: Readonly<
@@ -58,15 +60,25 @@ class FakeQueryAgent {
     empresaId?: string;
   }): Promise<QueryAgentResult> {
     this.calls.push(input);
-    if (this.delayMs > 0) {
-      await new Promise((resolve) => setTimeout(resolve, this.delayMs));
+    this.activeCalls += 1;
+    this.maxConcurrentCalls = Math.max(
+      this.maxConcurrentCalls,
+      this.activeCalls,
+    );
+
+    try {
+      if (this.delayMs > 0) {
+        await new Promise((resolve) => setTimeout(resolve, this.delayMs));
+      }
+      const result = this.results[input.question];
+      if (!result) {
+        throw new Error(`Resultado não configurado: ${input.question}`);
+      }
+      if (result instanceof Error) throw result;
+      return result;
+    } finally {
+      this.activeCalls -= 1;
     }
-    const result = this.results[input.question];
-    if (!result) {
-      throw new Error(`Resultado não configurado: ${input.question}`);
-    }
-    if (result instanceof Error) throw result;
-    return result;
   }
 }
 
@@ -364,7 +376,7 @@ describe("ReportAgentService", () => {
     expect(result.sections[0]?.chart).toBeNull();
   });
 
-  it("executa múltiplas seções em paralelo mantendo a ordem do plano e isolando falhas pontuais", async () => {
+  it("executa múltiplas seções em sequência mantendo a ordem do plano e isolando falhas pontuais", async () => {
     const multiPlan: ReportPlan = {
       reportType: "monthly_maintenance",
       title: "Relatório Mensal Consolidado",
@@ -408,6 +420,7 @@ describe("ReportAgentService", () => {
     });
 
     expect(queryAgent.calls).toHaveLength(3);
+    expect(queryAgent.maxConcurrentCalls).toBe(1);
     expect(result.sections.map((s) => ({ id: s.id, status: s.status }))).toEqual([
       { id: "ordens", status: "ready" },
       { id: "falha-pontual", status: "refused" },
