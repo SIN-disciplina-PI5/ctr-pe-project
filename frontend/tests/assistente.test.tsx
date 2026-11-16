@@ -8,7 +8,7 @@ const mockReset = jest.fn();
 const mockPush = jest.fn();
 
 jest.mock("expo-router", () => ({
-  router: { push: mockPush },
+  router: { push: (href: string) => mockPush(href) },
 }));
 
 jest.mock("@/hooks/use-selected-empresa", () => ({
