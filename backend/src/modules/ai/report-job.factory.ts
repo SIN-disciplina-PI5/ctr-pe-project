@@ -14,6 +14,7 @@ import {
 import { ReportJobProcessor } from "./report-job.processor.js";
 import { ReportJobRepository } from "./report-job.repository.js";
 import { ReportJobService } from "./report-job.service.js";
+import { TriggerDevReportJobDispatcher } from "./report-job.trigger-dispatcher.js";
 import { PdfReportRenderer } from "./report-renderer.service.js";
 import { createReportStorage } from "./report-storage.js";
 
@@ -31,11 +32,17 @@ function optionalPositiveInteger(
 }
 
 /**
- * Ponto único de troca do gatilho: quando a decisão de processamento for
- * tomada, basta devolver o adaptador escolhido aqui.
+ * Ponto único de troca do gatilho. REPORT_JOB_DISPATCHER=trigger liga o
+ * Trigger.dev (exige TRIGGER_SECRET_KEY no backend); sem a variável, os jobs
+ * ficam QUEUED até alguém rodar `npm run reports:jobs:run`.
  */
-export function createReportJobDispatcher(): ReportJobDispatcher {
-  return new ManualReportJobDispatcher();
+export function createReportJobDispatcher(
+  environment: NodeJS.ProcessEnv = process.env,
+): ReportJobDispatcher {
+  const mode = environment["REPORT_JOB_DISPATCHER"]?.trim() || "manual";
+  if (mode === "trigger") return new TriggerDevReportJobDispatcher();
+  if (mode === "manual") return new ManualReportJobDispatcher();
+  throw new Error("REPORT_JOB_DISPATCHER deve ser 'manual' ou 'trigger'.");
 }
 
 export function createReportJobService(
@@ -60,7 +67,7 @@ export function createReportJobService(
 
   return new ReportJobService(
     new ReportJobRepository(),
-    createReportJobDispatcher(),
+    createReportJobDispatcher(environment),
     downloads,
     maxAttempts === undefined ? {} : { maxAttempts },
   );
@@ -68,6 +75,7 @@ export function createReportJobService(
 
 export function createReportJobProcessor(
   environment: NodeJS.ProcessEnv = process.env,
+  overrides: { readonly leaseMs?: number } = {},
 ): ReportJobProcessor {
   const config = loadLlmConfig(environment);
   const provider = createLlmProvider(config, new ConsoleLlmObserver());
@@ -76,7 +84,8 @@ export function createReportJobProcessor(
     createQueryExecutor(),
     new QueryAnswerService(provider),
   );
-  const leaseMs = optionalPositiveInteger(environment, "REPORT_JOB_LEASE_MS");
+  const leaseMs =
+    overrides.leaseMs ?? optionalPositiveInteger(environment, "REPORT_JOB_LEASE_MS");
 
   return new ReportJobProcessor(
     new ReportJobRepository(),
@@ -86,7 +95,7 @@ export function createReportJobProcessor(
       createReportStorage(environment),
       new ReportFileRepository(),
     ),
-    createReportJobDispatcher(),
+    createReportJobDispatcher(environment),
     leaseMs === undefined ? {} : { leaseMs },
   );
 }

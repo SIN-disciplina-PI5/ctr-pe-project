@@ -314,8 +314,8 @@ Corpo do `POST` (informe `reportType`, `request` ou ambos):
 
 A geração de relatórios roda fora da requisição HTTP. O estado de cada pedido
 fica na tabela `JobRelatorioIA`, que é a fonte de verdade; o gatilho que
-dispara a execução é plugável e **ainda não foi escolhido** (decisão de
-processamento assíncrono pendente).
+dispara a execução é o **Trigger.dev** (SDK v4), com um modo manual para
+desenvolvimento.
 
 Estados: `QUEUED` → `RUNNING` → `DONE` | `FAILED`, com `RUNNING` → `QUEUED`
 em erros transitórios.
@@ -325,10 +325,9 @@ em erros transitórios.
   solicitação retorna 409.
 - **Claim atômico:** só um worker assume cada job (update condicional no
   Postgres). Entregas duplicadas do gatilho são ignoradas.
-- **Lease com fencing:** cada execução recebe um `leaseToken` e um `leaseAte`
-  (padrão 330 s, acima do limite de 300 s do plano Hobby da Vercel). Toda
-  conclusão exige o token vigente; se o lease foi perdido, o PDF gerado é
-  descartado.
+- **Lease com fencing:** cada execução recebe um `leaseToken` e um `leaseAte`.
+  Toda conclusão exige o token vigente; se o lease foi perdido, o PDF gerado
+  é descartado.
 - **Retry:** erros 5xx, 429 e inesperados são reprocessados com backoff
   exponencial (30 s, 60 s, 120 s… até 10 min), até `REPORT_JOB_MAX_ATTEMPTS`.
   Erros 4xx falham imediatamente. Mensagens de erros inesperados não são
@@ -336,17 +335,37 @@ em erros transitórios.
 - **Recuperação:** jobs `RUNNING` com lease vencido voltam para `QUEUED` ou,
   sem tentativas restantes, viram `FAILED` com `LEASE_EXPIRED`.
 
-Código: `src/modules/ai/report-job.*.ts`. Para ligar o gatilho definitivo,
-implemente `ReportJobDispatcher` e troque `createReportJobDispatcher()` em
-`report-job.factory.ts`; o consumidor chama `ReportJobProcessor.runJob(id)`.
+### Gatilho: Trigger.dev
 
-Enquanto o gatilho não existe, execute os jobs pendentes manualmente
-(somente desenvolvimento e validação):
+- Task `generate-report` (`src/trigger/report-jobs.ts`): recebe só o `jobId` e
+  chama `ReportJobProcessor.runJob`. Máximo de 15 min por execução, fila com
+  concorrência 2 e lease de 16 min.
+- Task agendada `report-jobs-sweep` (a cada 5 min): recupera leases vencidos e
+  redispara jobs prontos cujo disparo se perdeu.
+- O backend dispara pelo `TriggerDevReportJobDispatcher`, com chave de
+  idempotência por job e tentativa. O payload não leva empresa, usuário nem o
+  texto do pedido.
+
+Variáveis:
+
+| Onde | Variável | Valor |
+|---|---|---|
+| Backend (Vercel) | `REPORT_JOB_DISPATCHER` | `trigger` |
+| Backend (Vercel) | `TRIGGER_SECRET_KEY` | chave do ambiente, com acesso apenas de Trigger |
+| Trigger.dev (painel) | `REPORT_JOB_DISPATCHER` | `trigger` |
+| Trigger.dev (painel) | `DATABASE_URL`, `AI_READONLY_DATABASE_URL`, `GROQ_API_KEY`, `GROQ_MODEL`, `BLOB_READ_WRITE_TOKEN` | mesmos valores do backend |
+
+Comandos:
 
 ```bash
-npm run reports:jobs:run       # até 5 jobs
-npm run reports:jobs:run -- 10 # até 10 jobs
+npm run trigger:dev      # executa as tasks localmente, ligadas ao ambiente dev
+npm run trigger:deploy   # publica as tasks no Trigger.dev
+npm run reports:jobs:run # modo manual (REPORT_JOB_DISPATCHER=manual)
 ```
+
+> As tasks rodam na infraestrutura do Trigger.dev e leem o banco da empresa.
+> Antes de cadastrar credenciais de produção no painel, valide com a
+> governança corporativa.
 
 ## Perfis e permissões
 

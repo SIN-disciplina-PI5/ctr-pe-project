@@ -151,7 +151,7 @@ export class ReportJobService {
 
     if (created) {
       try {
-        await this.dispatcher.dispatch({ jobId: job.id });
+        await this.dispatcher.dispatch({ jobId: job.id, attempt: 0, reason: "created" });
       } catch (error) {
         // O job já está persistido como QUEUED; a varredura o executará.
         this.logger.error(

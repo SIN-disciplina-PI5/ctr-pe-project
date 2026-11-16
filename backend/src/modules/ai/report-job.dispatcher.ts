@@ -1,7 +1,13 @@
+export type DispatchReason = "created" | "retry" | "sweep";
+
 export interface DispatchReportJobInput {
   readonly jobId: string;
   /** Atraso mínimo antes da execução; usado no agendamento de retries. */
   readonly delayMs?: number;
+  /** Tentativas já feitas quando o disparo ocorre (0 na criação). */
+  readonly attempt?: number;
+  /** Origem do disparo; compõe a chave de idempotência do gatilho. */
+  readonly reason?: DispatchReason;
 }
 
 /**

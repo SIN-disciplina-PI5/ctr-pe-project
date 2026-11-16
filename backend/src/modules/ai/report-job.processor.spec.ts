@@ -143,7 +143,9 @@ describe("ReportJobProcessor", () => {
       const queued = repository.jobs.get(jobId)!;
       expect(queued.status).toBe("QUEUED");
       expect(queued.disponivelEm.toISOString()).toBe("2026-11-15T12:00:30.000Z");
-      expect(dispatcher.calls).toEqual([{ jobId, delayMs: 30_000 }]);
+      expect(dispatcher.calls).toEqual([
+        { jobId, delayMs: 30_000, attempt: 1, reason: "retry" },
+      ]);
       expect(toReportJobView(queued)).toMatchObject({
         status: "queued",
         attempts: 1,
@@ -273,6 +275,36 @@ describe("ReportJobProcessor", () => {
         status: "FAILED",
         erroCodigo: "LEASE_EXPIRED",
       });
+    });
+
+    it("na varredura, recupera e redispara os jobs prontos sem executá-los", async () => {
+      const { processor, repository, dispatcher, agent, clock, jobId } = await setup([
+        generatedReport,
+      ]);
+      await repository.claim(jobId, {
+        now: clock.now(),
+        leaseToken: "lease-morto",
+        leaseAte: new Date(clock.now().getTime() + LEASE_MS),
+      });
+      clock.advance(LEASE_MS + 1);
+
+      const summary = await processor.dispatchAvailable();
+
+      expect(summary).toEqual({
+        recovered: { requeued: 1, failed: 0 },
+        dispatched: 1,
+        failed: 0,
+      });
+      expect(dispatcher.calls).toEqual([{ jobId, reason: "sweep" }]);
+      expect(agent.calls).toBe(0);
+      expect(repository.jobs.get(jobId)?.status).toBe("QUEUED");
+    });
+
+    it("na varredura, conta falhas de disparo sem interromper", async () => {
+      const { processor, dispatcher } = await setup([generatedReport]);
+      dispatcher.failure = new Error("gatilho indisponível");
+
+      expect(await processor.dispatchAvailable()).toMatchObject({ dispatched: 0, failed: 1 });
     });
 
     it("respeita o limite de jobs por execução", async () => {

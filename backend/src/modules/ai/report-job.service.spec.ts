@@ -93,7 +93,9 @@ describe("ReportJobService", () => {
         reportFileId: null,
         downloadUrl: null,
       });
-      expect(dispatcher.calls).toEqual([{ jobId: result.job.id }]);
+      expect(dispatcher.calls).toEqual([
+        { jobId: result.job.id, attempt: 0, reason: "created" },
+      ]);
     });
 
     it("monta o pedido a partir de tipo, período e texto", async () => {
