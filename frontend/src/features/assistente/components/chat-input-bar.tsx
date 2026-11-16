@@ -30,10 +30,9 @@ export function ChatInputBar({
     if (Platform.OS !== "web") return;
     const nativeEvent = event.nativeEvent as TextInputKeyPressEventData & {
       shiftKey?: boolean;
-      preventDefault?: () => void;
     };
     if (nativeEvent.key === "Enter" && !nativeEvent.shiftKey) {
-      nativeEvent.preventDefault?.();
+      event.preventDefault();
       if (canSend) {
         onSend();
       }
