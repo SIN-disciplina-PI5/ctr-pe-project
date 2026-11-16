@@ -1,6 +1,11 @@
 export const endpoints = {
   ai: {
     chat: "/ai/chat",
+    reports: {
+      root: "/ai/reports",
+      byId: (id: string) => `/ai/reports/${id}`,
+      download: (id: string) => `/ai/reports/${id}/download`,
+    },
   },
   ordensServico: {
     list: "/ordens-servico",
