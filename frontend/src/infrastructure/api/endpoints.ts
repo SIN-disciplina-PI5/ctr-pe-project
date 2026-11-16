@@ -1,6 +1,7 @@
 export const endpoints = {
   ai: {
     chat: "/ai/chat",
+    troubleshoot: "/ai/troubleshoot",
     reports: {
       root: "/ai/reports",
       byId: (id: string) => `/ai/reports/${id}`,

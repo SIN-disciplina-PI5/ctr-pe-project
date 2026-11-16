@@ -11,6 +11,7 @@ import {
   listReportsQueryDto,
   reportIdParamsDto,
 } from "./dto/report.dto.js";
+import { troubleshootDto } from "./dto/troubleshoot.dto.js";
 import { executeQuery, generateQuery } from "./query-generation.controller.js";
 import {
   createReport,
@@ -18,6 +19,7 @@ import {
   getReport,
   listReports,
 } from "./report.controller.js";
+import { troubleshootAsset } from "./troubleshoot.controller.js";
 
 export const aiRouter = Router();
 
@@ -38,4 +40,10 @@ aiRouter.get(
   "/reports/:id/download",
   validate(reportIdParamsDto, "params"),
   downloadReport,
+);
+aiRouter.post(
+  "/troubleshoot",
+  aiChatRateLimiter,
+  validate(troubleshootDto),
+  troubleshootAsset,
 );
