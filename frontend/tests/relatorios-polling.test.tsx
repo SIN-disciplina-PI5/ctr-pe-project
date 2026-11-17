@@ -42,7 +42,7 @@ describe("useRelatorios (polling)", () => {
       .mockResolvedValueOnce(page(true))
       .mockResolvedValue(page(false));
 
-    const { result } = renderHook(() => useRelatorios({ page: 1, pageSize: 10 }), {
+    const { result } = await renderHook(() => useRelatorios({ page: 1, pageSize: 10 }), {
       wrapper: createWrapper(),
     });
 
@@ -69,7 +69,7 @@ describe("useRelatorios (polling)", () => {
   it("não faz polling quando a primeira resposta não tem job ativo", async () => {
     mockList.mockResolvedValue(page(false));
 
-    const { result } = renderHook(() => useRelatorios({ page: 1, pageSize: 10 }), {
+    const { result } = await renderHook(() => useRelatorios({ page: 1, pageSize: 10 }), {
       wrapper: createWrapper(),
     });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));

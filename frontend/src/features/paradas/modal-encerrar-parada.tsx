@@ -64,7 +64,7 @@ export function ModalEncerrarParada({ paradaId, onClose }: ModalEncerrarParadaPr
               <Text className="text-foreground text-sm">Cancelar</Text>
             </Pressable>
             <Pressable
-              onPress={handleSubmit(onSubmit)}
+              onPress={() => void handleSubmit(onSubmit)()}
               disabled={isPending}
               className="flex-1 bg-primary py-2 rounded-md items-center"
             >

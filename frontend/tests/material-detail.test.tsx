@@ -55,10 +55,10 @@ describe("MaterialDetailScreen", () => {
     mockMutateAsync.mockRejectedValue({
       response: { data: { error: "Estoque insuficiente" } },
     });
-    renderWithProviders(<MaterialDetailScreen />);
+    await renderWithProviders(<MaterialDetailScreen />);
 
-    fireEvent.changeText(screen.getByPlaceholderText("Ex: 5"), "10");
-    fireEvent.press(screen.getByText("Saída"));
+    await fireEvent.changeText(screen.getByPlaceholderText("Ex: 5"), "10");
+    await fireEvent.press(screen.getByText("Saída"));
 
     await waitFor(() =>
       expect(notify.error).toHaveBeenCalledWith(

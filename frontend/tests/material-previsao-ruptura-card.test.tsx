@@ -15,7 +15,7 @@ describe("MaterialPrevisaoRupturaCard", () => {
     jest.clearAllMocks();
   });
 
-  it("renderiza a previsão calculada para o material", () => {
+  it("renderiza a previsão calculada para o material", async () => {
     mockUsePrevisaoRupturaMaterial.mockReturnValue({
       data: {
         materialId: "mat-1",
@@ -33,7 +33,7 @@ describe("MaterialPrevisaoRupturaCard", () => {
       isError: false,
     });
 
-    renderWithProviders(<MaterialPrevisaoRupturaCard materialId="mat-1" />);
+    await renderWithProviders(<MaterialPrevisaoRupturaCard materialId="mat-1" />);
 
     expect(mockUsePrevisaoRupturaMaterial).toHaveBeenCalledWith("mat-1");
     expect(screen.getByText("Previsão de Ruptura de Estoque")).toBeTruthy();
@@ -41,14 +41,14 @@ describe("MaterialPrevisaoRupturaCard", () => {
     expect(screen.getByText(/\+112 UN/)).toBeTruthy();
   });
 
-  it("informa quando a previsão não pode ser calculada", () => {
+  it("informa quando a previsão não pode ser calculada", async () => {
     mockUsePrevisaoRupturaMaterial.mockReturnValue({
       data: undefined,
       isLoading: false,
       isError: true,
     });
 
-    renderWithProviders(<MaterialPrevisaoRupturaCard materialId="mat-1" />);
+    await renderWithProviders(<MaterialPrevisaoRupturaCard materialId="mat-1" />);
 
     expect(
       screen.getByText(

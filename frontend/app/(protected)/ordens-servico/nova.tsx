@@ -170,7 +170,7 @@ function NovaOrdemServicoContent() {
       ) : null}
 
       <Button
-        onPress={handleSubmit(onSubmit)}
+        onPress={() => void handleSubmit(onSubmit)()}
         disabled={createMutation.isPending || !empresaId}
       >
         <Text>{createMutation.isPending ? "Salvando..." : "Criar O.S."}</Text>

@@ -104,7 +104,7 @@ export default function EmpresasScreen() {
         ListEmptyComponent={
           !isLoading ? (
             <EmptyState title="Nenhuma empresa encontrada" description="Cadastre uma empresa para começar." />
-          ) : null
+          ) : undefined
         }
       />
     </View>

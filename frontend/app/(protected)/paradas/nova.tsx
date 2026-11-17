@@ -380,7 +380,10 @@ function ParadaNovaContent() {
           </CardContent>
         </Card>
 
-        <Button onPress={handleSubmit(onSubmit)} disabled={isPending}>
+        <Button
+          onPress={() => void handleSubmit(onSubmit)()}
+          disabled={isPending}
+        >
           <Text>{isPending ? "Salvando..." : "Registrar parada"}</Text>
         </Button>
       </View>

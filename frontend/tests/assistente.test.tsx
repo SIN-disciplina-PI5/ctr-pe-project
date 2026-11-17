@@ -50,13 +50,13 @@ describe("AssistenteScreen", () => {
   });
 
   it("envia uma pergunta e exibe resposta, tabela e SQL sob demanda", async () => {
-    renderWithProviders(<AssistenteScreen />);
+    await renderWithProviders(<AssistenteScreen />);
 
-    fireEvent.changeText(
+    await fireEvent.changeText(
       screen.getByLabelText("Mensagem"),
       "Quantas ordens estão abertas?",
     );
-    fireEvent.press(screen.getByLabelText("Enviar mensagem"));
+    await fireEvent.press(screen.getByLabelText("Enviar mensagem"));
 
     expect(mockMutateAsync).toHaveBeenCalledWith({
       message: "Quantas ordens estão abertas?",
@@ -69,7 +69,7 @@ describe("AssistenteScreen", () => {
     expect(screen.getByText("OS-001")).toBeTruthy();
     expect(screen.getByText("ABERTA")).toBeTruthy();
 
-    fireEvent.press(screen.getByText("Visualizar SQL"));
+    await fireEvent.press(screen.getByText("Visualizar SQL"));
     expect(
       screen.getByText(
         'SELECT numero, status FROM ai."ordens_servico" LIMIT 100',
@@ -78,15 +78,15 @@ describe("AssistenteScreen", () => {
   });
 
   it("inicia uma nova conversa limpando o histórico", async () => {
-    renderWithProviders(<AssistenteScreen />);
+    await renderWithProviders(<AssistenteScreen />);
 
-    fireEvent.changeText(screen.getByLabelText("Mensagem"), "Pergunta inicial");
-    fireEvent.press(screen.getByLabelText("Enviar mensagem"));
+    await fireEvent.changeText(screen.getByLabelText("Mensagem"), "Pergunta inicial");
+    await fireEvent.press(screen.getByLabelText("Enviar mensagem"));
     await waitFor(() =>
       expect(screen.getByText("Há 3 ordens abertas.")).toBeTruthy(),
     );
 
-    fireEvent.press(screen.getByText("Nova conversa"));
+    await fireEvent.press(screen.getByText("Nova conversa"));
 
     expect(screen.queryByText("Pergunta inicial")).toBeNull();
     expect(
@@ -94,28 +94,28 @@ describe("AssistenteScreen", () => {
     ).toBeTruthy();
   });
 
-  it("abre a página moderna de relatórios", () => {
-    renderWithProviders(<AssistenteScreen />);
+  it("abre a página moderna de relatórios", async () => {
+    await renderWithProviders(<AssistenteScreen />);
 
-    fireEvent.press(screen.getByLabelText("Abrir relatórios"));
+    await fireEvent.press(screen.getByLabelText("Abrir relatórios"));
 
     expect(mockPush).toHaveBeenCalledWith("/relatorios");
   });
 
   it("envia o identificador no follow-up da mesma conversa", async () => {
-    renderWithProviders(<AssistenteScreen />);
+    await renderWithProviders(<AssistenteScreen />);
 
-    fireEvent.changeText(screen.getByLabelText("Mensagem"), "Pergunta inicial");
-    fireEvent.press(screen.getByLabelText("Enviar mensagem"));
+    await fireEvent.changeText(screen.getByLabelText("Mensagem"), "Pergunta inicial");
+    await fireEvent.press(screen.getByLabelText("Enviar mensagem"));
     await waitFor(() =>
       expect(screen.getByText("Há 3 ordens abertas.")).toBeTruthy(),
     );
 
-    fireEvent.changeText(
+    await fireEvent.changeText(
       screen.getByLabelText("Mensagem"),
       "E no mês passado?",
     );
-    fireEvent.press(screen.getByLabelText("Enviar mensagem"));
+    await fireEvent.press(screen.getByLabelText("Enviar mensagem"));
 
     expect(mockMutateAsync).toHaveBeenLastCalledWith({
       message: "E no mês passado?",
@@ -139,13 +139,13 @@ describe("AssistenteScreen", () => {
         message: "Não posso alterar ou excluir registros.",
       },
     });
-    renderWithProviders(<AssistenteScreen />);
+    await renderWithProviders(<AssistenteScreen />);
 
-    fireEvent.changeText(
+    await fireEvent.changeText(
       screen.getByLabelText("Mensagem"),
       "Exclua as ordens antigas",
     );
-    fireEvent.press(screen.getByLabelText("Enviar mensagem"));
+    await fireEvent.press(screen.getByLabelText("Enviar mensagem"));
 
     await waitFor(() => {
       expect(
@@ -194,13 +194,13 @@ describe("AssistenteScreen", () => {
         },
       },
     });
-    renderWithProviders(<AssistenteScreen />);
+    await renderWithProviders(<AssistenteScreen />);
 
-    fireEvent.changeText(
+    await fireEvent.changeText(
       screen.getByLabelText("Mensagem"),
       "Gere um relatório de custos por ativo",
     );
-    fireEvent.press(screen.getByLabelText("Enviar mensagem"));
+    await fireEvent.press(screen.getByLabelText("Enviar mensagem"));
 
     await waitFor(() => {
       expect(screen.getByText("Custos por ativo")).toBeTruthy();
@@ -223,13 +223,13 @@ describe("AssistenteScreen", () => {
         },
       },
     });
-    renderWithProviders(<AssistenteScreen />);
+    await renderWithProviders(<AssistenteScreen />);
 
-    fireEvent.changeText(
+    await fireEvent.changeText(
       screen.getByLabelText("Mensagem"),
       "Mais uma pergunta",
     );
-    fireEvent.press(screen.getByLabelText("Enviar mensagem"));
+    await fireEvent.press(screen.getByLabelText("Enviar mensagem"));
 
     await waitFor(() => {
       expect(

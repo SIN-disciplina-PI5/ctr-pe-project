@@ -15,6 +15,7 @@ export function installWebAlert() {
 
   Alert.alert = (title, message, buttons) => {
     const botoes = buttons ?? [];
+    const safeTitle = title ?? "";
 
     if (botoes.length > 1) {
       const texto = [title, message].filter(Boolean).join("\n\n");
@@ -25,10 +26,10 @@ export function installWebAlert() {
       return;
     }
 
-    if (TITULOS_DE_ERRO.test(title)) {
-      notify.error(title, message);
+    if (TITULOS_DE_ERRO.test(safeTitle)) {
+      notify.error(safeTitle, message);
     } else {
-      notify.success(title, message);
+      notify.success(safeTitle, message);
     }
     botoes[0]?.onPress?.();
   };

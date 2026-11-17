@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, View, type ScrollViewInstance } from "react-native";
 import { FileText, Plus } from "lucide-react-native";
 
 import { Button } from "@/components/ui/button";
@@ -49,7 +49,7 @@ export default function AssistenteScreen() {
   const empresaId = useSelectedEmpresaId();
   const mutation = useSendChatMessage();
   const { reset: resetMutation } = mutation;
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
   const [conversationId, setConversationId] = useState<string>();
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatViewMessage[]>([]);

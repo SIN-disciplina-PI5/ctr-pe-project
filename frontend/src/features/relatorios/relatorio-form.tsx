@@ -161,7 +161,7 @@ export function RelatorioForm() {
 
         <View className="items-end">
           <Button
-            onPress={handleSubmit(onSubmit)}
+            onPress={() => void handleSubmit(onSubmit)()}
             disabled={solicitar.isPending}
             accessibilityLabel="Solicitar relatório"
           >

@@ -264,7 +264,7 @@ export default function SignUpScreen() {
 
                 <Button
                   className="w-full mt-2"
-                  onPress={handleSubmit(onSubmit)}
+                  onPress={() => void handleSubmit(onSubmit)()}
                   disabled={submitting || loadingEmpresas}
                 >
                   <Text>{submitting ? "Criando..." : "Criar conta"}</Text>

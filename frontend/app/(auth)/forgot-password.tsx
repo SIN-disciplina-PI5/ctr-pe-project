@@ -87,7 +87,10 @@ export default function ForgotPasswordScreen() {
               </View>
 
               {/* Botão de Enviar */}
-              <Button className="w-full mt-2" onPress={handleSubmit(onSubmit)}>
+              <Button
+                className="w-full mt-2"
+                onPress={() => void handleSubmit(onSubmit)()}
+              >
                 <Text>Enviar Instruções</Text>
               </Button>
 

@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import Svg, { Circle, G } from "react-native-svg";
+import Svg, { Circle } from "react-native-svg";
 
 import type { BarDatum } from "@/components/charts/bar-chart";
 import { Text } from "@/components/ui/text";
@@ -45,35 +45,35 @@ export function DonutChart({
         className="items-center justify-center"
       >
         <Svg width={size} height={size}>
-          <G rotation={-90} origin={`${centro}, ${centro}`}>
-            <Circle
-              cx={centro}
-              cy={centro}
-              r={raio}
-              stroke="#94A3B8"
-              strokeOpacity={0.25}
-              strokeWidth={espessura}
-              fill="none"
-            />
-            {data.map((item, indice) => {
-              const tamanho = (item.value / total) * circunferencia;
-              const inicio = acumulado;
-              acumulado += tamanho;
-              return (
-                <Circle
-                  key={item.label}
-                  cx={centro}
-                  cy={centro}
-                  r={raio}
-                  stroke={corDoRotulo(item.label, indice)}
-                  strokeWidth={espessura}
-                  fill="none"
-                  strokeDasharray={`${tamanho} ${circunferencia - tamanho}`}
-                  strokeDashoffset={-inicio}
-                />
-              );
-            })}
-          </G>
+          <Circle
+            cx={centro}
+            cy={centro}
+            r={raio}
+            stroke="#94A3B8"
+            strokeOpacity={0.25}
+            strokeWidth={espessura}
+            fill="none"
+            transform={`rotate(-90 ${centro} ${centro})`}
+          />
+          {data.map((item, indice) => {
+            const tamanho = (item.value / total) * circunferencia;
+            const inicio = acumulado;
+            acumulado += tamanho;
+            return (
+              <Circle
+                key={item.label}
+                cx={centro}
+                cy={centro}
+                r={raio}
+                stroke={corDoRotulo(item.label, indice)}
+                strokeWidth={espessura}
+                fill="none"
+                strokeDasharray={`${tamanho} ${circunferencia - tamanho}`}
+                strokeDashoffset={-inicio}
+                transform={`rotate(-90 ${centro} ${centro})`}
+              />
+            );
+          })}
         </Svg>
 
         <View className="absolute items-center">

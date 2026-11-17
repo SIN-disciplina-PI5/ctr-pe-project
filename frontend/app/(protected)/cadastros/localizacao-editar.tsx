@@ -32,6 +32,12 @@ function LocalizacaoEditarContent() {
 
   const { control, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      codigo: "",
+      nome: "",
+      tipo: "",
+      ativa: true,
+    },
   });
 
   useEffect(() => {
@@ -121,7 +127,7 @@ function LocalizacaoEditarContent() {
       </View>
 
       <Pressable
-        onPress={handleSubmit(onSubmit)}
+        onPress={() => void handleSubmit(onSubmit)()}
         disabled={isPending}
         className="bg-primary py-3 rounded-md items-center"
       >

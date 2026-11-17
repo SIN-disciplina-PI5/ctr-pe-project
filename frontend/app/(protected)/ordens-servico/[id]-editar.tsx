@@ -90,7 +90,10 @@ function EditarOrdemServicoContent() {
         </Text>
       ) : null}
 
-      <Button onPress={handleSubmit(onSubmit)} disabled={updateMutation.isPending}>
+      <Button
+        onPress={() => void handleSubmit(onSubmit)()}
+        disabled={updateMutation.isPending}
+      >
         <Text>{updateMutation.isPending ? "Salvando…" : "Salvar"}</Text>
       </Button>
     </ScrollView>

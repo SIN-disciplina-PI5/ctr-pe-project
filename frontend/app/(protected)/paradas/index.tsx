@@ -128,7 +128,7 @@ export default function ParadasScreen() {
         ListEmptyComponent={
           !isLoading ? (
             <EmptyState title="Nenhuma parada encontrada" description="As paradas de ativos registradas aparecerão aqui." />
-          ) : null
+          ) : undefined
         }
       />
 

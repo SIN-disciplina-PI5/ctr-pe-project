@@ -53,8 +53,8 @@ jest.mock("@/features/paradas/paradas.hooks", () => ({
 }));
 
 describe("DashboardScreen", () => {
-  it("renderiza os indicadores principais", () => {
-    renderWithProviders(<DashboardScreen />);
+  it("renderiza os indicadores principais", async () => {
+    await renderWithProviders(<DashboardScreen />);
 
     expect(screen.getByText("Ativos totais")).toBeTruthy();
     expect(screen.getByText("Máquinas paradas")).toBeTruthy();

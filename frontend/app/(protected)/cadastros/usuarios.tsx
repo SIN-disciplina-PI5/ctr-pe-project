@@ -155,7 +155,7 @@ export default function UsuariosScreen() {
         ListEmptyComponent={
           !isLoading ? (
             <EmptyState title="Nenhum usuário encontrado" description="Cadastre um usuário para começar." />
-          ) : null
+          ) : undefined
         }
       />
 
@@ -207,7 +207,7 @@ export default function UsuariosScreen() {
                 <Text className="text-foreground text-sm">Cancelar</Text>
               </Pressable>
               <Pressable
-                onPress={handleSubmit(onSubmitReset)}
+                onPress={() => void handleSubmit(onSubmitReset)()}
                 disabled={isResetting}
                 className="flex-1 bg-primary py-2 rounded-md items-center"
               >

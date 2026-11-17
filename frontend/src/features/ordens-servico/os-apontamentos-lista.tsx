@@ -268,7 +268,9 @@ export function OSApontamentosLista({ ordemServicoId }: Props) {
                 <Text className="text-foreground text-sm">Cancelar</Text>
               </Pressable>
               <Pressable
-                onPress={handleSubmit(editItem ? onEdit : onCreate)}
+                onPress={() =>
+                  void handleSubmit(editItem ? onEdit : onCreate)()
+                }
                 disabled={addMutation.isPending || updateMutation.isPending}
                 className="flex-1 bg-primary py-2 rounded-md items-center"
               >

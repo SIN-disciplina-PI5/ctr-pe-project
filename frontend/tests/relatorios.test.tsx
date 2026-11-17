@@ -93,9 +93,9 @@ describe("RelatoriosScreen", () => {
   });
 
   it("solicita o relatório padrão com período do mês anterior e chave de idempotência", async () => {
-    renderWithProviders(<RelatoriosScreen />);
+    await renderWithProviders(<RelatoriosScreen />);
 
-    fireEvent.press(screen.getByLabelText("Solicitar relatório"));
+    await fireEvent.press(screen.getByLabelText("Solicitar relatório"));
 
     await waitFor(() => expect(mockSolicitar).toHaveBeenCalledTimes(1));
     const [variables] = mockSolicitar.mock.calls[0];
@@ -107,11 +107,11 @@ describe("RelatoriosScreen", () => {
   });
 
   it("reaproveita a chave ao repetir o mesmo pedido após uma falha", async () => {
-    renderWithProviders(<RelatoriosScreen />);
+    await renderWithProviders(<RelatoriosScreen />);
 
-    fireEvent.press(screen.getByLabelText("Solicitar relatório"));
+    await fireEvent.press(screen.getByLabelText("Solicitar relatório"));
     await waitFor(() => expect(mockSolicitar).toHaveBeenCalledTimes(1));
-    fireEvent.press(screen.getByLabelText("Solicitar relatório"));
+    await fireEvent.press(screen.getByLabelText("Solicitar relatório"));
     await waitFor(() => expect(mockSolicitar).toHaveBeenCalledTimes(2));
 
     expect(mockSolicitar.mock.calls[1][0].idempotencyKey).toBe(
@@ -120,17 +120,17 @@ describe("RelatoriosScreen", () => {
   });
 
   it("exige descrição no relatório personalizado", async () => {
-    renderWithProviders(<RelatoriosScreen />);
+    await renderWithProviders(<RelatoriosScreen />);
 
-    fireEvent.press(screen.getAllByText("Personalizado")[0]!);
-    fireEvent.press(screen.getByLabelText("Solicitar relatório"));
+    await fireEvent.press(screen.getAllByText("Personalizado")[0]!);
+    await fireEvent.press(screen.getByLabelText("Solicitar relatório"));
 
     expect(await screen.findByText("Descreva o relatório que você precisa.")).toBeTruthy();
     expect(mockSolicitar).not.toHaveBeenCalled();
   });
 
-  it("mostra cada estado do processamento", () => {
-    renderWithProviders(<RelatoriosScreen />);
+  it("mostra cada estado do processamento", async () => {
+    await renderWithProviders(<RelatoriosScreen />);
 
     expect(screen.getByText("Aguardando processamento.")).toBeTruthy();
     expect(screen.getByText(/A tentativa anterior falhou\. Nova tentativa às .* \(2 de 3\)\./)).toBeTruthy();
@@ -142,13 +142,13 @@ describe("RelatoriosScreen", () => {
     expect(screen.getByText(/Atualizando a cada 5 s/)).toBeTruthy();
   });
 
-  it("baixa somente o relatório pronto", () => {
-    renderWithProviders(<RelatoriosScreen />);
+  it("baixa somente o relatório pronto", async () => {
+    await renderWithProviders(<RelatoriosScreen />);
 
     const botoes = screen.getAllByText("Baixar PDF");
     expect(botoes).toHaveLength(1);
 
-    fireEvent.press(screen.getByLabelText("Baixar PDF de Manutenção de outubro"));
+    await fireEvent.press(screen.getByLabelText("Baixar PDF de Manutenção de outubro"));
 
     expect(mockBaixar).toHaveBeenCalledWith(
       expect.objectContaining({ id: "job-pronto" }),
@@ -156,31 +156,31 @@ describe("RelatoriosScreen", () => {
     );
   });
 
-  it("não mostra o aviso de atualização sem jobs ativos", () => {
+  it("não mostra o aviso de atualização sem jobs ativos", async () => {
     mockLista = {
       ...mockLista,
       data: { items: [jobs[3]], total: 1, page: 1, pageSize: 10, hasActiveJobs: false },
     };
-    renderWithProviders(<RelatoriosScreen />);
+    await renderWithProviders(<RelatoriosScreen />);
 
     expect(screen.queryByText(/Atualizando a cada/)).toBeNull();
   });
 
-  it("mostra estado vazio e erro com nova tentativa", () => {
+  it("mostra estado vazio e erro com nova tentativa", async () => {
     mockLista = { ...mockLista, data: { items: [], total: 0, page: 1, pageSize: 10, hasActiveJobs: false } };
-    const { unmount } = renderWithProviders(<RelatoriosScreen />);
+    const { unmount } = await renderWithProviders(<RelatoriosScreen />);
     expect(screen.getByText("Nenhum relatório encontrado")).toBeTruthy();
-    unmount();
+    await unmount();
 
     mockLista = { ...mockLista, data: undefined, isError: true, error: new Error("rede") };
-    renderWithProviders(<RelatoriosScreen />);
-    fireEvent.press(screen.getByText("Tentar novamente"));
+    await renderWithProviders(<RelatoriosScreen />);
+    await fireEvent.press(screen.getByText("Tentar novamente"));
     expect(mockRefetch).toHaveBeenCalled();
   });
 
-  it("explica a indisponibilidade para usuário sem empresa", () => {
+  it("explica a indisponibilidade para usuário sem empresa", async () => {
     setUser(null);
-    renderWithProviders(<RelatoriosScreen />);
+    await renderWithProviders(<RelatoriosScreen />);
 
     expect(screen.getByText("Relatórios indisponíveis para este usuário")).toBeTruthy();
     expect(screen.queryByLabelText("Solicitar relatório")).toBeNull();

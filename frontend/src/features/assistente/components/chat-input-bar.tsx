@@ -2,8 +2,7 @@ import {
   Platform,
   TextInput,
   View,
-  type NativeSyntheticEvent,
-  type TextInputKeyPressEventData,
+  type TextInputKeyPressEvent,
 } from "react-native";
 import { Send } from "lucide-react-native";
 
@@ -24,11 +23,9 @@ export function ChatInputBar({
   onChangeText: (text: string) => void;
   onSend: () => void;
 }) {
-  function handleKeyPress(
-    event: NativeSyntheticEvent<TextInputKeyPressEventData>,
-  ) {
+  function handleKeyPress(event: TextInputKeyPressEvent) {
     if (Platform.OS !== "web") return;
-    const nativeEvent = event.nativeEvent as TextInputKeyPressEventData & {
+    const nativeEvent = event.nativeEvent as TextInputKeyPressEvent["nativeEvent"] & {
       shiftKey?: boolean;
     };
     if (nativeEvent.key === "Enter" && !nativeEvent.shiftKey) {

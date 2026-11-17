@@ -134,7 +134,7 @@ export default function LocalizacoesScreen() {
         ListEmptyComponent={
           !isLoading ? (
             <EmptyState title="Nenhuma localização encontrada" description="Cadastre uma localização para começar." />
-          ) : null
+          ) : undefined
         }
       />
     </View>

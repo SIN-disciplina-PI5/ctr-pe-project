@@ -70,7 +70,7 @@ export function ModalCancelarParada({ paradaId, onClose }: ModalCancelarParadaPr
               <Text className="text-foreground text-sm">Voltar</Text>
             </Pressable>
             <Pressable
-              onPress={handleSubmit(onSubmit)}
+              onPress={() => void handleSubmit(onSubmit)()}
               disabled={isPending}
               className="flex-1 bg-destructive py-2 rounded-md items-center"
             >
