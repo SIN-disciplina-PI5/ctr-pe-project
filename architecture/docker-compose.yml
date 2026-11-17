@@ -1,0 +1,12 @@
+services:
+  structurizr:
+    image: structurizr/structurizr:2026.04.19
+    container_name: maqcontrol-structurizr
+    user: "0:0"
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/usr/local/structurizr
+    command: local
+    labels:
+      - "com.structurizr.description=Structurizr - Visualizador do modelo C4 do MaqControl"

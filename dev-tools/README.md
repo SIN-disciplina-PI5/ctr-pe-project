@@ -5,13 +5,13 @@ Development tools for Manutencao Conectada.
 ## Structure
 
 dev-tools/
-├── docker-compose.yml
 ├── .env                        (generated locally, not committed)
-├── beef/
-│   └── docker-compose.yml      isolated opt-in service
 ├── sonar/
+│   ├── docker-compose.yml      SonarQube service
 │   ├── backend.properties
 │   └── frontend.properties
+├── beef/
+│   └── docker-compose.yml      isolated opt-in service
 ├── scripts/
 │   ├── sonar-setup.sh          first-time SonarQube setup
 │   ├── sonar-scan.sh           run analysis

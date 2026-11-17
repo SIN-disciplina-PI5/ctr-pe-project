@@ -24,8 +24,7 @@ if [ -z "${SONAR_TOKEN:-}" ]; then
 fi
 
 echo "[1/6] Starting SonarQube..."
-cd "$DEV_TOOLS"
-docker compose up -d sonarqube
+docker compose -f "$DEV_TOOLS/sonar/docker-compose.yml" up -d sonarqube
 
 echo "Waiting for SonarQube to be ready..."
 until curl -sf http://localhost:9000/api/system/status | grep -q '"status":"UP"'; do
