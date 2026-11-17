@@ -44,3 +44,21 @@ yarn-error.*
 .scannerwork/
 dev-tools/zap/reports/
 backend/evaluation/results/
+
+# Structurizr (all temp files)
+.structurizr/
+images/
+
+# Logs
+*.log*
+
+# local Docker
+docker-compose.override.yml
+.env
+
+# IDEs / SO
+.vscode/
+.DS_Store
+
+# local render
+workspace.json

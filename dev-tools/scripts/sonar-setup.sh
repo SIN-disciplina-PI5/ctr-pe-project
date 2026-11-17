@@ -15,8 +15,7 @@ if [ -z "$NEW_PASS" ]; then
 fi
 
 echo "[1/4] Starting SonarQube..."
-cd "$DEV_TOOLS"
-docker compose up -d sonarqube
+docker compose -f "$DEV_TOOLS/sonar/docker-compose.yml" up -d sonarqube
 
 echo "Waiting for SonarQube to be ready..."
 until curl -sf "$SONAR_URL/api/system/status" | grep -q '"status":"UP"'; do
