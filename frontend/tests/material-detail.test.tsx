@@ -8,6 +8,7 @@ import { renderWithProviders } from "./utils/render-with-providers";
 const mockMutateAsync = jest.fn();
 
 jest.mock("expo-router", () => ({
+  ...jest.requireActual("expo-router"),
   router: { push: jest.fn() },
   useLocalSearchParams: () => ({ id: "mat-1" }),
 }));

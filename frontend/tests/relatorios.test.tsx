@@ -12,6 +12,7 @@ const mockRefetch = jest.fn();
 let mockLista: Record<string, unknown>;
 
 jest.mock("expo-router", () => ({
+  ...jest.requireActual("expo-router"),
   Redirect: () => null,
 }));
 

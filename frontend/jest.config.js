@@ -5,7 +5,7 @@ module.exports = {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
   transformIgnorePatterns: [
-    "node_modules/(?!((jest-)?react-native|@react-native|react-native|expo(nent)?|@expo(nent)?/.*|expo-router|@expo/.*|@unimodules/.*|unimodules|nativewind|react-native-css-interop|@rn-primitives/.*|@react-navigation/.*))",
+    "node_modules/(?!((jest-)?react-native|@react-native|react-native|expo(nent)?|@expo(nent)?/.*|expo-router|@expo/.*|@unimodules/.*|unimodules|nativewind|react-native-css-interop|@rn-primitives/.*|@react-navigation/.*|standard-navigation))",
   ],
   testPathIgnorePatterns: ["/node_modules/"],
 };

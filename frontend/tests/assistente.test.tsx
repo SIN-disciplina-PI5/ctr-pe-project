@@ -8,6 +8,7 @@ const mockReset = jest.fn();
 const mockPush = jest.fn();
 
 jest.mock("expo-router", () => ({
+  ...jest.requireActual("expo-router"),
   router: { push: (href: string) => mockPush(href) },
 }));
 
