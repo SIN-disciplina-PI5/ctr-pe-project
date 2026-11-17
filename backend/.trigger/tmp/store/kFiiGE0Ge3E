@@ -1,0 +1,43 @@
+import {
+  defineConfig
+} from "../../../../chunk-FQI2VHFI.mjs";
+import "../../../../chunk-BSMHPTTW.mjs";
+import {
+  init_esm
+} from "../../../../chunk-5A2LE32G.mjs";
+
+// trigger.config.ts
+init_esm();
+
+// node_modules/@trigger.dev/build/dist/esm/extensions/prisma.js
+init_esm();
+
+// node_modules/@trigger.dev/build/dist/esm/imports/mlly.js
+init_esm();
+
+// trigger.config.ts
+var trigger_config_default = defineConfig({
+  project: "proj_opwbmxujbgspljvgqzhk",
+  runtime: "node-24",
+  logLevel: "log",
+  // Teto global; as tasks de relatório definem limites menores.
+  maxDuration: 900,
+  retries: {
+    enabledInDev: true,
+    default: {
+      maxAttempts: 2,
+      minTimeoutInMs: 1e3,
+      maxTimeoutInMs: 1e4,
+      factor: 2,
+      randomize: true
+    }
+  },
+  dirs: ["./src/trigger"],
+  build: {}
+});
+var resolveEnvVars = void 0;
+export {
+  trigger_config_default as default,
+  resolveEnvVars
+};
+//# sourceMappingURL=trigger.config.mjs.map

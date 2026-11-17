@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../trigger.config.ts", "../../../../../../../node_modules/@trigger.dev/build/src/extensions/prisma.ts", "../../../../../../../node_modules/@trigger.dev/build/src/imports/mlly.ts"],
+  "sourcesContent": ["import { defineConfig } from \"@trigger.dev/sdk\";\nimport { prismaExtension } from \"@trigger.dev/build/extensions/prisma\";\n\nexport default defineConfig({\n  project: \"proj_tvlwaaavsmyxhuqzrqjp\",\n  runtime: \"node-24\",\n  logLevel: \"log\",\n  // Teto global; as tasks de relatório definem limites menores.\n  maxDuration: 900,\n  retries: {\n    enabledInDev: true,\n    default: {\n      maxAttempts: 2,\n      minTimeoutInMs: 1000,\n      maxTimeoutInMs: 10000,\n      factor: 2,\n      randomize: true,\n    },\n  },\n  dirs: [\"./src/trigger\"],\n  build: {},\n});\nexport const resolveEnvVars = undefined;", null, null],
+  "mappings": ";;;;;;;;;AAAA;;;ACCA;;;ACDA;;;AFGA,IAAO,yBAAQ,aAAa;AAAA,EAC1B,SAAS;AAAA,EACT,SAAS;AAAA,EACT,UAAU;AAAA;AAAA,EAEV,aAAa;AAAA,EACb,SAAS;AAAA,IACP,cAAc;AAAA,IACd,SAAS;AAAA,MACP,aAAa;AAAA,MACb,gBAAgB;AAAA,MAChB,gBAAgB;AAAA,MAChB,QAAQ;AAAA,MACR,WAAW;AAAA,IACb;AAAA,EACF;AAAA,EACA,MAAM,CAAC,eAAe;AAAA,EACtB,OAAO,CAAC;AACV,CAAC;AACM,IAAM,iBAAiB;",
+  "names": []
+}

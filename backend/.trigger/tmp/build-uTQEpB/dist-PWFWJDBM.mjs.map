@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../node_modules/ohash/dist/crypto/node/index.mjs", "../../../node_modules/ohash/dist/index.mjs"],
+  "sourcesContent": ["import { createHash } from 'node:crypto';\n\nconst e=globalThis.process?.getBuiltinModule?.(\"crypto\")?.hash,r=\"sha256\",s=\"base64url\";function digest(t){if(e)return e(r,t,s);const o=createHash(r).update(t);return globalThis.process?.versions?.webcontainer?o.digest().toString(s):o.digest(s)}\n\nexport { digest };\n", "import { s as serialize } from './shared/ohash.D__AXeF1.mjs';\nexport { i as isEqual } from './shared/ohash.D__AXeF1.mjs';\nimport { digest } from 'ohash/crypto';\nexport { digest } from 'ohash/crypto';\n\nfunction hash(input) {\n  return digest(serialize(input));\n}\n\nexport { hash, serialize };\n"],
+  "mappings": ";;;;;;;;;;;;AAAA,SAAS,kBAAkB;AAE6D,SAAS,OAAO,GAAE;AAAC,MAAG,EAAE,QAAO,EAAE,GAAE,GAAE,CAAC;AAAE,QAAM,IAAE,WAAW,CAAC,EAAE,OAAO,CAAC;AAAE,SAAO,WAAW,SAAS,UAAU,eAAa,EAAE,OAAO,EAAE,SAAS,CAAC,IAAE,EAAE,OAAO,CAAC;AAAC;AAFpP,IAEM,GAAyD,GAAW;AAF1E;AAAA;AAAA;AAEA,IAAM,IAAE,WAAW,SAAS,mBAAmB,QAAQ,GAAG;AAA1D,IAA+D,IAAE;AAAjE,IAA0E,IAAE;AAAqB;AAAA;AAAA;;;ACGjG,SAAS,KAAK,OAAO;AACnB,SAAO,OAAO,UAAU,KAAK,CAAC;AAChC;AAPA;AAAA;AAAA;AAAA;AACA;AACA;AACA;AAES;AAAA;AAAA;",
+  "names": []
+}

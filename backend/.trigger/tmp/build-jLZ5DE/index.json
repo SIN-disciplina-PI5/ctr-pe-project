@@ -1,0 +1,66 @@
+{
+  "concurrencyLimits": [
+  ],
+  "configPath": "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\trigger.config.mjs",
+  "customConditions": [
+  ],
+  "prompts": [
+  ],
+  "queues": [
+    {
+      "concurrencyLimit": 2,
+      "name": "report-jobs"
+    }
+  ],
+  "runtime": "node-24",
+  "runtimeVersion": "24.22.1",
+  "skills": [
+  ],
+  "tasks": [
+    {
+      "entryPoint": "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\src\\trigger\\report-jobs.mjs",
+      "filePath": "src/trigger/report-jobs.ts",
+      "id": "generate-report",
+      "maxDuration": 900,
+      "queue": {
+        "concurrencyLimit": 2,
+        "name": "report-jobs"
+      },
+      "retry": {
+        "factor": 2,
+        "maxAttempts": 2,
+        "maxTimeoutInMs": 60000,
+        "minTimeoutInMs": 10000,
+        "randomize": true
+      }
+    },
+    {
+      "entryPoint": "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\src\\trigger\\report-jobs.mjs",
+      "filePath": "src/trigger/report-jobs.ts",
+      "id": "report-jobs-sweep",
+      "maxDuration": 120,
+      "retry": {
+        "factor": 2,
+        "maxAttempts": 2,
+        "maxTimeoutInMs": 10000,
+        "minTimeoutInMs": 1000,
+        "randomize": true
+      },
+      "schedule": {
+        "cron": "*/5 * * * *",
+        "timezone": "UTC"
+      },
+      "triggerSource": "schedule"
+    }
+  ],
+  "timings": {
+    "src/trigger/report-jobs.ts": 206.15030000000002
+  },
+  "unclaimedSessionWebhooks": [
+  ],
+  "webhookEndpoints": [
+  ],
+  "webhookSubscribers": [
+  ],
+  "workerEntryPoint": "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\AppData\\Local\\npm-cache\\_npx\\f51a09bd0abf5f10\\node_modules\\trigger.dev\\dist\\esm\\entryPoints\\dev-run-worker.mjs"
+}

@@ -1,0 +1,160 @@
+{
+  "build": {
+  },
+  "cliPackageVersion": "4.8.5",
+  "config": {
+    "dirs": [
+      "./src/trigger"
+    ],
+    "project": "proj_opwbmxujbgspljvgqzhk"
+  },
+  "configPath": "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-uTQEpB\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\trigger.config.mjs",
+  "contentHash": "e3a2bd2c9c8106c5125aab43b1b47698",
+  "customConditions": [
+  ],
+  "deploy": {
+    "env": {
+    }
+  },
+  "environment": "dev",
+  "externals": [
+    {
+      "name": "@prisma/client",
+      "version": "7.8.0"
+    },
+    {
+      "name": "pgsql-parser",
+      "version": "18.3.1"
+    },
+    {
+      "name": "import-in-the-middle",
+      "version": "3.0.1"
+    }
+  ],
+  "files": [
+    {
+      "entry": "src/trigger/report-jobs.ts",
+      "out": "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-uTQEpB\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\src\\trigger\\report-jobs.mjs"
+    }
+  ],
+  "indexWorkerEntryPoint": "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-uTQEpB\\AppData\\Local\\npm-cache\\_npx\\f51a09bd0abf5f10\\node_modules\\trigger.dev\\dist\\esm\\entryPoints\\dev-index-worker.mjs",
+  "otelImportHook": {
+    "include": [
+    ]
+  },
+  "outputHashes": {
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\AppData\\Local\\npm-cache\\_npx\\f51a09bd0abf5f10\\node_modules\\trigger.dev\\dist\\esm\\entryPoints\\dev-index-worker.mjs": "Czq2o55vgAU",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\AppData\\Local\\npm-cache\\_npx\\f51a09bd0abf5f10\\node_modules\\trigger.dev\\dist\\esm\\entryPoints\\dev-index-worker.mjs.map": "Rl5wRe78G9s",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\AppData\\Local\\npm-cache\\_npx\\f51a09bd0abf5f10\\node_modules\\trigger.dev\\dist\\esm\\entryPoints\\dev-run-worker.mjs": "fTMzmxXrdWY",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\AppData\\Local\\npm-cache\\_npx\\f51a09bd0abf5f10\\node_modules\\trigger.dev\\dist\\esm\\entryPoints\\dev-run-worker.mjs.map": "MSi2mL4w3pk",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\src\\trigger\\report-jobs.mjs": "Nqh6BP1uFbI",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\src\\trigger\\report-jobs.mjs.map": "2CW7XnLMnL0",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\trigger.config.mjs": "7BYTcw6J3cw",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\trigger.config.mjs.map": "VwoRsFl4Zdo",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-24XSBSBI.mjs": "UXSjsKr+jcQ",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-24XSBSBI.mjs.map": "aSgryE2T3ck",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-2HFDQSS3.mjs": "iRJaT0dC2H4",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-2HFDQSS3.mjs.map": "TKAMsIIKKfs",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-2LE3WOGE.mjs": "WS01URvH7ZI",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-2LE3WOGE.mjs.map": "mLctiLgOZZs",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-5A2LE32G.mjs": "iAHCaksTzjY",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-5A2LE32G.mjs.map": "jXG8+ZCdH20",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-BSMHPTTW.mjs": "lEyodeT2+VA",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-BSMHPTTW.mjs.map": "VON93E1In1A",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-FQI2VHFI.mjs": "uoAyu92aD8M",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-FQI2VHFI.mjs.map": "fs99a4ytKrU",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-G6ZXOEIQ.mjs": "TGyp3PwVQcI",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-G6ZXOEIQ.mjs.map": "LXZlBe5xop8",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-KIVH2MKR.mjs": "guaGMSEFlJ4",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-KIVH2MKR.mjs.map": "AOdGKLiqAtg",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-LI3D3BLA.mjs": "SJAUWd6BT38",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-LI3D3BLA.mjs.map": "1XSJbwJgpHE",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-QNXJQ3OP.mjs": "DQLp9bw1UxE",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-QNXJQ3OP.mjs.map": "weQAH0Pk/H8",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-RAZF55Y6.mjs": "bj0GejSjiDk",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-RAZF55Y6.mjs.map": "G1afGO14s0c",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-VJNL5L4S.mjs": "VoQZ5orRkno",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-VJNL5L4S.mjs.map": "xS6oSmjQRkE",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-XAA2SQ7L.mjs": "fVdfkx3hZCA",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-XAA2SQ7L.mjs.map": "9+NNh1CPwKw",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-XJYKV2TK.mjs": "thuG4DT0VvY",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\chunk-XJYKV2TK.mjs.map": "KEPBUDz9dMk",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\crypto.node-HEIX7BUT.mjs": "AD3+pCeZodA",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\crypto.node-HEIX7BUT.mjs.map": "LMPzUuAiOIM",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\crypto.node-XRVDZYDR.mjs": "GcFh3y+kCyo",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\crypto.node-XRVDZYDR.mjs.map": "VHU7akysEiw",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\dist-4V5M4THO.mjs": "CKAqaTSyitc",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\dist-4V5M4THO.mjs.map": "ddiWPMsbIoY",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\dist-IYBQI67O.mjs": "HEGol+vX2q8",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\dist-IYBQI67O.mjs.map": "DvqTjLIb+No",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\dist-K5OLYDUH.mjs": "QhNar6TBwYQ",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\dist-K5OLYDUH.mjs.map": "r5XjWYkTNXs",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\dist-PWFWJDBM.mjs": "Y9FqYPzvAS8",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\dist-PWFWJDBM.mjs.map": "Pi0rPBMU3Qc",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\dist-RR3MCBQI.mjs": "2tJKrMgeSIM",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\dist-RR3MCBQI.mjs.map": "k7luofRkJtk",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\esm-3BRLZ6OK.mjs": "wQuN/bQj9xw",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\esm-3BRLZ6OK.mjs.map": "g8J09f6ZOZM",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\esm-6NXCYM54.mjs": "KwsdKLsp7JE",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\esm-6NXCYM54.mjs.map": "0b4tlwmkM3g",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\esm-MO5PVRD7.mjs": "IrbaOzf+1no",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\esm-MO5PVRD7.mjs.map": "0b4tlwmkM3g",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\getMachineId-bsd-XBV6PMBX.mjs": "qvd1KeJmRL4",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\getMachineId-bsd-XBV6PMBX.mjs.map": "jblj49KxPXM",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\getMachineId-darwin-KL4ADOTH.mjs": "v7iHEyfUvL0",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\getMachineId-darwin-KL4ADOTH.mjs.map": "nlmqFtc+AgI",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\getMachineId-linux-KINWGWBZ.mjs": "kGIgwuPy62o",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\getMachineId-linux-KINWGWBZ.mjs.map": "YY+vaOhQ7OI",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\getMachineId-unsupported-OIFYDRLV.mjs": "IwNi8BO30/I",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\getMachineId-unsupported-OIFYDRLV.mjs.map": "op5u7IogaUM",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\getMachineId-win-TLI2WXV6.mjs": "xnBA+RyXS0Q",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\getMachineId-win-TLI2WXV6.mjs.map": "zuAXhmRd3bQ",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\json5-NLVEBOTO.mjs": "fkg51w5v8r0",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\json5-NLVEBOTO.mjs.map": "0u5kKak+fOw",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\json5-YQ5AB5JM.mjs": "BO8rgw4ZkHU",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\json5-YQ5AB5JM.mjs.map": "skYNY8rGW+o",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\jsonc-EP22RVAB.mjs": "uQBD9GPu9Do",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\jsonc-EP22RVAB.mjs.map": "yxLqI1YG+PY",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\multipart-parser-A5RMPCPX.mjs": "6fgZtCsbnxU",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\multipart-parser-A5RMPCPX.mjs.map": "GY3VUPWTFFU",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\s2s-CLBJ32NW.mjs": "XuIj4BOxboI",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\s2s-CLBJ32NW.mjs.map": "1zgAWzJlvDo",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\s2s-FFTIKW4Y.mjs": "TwhWr1p/KRQ",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\s2s-FFTIKW4Y.mjs.map": "tSRcM/3+6NM",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\token-RNGFM33P.mjs": "dDbdtrQWVI0",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\token-RNGFM33P.mjs.map": "SXQYe2vyA2o",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\token-util-4V2BRPE3.mjs": "MsELBoRZ5RU",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\token-util-4V2BRPE3.mjs.map": "0b4tlwmkM3g",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\toml-PU6R72XG.mjs": "ihvYExtnO+s",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\toml-PU6R72XG.mjs.map": "0yb6ImLVlrA",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\utils-PDP6CAPN.mjs": "8w/Ga79b4G4",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\utils-PDP6CAPN.mjs.map": "3WredJpYbBE",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\yaml-34SH5RZE.mjs": "rSFC4mkN6EY",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\yaml-34SH5RZE.mjs.map": "Vs45Y4RwQLg",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\yaml-LT2WUSGK.mjs": "IETeoZQ83kY",
+    "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-jLZ5DE\\yaml-LT2WUSGK.mjs.map": "NE598ya4GGI"
+  },
+  "outputPath": "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-uTQEpB",
+  "packageVersion": "4.8.5",
+  "runWorkerEntryPoint": "C:\\Users\\dayvson.moura\\Documents\\unicap ctrpe\\ctr-pe-project\\backend\\.trigger\\tmp\\build-uTQEpB\\AppData\\Local\\npm-cache\\_npx\\f51a09bd0abf5f10\\node_modules\\trigger.dev\\dist\\esm\\entryPoints\\dev-run-worker.mjs",
+  "runtime": "node-24",
+  "sources": {
+    "package.json": {
+      "contentHash": "ec450d2ed1df19db5a10da6feba6f5e0",
+      "contents": "eJzNV0uP2zYQvgfIfxCMHkvKj93s2kCBTZoeAvRQNOmpqANampVpUySXQzl2gvz3gg/JlFbr3UNQ9GJYM998nLfEb69fZdlEshomq2yyYcUeZDn52UsPYJAr6RQzOqXTKC4BC8O1jaoorRn3j1yWcKQ7jOIAxckq++aevfnB4Swesy/MFtsMTZEjmAMYaqNZlk02DRdlABYZ0ZnFQsl7XlGvoDtUssOiZcY6rFQlZCVH2xLuzoRaoeUSLRPCQbXhWLOsAgmGWehgFvBMRQgcNRheg7RMkENNalU2AjCjuQN8jo/5DtDmGy79H7rDjBDTyA/yHWuzGalXjeQ/hj+kI/MCR0pjfuyFw7m0UBnWlu6H+pBwv8QVX/sf4kRg6pHjSdotWF6QklnmTnn/9tPbd28//vb5rz9//+Wnb+njirjWqAzgg1jluSdwP3ez+Y1rezpbXV8t5l7xPZO6zty/jJAQ3CdAi+9OfzC79QrMXTXyvgsuU8jRgixOFDUUaav7ExkncGCi8Qn0Ngj2v/b87EH+0IA5jbj0Au//x16/wMI0UoIZD9M5XjPpqmkNK9JB9j5GfV4oIaBoR8FDqQPQerCQaiZX3QpqyVqWVkESupQgOg0rxtuNmgRmGkmGwaUBhQXYO/2pnRihNa8GyCjJ3E4fgEvQQp1GsV4xgCNAmYDLTeYlQ5RtSq4SXBS0MMaJUQJWCJZohvhFmbJNTbDIncrBgJVKilMH69Va7UHiqhDAZKNbAveeYo3d5l5ODNwbwC0J4NTcgFbGPrYPr8I8qLms8ghwu48bKEk0HOPaqQ2uTCOfJnP1Dk/EgcdIkNVaANHl/QUakCUYEqFB3suN4VUFZhVf41IfsyiiJRzurugtve71w9mgbYinbHp9UW5WBlyxukU69Lm/YfOAZrIkrnNSl1HzPay0UQfuQ6vVHjoyp8PcwtESqwg+CJ/IPvgxWTea+CCeoYrQwfQNaAxYc3qGyGMu0h2Y4OXLvIrQURo4QtG8iCUgL5NItn8JVcAVDOESa6FqzQy4rwMQ+AylB5FgwvESnUsth+f4QgEu8bUbmViQTFpyz4UF8wxtD/vEsh6nN8+mwAhswRyVGHkJwAGk5Qfm5qMARGaGc9ZhII8YchYRLVjYfo7xe/joD6s2+eZvt7uf/HQXh0FNTPdwctvYxfX3P0Hkdq4yyVVD8AIk+hH+8PHXKLQn7SXhQ7G7qmi3zmQRitu6c1cpVQkghVBNmRsomLbFlhGQFozzzTOtb+i8vfQ4o+g0K5l2hdJVBN2OgArBQdoxQLL4ciz3DuL33xlxAFOAyDdCbTzBnC4Tgk1hTjowvzlfyrJsUiiDEX9L35z3qLIg/apez27oFZ2fPx+O2gAGm2s6p7OhhvjVJHgdbizrW3qdmFdGPZAYwXpG3ySubEHU0NrMEoW7tX2BjX9levWSTumiU9fKVExGwtk08UiX90TwTau6SVVVPGieZkNX+CCIZgbD/K1nt3SRWH1VviHXVz4lSQOWcHj/RNekpeuup4Pi3bM9GLLD3P8JJ097yblznYr5k3WM+l45Z8uhul+8aVLwCNjFe+x6MR2jH63E7BGsV5HlCMB9sAY3r8eiHC9OVGKjwbT37cG0AQoeB2g2pYu0h5LAUrk2YC2POV/Q26Svun00nMbHHpz72yLpjpov6RVdpqou7tmULntWx9hX8wWdnRvDR+wXalfyRWi716++v371L4h2bKY="
+    },
+    "src/trigger/report-jobs.ts": {
+      "contentHash": "3ab68fc300fe512f006fb23a27c31461",
+      "contents": "eJydVU1v20YQvQvQf3jQSVJpSjaQAKXhpkJjBA7spHVUoDdhRI7kVcgdenepSFX9Y4weihboSbde+ceK5Yc/YxQodNLszJuZ994uVZaLcdghleWSTYDrggsOYOMrToqUbQBH9jNusDCSofe9M8onhgmvRzb53DvudlSLERsmx5fs/76X+Y9GYrZWzF11GI4yqWBHpEamSjxYyTxcUOzEbMOVfQDotjljh/+Dl7epDWK3MxoOMeUsF2Tl7UZlgoRRZIQlGyr/KH+vAoZTcuXeKIEWTO93DTEcdTuxaOvw7vTD6eVkejq7mPwye/vz5WR69vHD7BNO8O143DbrdjDED6JjMab8S8eKMCe1Id8lN5KXe6ucRIgpoYdtF/Qr1uWtUWQRX1FGCVmQVHDvjFyD4acoUlfFMScdS4jJqrCuOlqIyRhikapMObZIxDdccyIm9DCjboc3FcH1Oqbl1/7ktcdJ7YH+DpoyjtC759X2Al8UF8awjrfnvkOEI9wMqrVTdrhjPvqacL+h0AkvlOakqlgUOnZKNJbs7rL6g6/W7rodYDTCR6RM1rPIsbIE3sScsAEhKVopa40JCdX2zcmQXwuENRnDPrOB0z7fMFnr3VBkWMm8TlU6IbB15S2MJKQT8fzdb4g3b05e9Hy/SQtZr4N6dtSDX9gI/Zc89A1ejwcY4nA8Hge+qKIWMOwKo+97H3c7N57AR0ouWbO5m2bqFz+p9u9X/VUSodfmHNSq9qomleDRUydURxlt3haGvEjRS84PGiov2ZmtN7jmZbmPlaB/fn4RwDoxtOQByj+9G7VYK9DlP3HK4g2VeZapOmn83ABOrgsFW+79ZOxUJhbXhRcChNyU+9yoRuAFpVeEPm/CqIaA0omyuejy7zWnrdaCOCWVDY5hCv1e5n4ilfhnwbF2HIC1q/3g+xl/bHlZmHoi4/eLsPOkTJzjLHc2wlGATOmpylgKd6a9vIfjmdfP5z2Kv27i9XNX3ZyKO1PoCGS3OkY/p20qlPg2K5mfJRGsM0ovcTPAyXetk2rBpXCxZP7K0hdS7sktCusdW8SwgqvthOa9D5VeSL+54bOVzGcNZC/ADmEYth1u2rrGiE28CvodmhfghYfl0xfmvPHj3ZclfOLMB8/MgfUFtTdj453XG45eYVj/es+NeXg0fkbkc7pskWVkti/R5f1CLr6arEmlNE+5fzT+D7rsrJm0Zqtt8JStJv6YrX8BQk+Cnw=="
+    },
+    "trigger.config.ts": {
+      "contentHash": "188e130fa06f84fd7236ca44d0edf7b7",
+      "contents": "eJxtUk1vEzEQvUfKfxj5lEhpHCokhHMpohwqgcSht6pCTjy7TGN7lvFsFBHlV/ET+GNoP7pQ4GJbb+Y9P/sNpYZF4QwBK8r4nnNFNVygEk5gblSorlHWAY+2hIPZzmf0zGiESvIfToq5EOf/k3YtxWDxuanYgdUJzWd46qUCVr6N+sLC4jyfATTCT7hXB6Y7fVHUGFLLX+XbwZNvw+GpMauuUdqslNCByRzw6vr1AEeuP+IRowMTuR4wa+EelaGOvPNxC76A+nIoEBAEo9efP4R4NJMgUiLFAgkzC5Z1J5H86bYVr8TZwdvNZrCAKoTFQe8cALPfRQx3+RaPDlRaXA2F8blTY6/3ThVTo8XB9WqCKd9TQm71Ln8qDl5txqtGzj/F39XK75XlTzHxOXCi7/jCy6XfhzWQFAcPZm2L7O0Yonnsa32Mk2Nr4XMfI7yBPScIQkcU8ME3igKLmyFkOwJXTb10kDgwmMQBJZv1+EfTXDh4+GueFueO0kU6cuCyfJzsXpbb+ewXpa7adQ=="
+    },
+    "tsconfig.json": {
+      "contentHash": "da71b515ce658e7df07fb48850c943a3",
+      "contents": "eJx1U01PIzEMvSPxH6ycgbn3tCsKUqWiIgp7We0hTdyO2yQeOR5ohfjvq0ynn5Rj8p4/3rP9eX0FUFXwhzIp1KpNHlSVXdm7mCvNjtOcFqAMgtZDZEGwM24VtKYMcwpYEhjHsaGAMmmUOGUzgM/yD2AwP7FvA46SonBjBqDS4k2P2hD4Y7pJWqOSG+LctkFHsWHRfEqtKnikgDC2G251/2eEWYckZgDmrsrizIFvuD1AnrIWbI8+pHcSThGTwhRVKS3yHpwigg2Zf3Kkip2oXsX2Ueok9phwrbsujFpZoBYI8ymwabBI/NvFmBswS8xq/h3JZYGCLfPgICnQrAvqs+3oe4JNHlITgVJWGwLcDuFXV6oqqY7kT7RGgUmrTau9bpO5FYdP9nxKHl2wYstof0ZOwg5GqpBTFHjdNOhqdCtKC+jXpE+S+C11EPpR8rhG/9s5zGcLYHBtnW4jbXgWblB089rb+L3uJuBpnWJf4lFsAjnSF9RW0vclO6JM3lGEPF7ivKU2ox+zs+Fiji3+bMVGVJSLnEcbgtbC7aK+txnzKE0/SF19ibvTu3XmUTh2Vk1pkay2ghcseEHHMWLy6M8Mz91Qzuxd5nVZU0Hr9LY8dsA7yswqxe0dl2O167NYyhysot9Szgd3NN8peXyYz9FdPvL+koao6PptM3MWh/tm8oqaMc3uS7rj2K/rq6/rq/8sTm+n"
+    }
+  },
+  "target": "dev"
+}
