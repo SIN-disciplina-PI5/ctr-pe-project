@@ -1,7 +1,11 @@
 import { Platform } from "react-native";
+import { File, Paths } from "expo-file-system";
+import * as Sharing from "expo-sharing";
 
 import { apiClient } from "@/infrastructure/api/api-client";
 import { endpoints } from "@/infrastructure/api/endpoints";
+import { env } from "@/infrastructure/env/env";
+import { getToken } from "@/infrastructure/storage/token-storage";
 
 import type {
   CreateReportInput,
@@ -35,8 +39,8 @@ export async function getReport(id: string): Promise<ReportJob> {
 }
 
 export class DownloadUnavailableError extends Error {
-  constructor() {
-    super("O download do PDF está disponível na versão web.");
+  constructor(message = "O compartilhamento de arquivos não está disponível neste dispositivo.") {
+    super(message);
     this.name = "DownloadUnavailableError";
   }
 }
@@ -47,15 +51,51 @@ function filenameFrom(disposition: unknown, fallback: string): string {
   return match?.[1] ?? fallback;
 }
 
-/**
- * Baixa o PDF com o token da sessão (o link não é público) e entrega ao
- * navegador como download. No celular ainda não há onde salvar o arquivo.
- */
+async function downloadNative(job: Pick<ReportJob, "id">): Promise<void> {
+  if (!(await Sharing.isAvailableAsync())) {
+    throw new DownloadUnavailableError();
+  }
+
+  const token = await getToken();
+  if (!token) {
+    throw new DownloadUnavailableError("Sua sessão expirou. Entre novamente para baixar o relatório.");
+  }
+
+  const filename = `relatorio-${job.id}.pdf`;
+  const destination = new File(Paths.cache, filename);
+  const baseUrl = env.apiUrl.replace(/\/+$/, "");
+  const file = await File.downloadFileAsync(
+    `${baseUrl}${endpoints.ai.reports.download(job.id)}`,
+    destination,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+      idempotent: true,
+    },
+  );
+
+  try {
+    await Sharing.shareAsync(file.uri, {
+      dialogTitle: "Salvar ou compartilhar relatório",
+      mimeType: "application/pdf",
+      UTI: "com.adobe.pdf",
+    });
+  } finally {
+    try {
+      file.delete();
+    } catch {
+      // O sistema operacional também pode limpar arquivos do cache.
+    }
+  }
+}
+
 export async function downloadReport(
   job: Pick<ReportJob, "id">,
   platform: string = Platform.OS,
 ): Promise<void> {
-  if (platform !== "web") throw new DownloadUnavailableError();
+  if (platform !== "web") {
+    await downloadNative(job);
+    return;
+  }
 
   const response = await apiClient.get<Blob>(endpoints.ai.reports.download(job.id), {
     responseType: "blob",

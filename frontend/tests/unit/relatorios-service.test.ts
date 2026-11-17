@@ -1,5 +1,33 @@
+const mockDownloadFileAsync = jest.fn();
+const mockDeleteFile = jest.fn();
+const mockGetToken = jest.fn();
+const mockIsSharingAvailable = jest.fn();
+const mockShareAsync = jest.fn();
+
 jest.mock("@/infrastructure/api/api-client", () => ({
   apiClient: { get: jest.fn(), post: jest.fn() },
+}));
+
+jest.mock("@/infrastructure/env/env", () => ({
+  env: { apiUrl: "https://api.ctrpe.test/api" },
+}));
+
+jest.mock("@/infrastructure/storage/token-storage", () => ({
+  getToken: () => mockGetToken(),
+}));
+
+jest.mock("expo-file-system", () => ({
+  File: class MockFile {
+    static downloadFileAsync = (...args: unknown[]) => mockDownloadFileAsync(...args);
+    uri = "file:///cache/relatorio-job-1.pdf";
+    delete = mockDeleteFile;
+  },
+  Paths: { cache: "file:///cache" },
+}));
+
+jest.mock("expo-sharing", () => ({
+  isAvailableAsync: () => mockIsSharingAvailable(),
+  shareAsync: (...args: unknown[]) => mockShareAsync(...args),
 }));
 
 import { apiClient } from "@/infrastructure/api/api-client";
@@ -14,7 +42,15 @@ const mockGet = apiClient.get as jest.Mock;
 const mockPost = apiClient.post as jest.Mock;
 
 describe("relatorios.service (apiClient mockado)", () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockGetToken.mockResolvedValue("access-token");
+    mockIsSharingAvailable.mockResolvedValue(true);
+    mockDownloadFileAsync.mockResolvedValue({
+      uri: "file:///cache/relatorio-job-1.pdf",
+      delete: mockDeleteFile,
+    });
+  });
 
   it("createReport envia o corpo e a Idempotency-Key", async () => {
     mockPost.mockResolvedValue({ data: { id: "job-1", status: "queued" } });
@@ -39,11 +75,31 @@ describe("relatorios.service (apiClient mockado)", () => {
     });
   });
 
-  it("downloadReport não tenta baixar fora da web", async () => {
-    await expect(downloadReport({ id: "job-1" }, "ios")).rejects.toBeInstanceOf(
+  it("downloadReport baixa e compartilha o PDF no mobile", async () => {
+    await downloadReport({ id: "job-1" }, "android");
+
+    expect(mockDownloadFileAsync).toHaveBeenCalledWith(
+      "https://api.ctrpe.test/api/ai/reports/job-1/download",
+      expect.any(Object),
+      {
+        headers: { Authorization: "Bearer access-token" },
+        idempotent: true,
+      },
+    );
+    expect(mockShareAsync).toHaveBeenCalledWith(
+      "file:///cache/relatorio-job-1.pdf",
+      expect.objectContaining({ mimeType: "application/pdf" }),
+    );
+    expect(mockDeleteFile).toHaveBeenCalled();
+  });
+
+  it("downloadReport informa quando o compartilhamento não está disponível", async () => {
+    mockIsSharingAvailable.mockResolvedValue(false);
+
+    await expect(downloadReport({ id: "job-1" }, "android")).rejects.toBeInstanceOf(
       DownloadUnavailableError,
     );
-    expect(mockGet).not.toHaveBeenCalled();
+    expect(mockDownloadFileAsync).not.toHaveBeenCalled();
   });
 
   describe("na web", () => {
