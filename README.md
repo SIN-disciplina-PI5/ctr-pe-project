@@ -1,4 +1,4 @@
-# CTR-PE Project
+# MaqControl Project
 
 Guia básico de instalação e execução do projeto em ambiente local.
 
