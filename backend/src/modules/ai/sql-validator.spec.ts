@@ -21,6 +21,31 @@ describe("validador SQL de produção", () => {
     });
   });
 
+  it("aceita somente as referências temporais seguras do sistema", async () => {
+    await expect(
+      validateSql(
+        `SELECT CURRENT_DATE AS "dataAtual", CURRENT_TIMESTAMP AS "instanteAtual"
+         FROM ai."OrdemServico"
+         LIMIT 1`,
+        { allowedViews: ["OrdemServico"] },
+      ),
+    ).resolves.toMatchObject({ valid: true, violations: [] });
+  });
+
+  it("continua bloqueando valores de sistema que expõem a sessão", async () => {
+    const result = await validateSql(
+      `SELECT CURRENT_USER AS "usuario"
+       FROM ai."OrdemServico"
+       LIMIT 1`,
+      { allowedViews: ["OrdemServico"] },
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.violations).toContain(
+      "Valor SQL de sistema não autorizado: SVFOP_CURRENT_USER.",
+    );
+  });
+
   it.each([
     ["SQL inválido", "SELECT FROM", "SQL sintaticamente inválido."],
     [

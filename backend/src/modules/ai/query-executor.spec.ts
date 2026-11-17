@@ -54,6 +54,25 @@ describe("PgReadOnlyQueryExecutor", () => {
     expect(release).toHaveBeenCalledTimes(1);
   });
 
+  it("normaliza escala decimal excessiva sem alterar identificadores textuais", async () => {
+    const { executor } = setup([
+      {
+        codigo: "001",
+        custoTotal: "3469.470000000000000000000000000000",
+        custoZero: "0.000000000000000000000000000000",
+      },
+    ]);
+
+    await expect(
+      executor.execute(
+        `SELECT "codigo", "custoTotal" FROM ai."OrdemServico" LIMIT 1`,
+        "empresa-1",
+      ),
+    ).resolves.toMatchObject({
+      rows: [{ codigo: "001", custoTotal: 3469.47, custoZero: 0 }],
+    });
+  });
+
   it("faz rollback e oculta detalhes quando o banco falha", async () => {
     const { executor, calls, release } = setup([], {
       code: "XX000",

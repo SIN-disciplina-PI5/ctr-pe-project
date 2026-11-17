@@ -39,6 +39,32 @@ class FakeProvider implements LlmProvider {
   }
 }
 
+class SequenceProvider implements LlmProvider {
+  public readonly requests: StructuredGenerationRequest<ZodType>[] = [];
+  private nextResponse = 0;
+
+  constructor(private readonly responses: readonly unknown[]) {}
+
+  async generateStructured<TSchema extends ZodType>(
+    request: StructuredGenerationRequest<TSchema>,
+  ): Promise<StructuredGenerationResult<output<TSchema>>> {
+    this.requests.push(request);
+    const data = this.responses[this.nextResponse];
+    this.nextResponse += 1;
+    if (data === undefined) throw new Error("Resposta fake não configurada.");
+
+    return {
+      data: request.schema.parse(data),
+      provider: "fake",
+      model: "fake-model",
+      latencyMs: 12,
+      inputTokens: 20,
+      outputTokens: 10,
+      totalTokens: 30,
+    };
+  }
+}
+
 const input = {
   question: "Quais ativos estão parados?",
   empresaId: "empresa-1",
@@ -134,24 +160,54 @@ describe("QueryGenerationService", () => {
     });
   });
 
-  it("bloqueia consulta sem LIMIT", async () => {
-    const provider = new FakeProvider({
-      type: "query",
-      sql: `SELECT "codigo" FROM ai."Ativo"`,
-      explanation: "Lista os ativos.",
-      assumptions: [],
-    });
+  it("corrige automaticamente uma consulta sem LIMIT antes de executá-la", async () => {
+    const provider = new SequenceProvider([
+      {
+        type: "query",
+        sql: `SELECT "codigo" FROM ai."Ativo"`,
+        explanation: "Lista os ativos.",
+        assumptions: [],
+      },
+      {
+        sql: `SELECT "codigo" FROM ai."Ativo" LIMIT 100`,
+        explanation: "Lista os ativos com o limite obrigatório.",
+      },
+    ]);
 
     await expect(
       new QueryGenerationService(provider).generate(input),
-    ).rejects.toMatchObject({
-      statusCode: 422,
-      details: {
-        violations: expect.arrayContaining([
-          "LIMIT obrigatório não identificado.",
-        ]),
-      },
+    ).resolves.toMatchObject({
+      status: "generated",
+      sql: `SELECT "codigo" FROM ai."Ativo" LIMIT 100`,
+      validation: { valid: true, limit: 100 },
     });
+    expect(provider.requests).toHaveLength(2);
+    expect(provider.requests[1]?.systemPrompt).toBe(
+      QUERY_CORRECTION_SYSTEM_PROMPT,
+    );
+    expect(provider.requests[1]?.userPrompt).toContain(
+      "LIMIT obrigatório não identificado.",
+    );
+  });
+
+  it("encerra com 422 quando a correção automática continua insegura", async () => {
+    const provider = new SequenceProvider([
+      {
+        type: "query",
+        sql: `SELECT "codigo" FROM ai."Ativo"`,
+        explanation: "Lista os ativos.",
+        assumptions: [],
+      },
+      {
+        sql: `SELECT "email" FROM public."Usuario" LIMIT 100`,
+        explanation: "Correção ainda insegura.",
+      },
+    ]);
+
+    await expect(
+      new QueryGenerationService(provider).generate(input),
+    ).rejects.toMatchObject({ statusCode: 422 });
+    expect(provider.requests).toHaveLength(2);
   });
 
   it("não transforma payload inválido do provedor em SQL nem expõe sua causa", async () => {
@@ -217,6 +273,51 @@ describe("QueryGenerationService", () => {
         { id: "materiais_baixos", validation: { valid: true } },
       ],
     });
+  });
+
+  it("corrige uma etapa inválida do plano antes de devolver o plano", async () => {
+    const provider = new SequenceProvider([
+      {
+        type: "query_plan",
+        explanation: "Consulta ativos e materiais separadamente.",
+        assumptions: [],
+        steps: [
+          {
+            id: "ativos_parados",
+            purpose: "Listar ativos parados.",
+            sql: `SELECT "codigo" FROM ai."Ativo" WHERE "status" = 'PARADO'`,
+          },
+          {
+            id: "materiais_baixos",
+            purpose: "Listar materiais com estoque baixo.",
+            sql: `SELECT "codigo" FROM ai."Material" WHERE "estoqueAtual" < "estoqueMinimo" LIMIT 100`,
+          },
+        ],
+      },
+      {
+        sql: `SELECT "codigo" FROM ai."Ativo" WHERE "status" = 'PARADO' LIMIT 100`,
+        explanation: "Lista ativos parados com limite.",
+      },
+    ]);
+
+    await expect(
+      new QueryGenerationService(provider).generate({
+        question:
+          "Quais ativos estão parados e quais materiais estão com estoque baixo?",
+        empresaId: "empresa-1",
+      }),
+    ).resolves.toMatchObject({
+      status: "planned",
+      steps: [
+        {
+          id: "ativos_parados",
+          sql: expect.stringContaining("LIMIT 100"),
+          validation: { valid: true },
+        },
+        { id: "materiais_baixos", validation: { valid: true } },
+      ],
+    });
+    expect(provider.requests).toHaveLength(2);
   });
 
   it("recusa plano com identificadores duplicados", async () => {

@@ -297,7 +297,57 @@ function sectionFailureNarrative(error: unknown): string {
       ? "A consulta desta seção excedeu o tempo limite."
       : "Não foi possível consultar os dados desta seção no momento.";
   }
+  if (error instanceof AppError) {
+    if (error.errorCode === ErrorCode.VALIDATION_ERROR) {
+      return "A consulta desta seção não passou pela validação mesmo após a tentativa de correção.";
+    }
+    if (error.statusCode === 504) {
+      return "A consulta desta seção excedeu o tempo limite.";
+    }
+    if (error.statusCode >= 500) {
+      return "Não foi possível consultar os dados desta seção no momento.";
+    }
+  }
   return "Não foi possível processar os dados desta seção.";
+}
+
+function sectionFailureDetails(error: unknown): {
+  readonly errorCode: string;
+  readonly statusCode: number | null;
+  readonly errorName: string;
+} {
+  if (error instanceof AppError) {
+    return {
+      errorCode: error.errorCode,
+      statusCode: error.statusCode,
+      errorName: error.name,
+    };
+  }
+  if (error instanceof LlmProviderError) {
+    return {
+      errorCode: error.code,
+      statusCode: null,
+      errorName: error.name,
+    };
+  }
+  return {
+    errorCode: "UNEXPECTED_ERROR",
+    statusCode: null,
+    errorName: error instanceof Error ? error.name : "UnknownError",
+  };
+}
+
+export function contextualizeReportSectionQuestion(
+  reportRequest: string,
+  sectionQuestion: string,
+): string {
+  return [
+    "Contexto obrigatório do relatório:",
+    reportRequest.trim(),
+    "",
+    "Pergunta da seção:",
+    sectionQuestion.trim(),
+  ].join("\n");
 }
 
 const REPORT_SECTION_CONCURRENCY = 1;
@@ -329,6 +379,7 @@ export class ReportAgentService implements ReportAgent {
   constructor(
     private readonly provider: LlmProvider,
     private readonly queryAgent: Pick<QueryAgentService, "query">,
+    private readonly logger: Pick<Console, "error"> = console,
   ) {}
 
   async generate(input: ReportAgentInput): Promise<GeneratedReport> {
@@ -339,7 +390,8 @@ export class ReportAgentService implements ReportAgent {
     const sections = await mapWithConcurrency(
       plan.sections,
       REPORT_SECTION_CONCURRENCY,
-      (section) => this.buildSection(section, input.empresaId),
+      (section) =>
+        this.buildSection(section, input.empresaId, input.request),
     );
 
     const totalLatencyMs = Math.max(
@@ -386,14 +438,24 @@ export class ReportAgentService implements ReportAgent {
   private async buildSection(
     section: ReportPlan["sections"][number],
     empresaId: string,
+    reportRequest: string,
   ): Promise<ReportSection> {
     let queryResult: QueryAgentResult;
     try {
       queryResult = await this.queryAgent.query({
-        question: section.question,
+        question: contextualizeReportSectionQuestion(
+          reportRequest,
+          section.question,
+        ),
         empresaId,
       });
     } catch (error) {
+      this.logger.error("Falha ao processar seção do relatório.", {
+        component: "ai.report-agent",
+        event: "section_failed",
+        sectionId: section.id,
+        ...sectionFailureDetails(error),
+      });
       return {
         id: section.id,
         title: section.title,

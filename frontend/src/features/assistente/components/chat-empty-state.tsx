@@ -5,7 +5,7 @@ import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 
 const QUICK_PROMPTS = [
-  "Quais ordens de serviço estão abertas hoje?",
+  "Quais ordens de serviço foram abertas hoje?",
   "Mostre os ativos com maior tempo de parada este mês.",
   "Qual o custo total de manutenção preventiva no último trimestre?",
   "Liste os materiais com estoque abaixo do mínimo.",

@@ -350,6 +350,44 @@ LIMIT 100`,
     },
   },
   {
+    id: "os-abertas-hoje",
+    question: "Quais ordens de serviço foram abertas hoje?",
+    categories: ["date", "filter"],
+    relevantViews: ["OrdemServico"],
+    sql: `SELECT "numero", "titulo", "status", "abertaEm"
+FROM ai."OrdemServico"
+WHERE "abertaEm" >= CURRENT_DATE
+  AND "abertaEm" < CURRENT_DATE + INTERVAL '1 day'
+ORDER BY "abertaEm" DESC, "numero"
+LIMIT 100`,
+    expected: {
+      description:
+        "Ordens abertas na data corrente, sem assumir que o seed possui registros de hoje.",
+      columns: ["numero", "titulo", "status", "abertaEm"],
+      rowCount: { min: 0, max: 100 },
+    },
+  },
+  {
+    id: "custo-preventiva-ultimo-trimestre",
+    question:
+      "Qual o custo total de manutenção preventiva no último trimestre?",
+    categories: ["aggregation", "date", "filter"],
+    relevantViews: ["OrdemServico"],
+    sql: `SELECT COALESCE(SUM("custoTotal"), 0)::float8 AS "custoTotal"
+FROM ai."OrdemServico"
+WHERE "tipo" = 'PREVENTIVA'
+  AND "encerradaEm" >= DATE_TRUNC('quarter', CURRENT_DATE) - INTERVAL '3 months'
+  AND "encerradaEm" < DATE_TRUNC('quarter', CURRENT_DATE)
+LIMIT 1`,
+    expected: {
+      description:
+        "Custo consolidado das manutenções preventivas encerradas no trimestre civil anterior.",
+      columns: ["custoTotal"],
+      rowCount: { exact: 1 },
+      valueRules: [numberRule("custoTotal")],
+    },
+  },
+  {
     id: "os-atrasadas",
     question:
       "Quantas ordens de serviço estavam atrasadas em 27 de outubro de 2026 ao meio-dia UTC?",
@@ -446,6 +484,81 @@ LIMIT 100`,
         "Inclui ao menos a parada atual do ativo problemático plantado.",
       columns: ["codigo", "nome", "inicioEm", "motivo"],
       rowCount: { min: 1, max: 18 },
+    },
+  },
+  {
+    id: "tempo-medio-resolucao-periodo",
+    question:
+      "Qual foi o tempo médio de resolução das ordens encerradas em outubro de 2026?",
+    categories: ["aggregation", "date", "filter"],
+    relevantViews: ["OrdemServico"],
+    sql: `SELECT COALESCE(AVG("tempoExecucaoMinutos"), 0)::float8 AS "tempoMedioMinutos"
+FROM ai."OrdemServico"
+WHERE "status" = 'ENCERRADA'
+  AND "tempoExecucaoMinutos" IS NOT NULL
+  AND "encerradaEm" >= TIMESTAMPTZ '2026-10-01T00:00:00.000Z'
+  AND "encerradaEm" < TIMESTAMPTZ '2026-11-01T00:00:00.000Z'
+LIMIT 1`,
+    expected: {
+      description:
+        "Média do tempo de execução das ordens encerradas no período solicitado.",
+      columns: ["tempoMedioMinutos"],
+      rowCount: { exact: 1 },
+      valueRules: [numberRule("tempoMedioMinutos")],
+    },
+  },
+  {
+    id: "tendencia-diaria-custos",
+    question:
+      "Qual foi a tendência diária de custos das ordens encerradas em outubro de 2026?",
+    categories: ["aggregation", "date"],
+    relevantViews: ["OrdemServico"],
+    sql: `SELECT TO_CHAR(DATE_TRUNC('day', "encerradaEm"), 'YYYY-MM-DD') AS "dia",
+  COALESCE(SUM("custoTotal"), 0)::float8 AS "custoTotal"
+FROM ai."OrdemServico"
+WHERE "encerradaEm" >= TIMESTAMPTZ '2026-10-01T00:00:00.000Z'
+  AND "encerradaEm" < TIMESTAMPTZ '2026-11-01T00:00:00.000Z'
+GROUP BY DATE_TRUNC('day', "encerradaEm")
+ORDER BY DATE_TRUNC('day', "encerradaEm")
+LIMIT 31`,
+    expected: {
+      description: "Soma diária dos custos das ordens encerradas no período.",
+      columns: ["dia", "custoTotal"],
+      rowCount: { min: 0, max: 31 },
+      valueRules: [
+        { column: "dia", type: "string" },
+        numberRule("custoTotal"),
+      ],
+    },
+  },
+  {
+    id: "downtime-por-ativo-periodo",
+    question:
+      "Qual foi o tempo de inatividade (downtime) por ativo em outubro de 2026?",
+    categories: ["aggregation", "date", "join"],
+    relevantViews: ["ParadaAtivo", "Ativo"],
+    sql: `SELECT a."codigo", a."nome",
+  COALESCE(SUM(p."duracaoMinutos"), 0)::float8 AS "minutosInatividade"
+FROM ai."ParadaAtivo" p
+JOIN ai."Ativo" a ON a."id" = p."ativoId"
+WHERE p."impactaDisponibilidade" = true
+  AND p."inicioEm" >= TIMESTAMPTZ '2026-10-01T00:00:00.000Z'
+  AND p."inicioEm" < TIMESTAMPTZ '2026-11-01T00:00:00.000Z'
+  AND p."duracaoMinutos" IS NOT NULL
+GROUP BY a."id", a."codigo", a."nome"
+ORDER BY "minutosInatividade" DESC, a."codigo"
+LIMIT 100`,
+    expected: {
+      description:
+        "Tempo de inatividade causado por paradas que impactam a disponibilidade.",
+      columns: ["codigo", "nome", "minutosInatividade"],
+      rowCount: { min: 0, max: 18 },
+      valueRules: [
+        { column: "codigo", type: "string" },
+        { column: "nome", type: "string" },
+        numberRule("minutosInatividade"),
+      ],
+      orderedBy: { column: "minutosInatividade", direction: "desc" },
     },
   },
   {
