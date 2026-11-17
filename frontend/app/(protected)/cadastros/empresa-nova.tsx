@@ -65,7 +65,7 @@ const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
         name="nome"
         render={({ field }) => (
           <TextInput
-            placeholder="Ex: CTR-PE Matriz"
+            placeholder="Ex: Nome-da-empresa Matriz"
             placeholderTextColor="#888"
             value={field.value}
             onChangeText={field.onChange}
