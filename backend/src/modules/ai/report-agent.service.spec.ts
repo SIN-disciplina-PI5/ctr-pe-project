@@ -1,5 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 import { type output, type ZodType } from "zod";
+import { AppError } from "../../common/errors/AppError.js";
+import { ErrorCode } from "../../common/errors/error-code.js";
 import {
   LlmProviderError,
   type LlmProvider,
@@ -70,7 +72,9 @@ class FakeQueryAgent {
       if (this.delayMs > 0) {
         await new Promise((resolve) => setTimeout(resolve, this.delayMs));
       }
-      const result = this.results[input.question];
+      const result = Object.entries(this.results).find(([question]) =>
+        input.question.includes(question),
+      )?.[1];
       if (!result) {
         throw new Error(`Resultado não configurado: ${input.question}`);
       }
@@ -141,6 +145,7 @@ function serviceFor(
   const service = new ReportAgentService(
     provider,
     queryAgent as unknown as QueryAgentService,
+    { error: () => undefined },
   );
   return { service, provider, queryAgent };
 }
@@ -165,11 +170,23 @@ describe("ReportAgentService", () => {
     });
 
     const result = await service.generate({
-      request: "Gere o relatório mensal de manutenção.",
+      request:
+        "Tipo de relatório: Relatório mensal de manutenção. Período: de 2026-10-01 a 2026-10-31.",
       empresaId: "empresa-1",
     });
 
-    expect(queryAgent.calls).toEqual([{ question, empresaId: "empresa-1" }]);
+    expect(queryAgent.calls).toEqual([
+      {
+        question: expect.stringContaining(question),
+        empresaId: "empresa-1",
+      },
+    ]);
+    expect(queryAgent.calls[0]?.question).toContain(
+      "Período: de 2026-10-01 a 2026-10-31.",
+    );
+    expect(queryAgent.calls[0]?.question).toContain(
+      "Contexto obrigatório do relatório:",
+    );
     expect(result).toMatchObject({
       status: "generated",
       reportType: "monthly_maintenance",
@@ -207,6 +224,36 @@ describe("ReportAgentService", () => {
     expect(JSON.stringify(result)).not.toContain("SELECT");
     expect(provider.request?.schemaName).toBe("ctrpe_report_plan");
     expect(provider.request?.systemPrompt).toBe(REPORT_PLAN_SYSTEM_PROMPT);
+    expect(provider.request?.systemPrompt).toContain(
+      "Repita em cada pergunta de seção o tipo do relatório e as datas exatas",
+    );
+  });
+
+  it("diferencia falha de validação de uma seção sem dados", async () => {
+    const { service } = serviceFor(plan("monthly_maintenance"), {
+      "Dados do resumo": new AppError({
+        message: "Consulta recusada.",
+        statusCode: 422,
+        errorCode: ErrorCode.VALIDATION_ERROR,
+      }),
+    });
+
+    const result = await service.generate({
+      request:
+        "Tipo de relatório: manutenção mensal. Período: de 2026-10-01 a 2026-10-31.",
+      empresaId: "empresa-1",
+    });
+
+    expect(result.sections[0]).toMatchObject({
+      status: "refused",
+      narrative:
+        "A consulta desta seção não passou pela validação mesmo após a tentativa de correção.",
+    });
+    expect(result.summary).toMatchObject({
+      readySections: 0,
+      emptySections: 0,
+      refusedSections: 1,
+    });
   });
 
   it("gera relatório de custo por ativo preservando valores numéricos consultados", async () => {

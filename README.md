@@ -1,197 +1,80 @@
-# CTR-PE Project
+# MaqControl
 
-Guia básico de instalação e execução do projeto em ambiente local.
+Sistema de gestão de manutenção de ativos com assistente de IA. Guia de instalação e execução em ambiente local.
 
-## Estrutura do projeto
+## Estrutura
 
-- `backend`: API em Node.js, Express e Prisma
+- `backend`: API em Node.js, Express e Prisma, incluindo a camada de IA (assistente, relatórios e troubleshooting)
 - `frontend`: aplicação em Expo e React Native
+- `dev-tools`: ferramentas de qualidade e segurança (SonarQube e BeEF), isoladas em Docker — ver `dev-tools/README.md`
+- `architecture`: modelo C4 (Structurizr) e decisões de arquitetura (ADRs) — ver `architecture/README.md`
 
 ## Requisitos
 
 - Node.js 20 ou superior
 - npm
 
-## Observação importante sobre o banco de dados
+## Banco de dados
 
-Existe um `Dockerfile` no backend, mas este projeto foi concebido para utilizar **NeonDB**.
+O projeto usa **NeonDB**. O `.env` com as credenciais não é versionado: use os arquivos `.env.example` como referência e obtenha o `.env` real com o responsável pelo ambiente.
 
-Por esse motivo, a configuração correta do arquivo `.env` do backend é indispensável. O arquivo com as credenciais válidas não está versionado no repositório. No momento, apenas o responsável atual pelo projeto possui esse `.env`.
-
-Para configurar o projeto em outra máquina:
-
-1. utilizar os arquivos `.env.example` como referência;
-2. obter o `.env` real com quem estiver responsável pelas credenciais do ambiente.
-
-## Instalação do backend
-
-Entrar na pasta do backend:
+## Backend
 
 ```bash
 cd backend
-```
-
-Instalar as dependências:
-
-```bash
 npm install
-```
-
-Configurar o ambiente:
-
-1. verificar o arquivo `.env.example`;
-2. criar ou ajustar o arquivo `.env`;
-3. informar a `DATABASE_URL` correta do NeonDB.
-
-Gerar o Prisma Client:
-
-```bash
+# configure o .env a partir do .env.example (DATABASE_URL do NeonDB)
 npm run prisma:generate
+npm run dev      # inicia em modo desenvolvimento
+npm test         # testes automatizados
 ```
 
-Observação: não é necessário executar migration em toda instalação. Esse procedimento só deve ser realizado quando houver necessidade real de aplicar migrations existentes em um banco novo ou quando houver alterações no schema do banco de dados.
+Para a camada de IA, o `.env` também precisa de `GROQ_API_KEY`, `AI_READONLY_DATABASE_URL` e `BLOB_READ_WRITE_TOKEN` (ver `.env.example`).
 
-Executar o backend em modo de desenvolvimento:
+Migrations só são necessárias ao aplicar mudanças de schema ou ao preparar um banco novo.
 
-```bash
-npm run dev
-```
-
-Executar os testes automatizados do backend:
-
-```bash
-npm test
-```
-
-## Como testar a API manualmente
-
-Com o backend em execução, a API pode ser testada pelo Postman.
-
-Base local padrão:
+Verificar a API (Postman ou navegador), com o backend rodando:
 
 ```text
-http://localhost:3333/api
+GET http://localhost:3333/health   → status 200 e JSON indicando API ativa
+Base da API: http://localhost:3333/api
 ```
 
-Endpoint de verificação da aplicação:
-
-```text
-GET http://localhost:3333/health
-```
-
-Resultado esperado:
-
-- status HTTP `200`
-- resposta JSON indicando que a API está ativa
-
-## Instalação do frontend
-
-Entrar na pasta do frontend:
+## Frontend
 
 ```bash
 cd frontend
-```
-
-Instalar as dependências:
-
-```bash
 npm install
+# configure o .env: EXPO_PUBLIC_API_URL apontando para a API, com o prefixo /api
+npm run start    # inicia o Expo
+npm run web      # abre no navegador (http://localhost:8081)
+npm test         # testes automatizados
 ```
 
-Configurar o ambiente:
-
-1. verificar o arquivo `.env.example`;
-2. criar ou ajustar o arquivo `.env`;
-3. definir `EXPO_PUBLIC_API_URL` apontando para a API, incluindo o prefixo `/api`.
-
-Exemplo local:
+Exemplo de `.env`:
 
 ```env
 EXPO_PUBLIC_API_URL=http://localhost:3333/api
 ```
 
-### Autenticação atual
+**Autenticação:** a tela de login chama `POST /auth/sign-in`, guarda os tokens e carrega o usuário por `GET /auth/me`. O perfil e a empresa vêm do usuário autenticado — use uma conta ativa existente. Na web a sessão fica no `localStorage`; no mobile, no `expo-secure-store`.
 
-O frontend possui tela de login. O usuário informa email e senha; o aplicativo chama `POST /auth/sign-in`, armazena os tokens da sessão e carrega o usuário autenticado por `GET /auth/me`.
+**No celular (Expo Go):** rode `npm run start` e leia o QR Code. Em celular físico, `EXPO_PUBLIC_API_URL` não pode usar `localhost` (apontaria para o próprio celular); use o IP local da máquina que roda o backend, por exemplo `http://192.168.0.10:3333/api`.
 
-Não é necessário copiar token para o `.env` nem simular perfil. O perfil e a empresa são obtidos do usuário autenticado. Para entrar, use uma conta ativa existente no banco configurado no backend.
+## Ordem recomendada
 
-Na web, a sessão é armazenada no `localStorage`. No Android e no iOS, os tokens são armazenados pelo `expo-secure-store`.
+1. `.env` do backend → 2. instalar backend → 3. `prisma:generate` → 4. iniciar backend → 5. `.env` do frontend → 6. instalar frontend → 7. iniciar frontend → 8. login com conta ativa.
 
-## Execução do frontend
+## Ferramentas e arquitetura
 
-Iniciar o projeto:
+- **Qualidade e segurança:** `dev-tools/` (SonarQube e BeEF). Ver `dev-tools/README.md`.
+- **Arquitetura (C4):** na pasta `architecture/`, rode `docker compose up` e abra `http://localhost:8080`. Ver `architecture/README.md`.
 
-```bash
-npm run start
-```
+## Equipe
 
-Executar no navegador:
-
-```bash
-npm run web
-```
-
-Executar os testes automatizados do frontend:
-
-```bash
-npm test
-```
-
-## Como testar o frontend manualmente
-
-### No computador
-
-Com o frontend em execução, abrir a versão web:
-
-```bash
-npm run web
-```
-
-Em seguida, acessar no navegador:
-
-```text
-http://localhost:8081
-```
-
-### No celular
-
-1. iniciar o projeto com:
-
-```bash
-npm run start
-```
-
-2. abrir o aplicativo **Expo Go** no celular;
-3. ler o QR Code exibido no terminal ou na interface do Expo.
-
-Para testes em celular físico, o valor de `EXPO_PUBLIC_API_URL` não deve usar `localhost`, porque nesse caso `localhost` aponta para o próprio celular, e não para o computador que está executando a API.
-
-Nesse cenário, deve ser utilizado o IP local da máquina onde o backend está em execução. Exemplo:
-
-```env
-EXPO_PUBLIC_API_URL=http://192.168.0.10:3333/api
-```
-
-## Ordem recomendada de configuração
-
-1. configurar o `.env` do backend;
-2. instalar as dependências do backend;
-3. gerar o Prisma Client;
-4. iniciar o backend;
-5. configurar o `.env` do frontend;
-6. instalar as dependências do frontend;
-7. iniciar o frontend;
-8. acessar a tela de login com uma conta ativa;
-9. testar a API no Postman quando necessário;
-10. testar o frontend no navegador ou no Expo Go.
-
-
-### Equipe
-
-André Luís Gomes da Silva Filho - RA: 00000855160; 
-Arthur Azevedo Costa de Paula - RA: 00000016457; 
-Dayvson da Conceicao de Moura - RA: 00000855171; 
-Hallason Matias da Silva - RA: 00000855277; 
-José Heitor Felix Guimarães - RA: 00000855161; 
-Vinícius de Almeida Silva - RA: 00000855166
+André Luís Gomes da Silva Filho — RA: 00000855160
+Arthur Azevedo Costa de Paula — RA: 00000016457
+Dayvson da Conceicao de Moura — RA: 00000855171
+Hallason Matias da Silva — RA: 00000855277
+José Heitor Felix Guimarães — RA: 00000855161
+Vinícius de Almeida Silva — RA: 00000855166

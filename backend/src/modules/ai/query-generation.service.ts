@@ -77,6 +77,38 @@ function metricsOf<T>(
   };
 }
 
+function canAttemptValidationCorrection(
+  validation: SqlValidationResult,
+): boolean {
+  const nonCorrectableViolations = [
+    "A consulta deve possuir exatamente uma instrução.",
+    "Somente uma instrução SELECT é permitida.",
+    "SELECT INTO não é permitido.",
+    "Bloqueios de linha não são permitidos.",
+  ];
+  const hasCteViolation = validation.violations.includes(
+    "CTEs não são permitidas.",
+  );
+
+  return (
+    validation.violations.length > 0 &&
+    !validation.violations.some(
+      (violation) =>
+        nonCorrectableViolations.includes(violation) ||
+        (violation.startsWith("View não autorizada:") &&
+          !hasCteViolation) ||
+        violation === "Função SQL não autorizada: set_config." ||
+        violation.startsWith("Valor SQL de sistema não autorizado:") ||
+        (violation.startsWith("Construção SQL proibida:") &&
+          !violation.includes("CTE")),
+    )
+  );
+}
+
+function validationFeedback(validation: SqlValidationResult): string {
+  return `A consulta não passou pela validação: ${validation.violations.join(" ")}`;
+}
+
 export class QueryGenerationService {
   constructor(private readonly provider: LlmProvider) {}
 
@@ -157,11 +189,25 @@ export class QueryGenerationService {
         }
         queries.add(normalizedSql);
 
-        const validation = await validateSql(step.sql, {
+        let sql = step.sql;
+        let explanation = step.purpose;
+        let validation = await validateSql(sql, {
           allowedViews: relevantViews,
           requiredSchema: "ai",
           maxRows: 100,
         });
+        if (!validation.valid && canAttemptValidationCorrection(validation)) {
+          const correction = await this.correct({
+            question: input.question,
+            empresaId: input.empresaId,
+            failedSql: sql,
+            safeFeedback: validationFeedback(validation),
+            relevantViews,
+          });
+          sql = correction.sql;
+          explanation = correction.explanation;
+          validation = correction.validation;
+        }
         if (!validation.valid) {
           throw new AppError({
             message:
@@ -171,7 +217,12 @@ export class QueryGenerationService {
             details: { stepId: step.id, violations: validation.violations },
           });
         }
-        steps.push({ ...step, validation });
+        steps.push({
+          ...step,
+          purpose: explanation,
+          sql,
+          validation,
+        });
       }
 
       return {
@@ -184,11 +235,26 @@ export class QueryGenerationService {
       };
     }
 
-    const validation = await validateSql(generation.data.sql, {
+    let sql = generation.data.sql;
+    let explanation = generation.data.explanation;
+    let validation = await validateSql(sql, {
       allowedViews: relevantViews,
       requiredSchema: "ai",
       maxRows: 100,
     });
+
+    if (!validation.valid && canAttemptValidationCorrection(validation)) {
+      const correction = await this.correct({
+        question: input.question,
+        empresaId: input.empresaId,
+        failedSql: sql,
+        safeFeedback: validationFeedback(validation),
+        relevantViews,
+      });
+      sql = correction.sql;
+      explanation = correction.explanation;
+      validation = correction.validation;
+    }
 
     if (!validation.valid) {
       throw new AppError({
@@ -201,8 +267,8 @@ export class QueryGenerationService {
 
     return {
       status: "generated",
-      sql: generation.data.sql,
-      explanation: generation.data.explanation,
+      sql,
+      explanation,
       assumptions: generation.data.assumptions,
       relevantViews,
       validation,

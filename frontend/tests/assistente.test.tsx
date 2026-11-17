@@ -77,6 +77,18 @@ describe("AssistenteScreen", () => {
     ).toBeTruthy();
   });
 
+  it("envia a sugestão temporal sem ambiguidade", async () => {
+    renderWithProviders(<AssistenteScreen />);
+
+    fireEvent.press(
+      screen.getByText("Quais ordens de serviço foram abertas hoje?"),
+    );
+
+    expect(mockMutateAsync).toHaveBeenCalledWith({
+      message: "Quais ordens de serviço foram abertas hoje?",
+    });
+  });
+
   it("inicia uma nova conversa limpando o histórico", async () => {
     await renderWithProviders(<AssistenteScreen />);
 

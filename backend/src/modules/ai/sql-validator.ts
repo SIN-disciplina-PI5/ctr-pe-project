@@ -28,6 +28,11 @@ export const AI_ALLOWED_SQL_FUNCTIONS = [
   "to_char",
 ] as const;
 
+export const AI_ALLOWED_SQL_VALUE_FUNCTIONS = [
+  "SVFOP_CURRENT_DATE",
+  "SVFOP_CURRENT_TIMESTAMP",
+] as const;
+
 export interface SqlValidationOptions {
   readonly allowedViews?: readonly AiViewName[];
   readonly allowedFunctions?: readonly string[];
@@ -63,7 +68,6 @@ const FORBIDDEN_NODE_TAGS = [
   "NotifyStmt",
   "PrepareStmt",
   "RefreshMatViewStmt",
-  "SQLValueFunction",
   "TransactionStmt",
   "TruncateStmt",
   "UpdateStmt",
@@ -141,6 +145,20 @@ function collectFunctions(ast: unknown): string[] {
   });
 
   return [...functions].sort();
+}
+
+function collectSqlValueFunctions(ast: unknown): string[] {
+  const operations = new Set<string>();
+
+  walk(ast, (node) => {
+    const valueFunction = node["SQLValueFunction"];
+    if (!isRecord(valueFunction) || typeof valueFunction["op"] !== "string") {
+      return;
+    }
+    operations.add(valueFunction["op"]);
+  });
+
+  return [...operations].sort();
 }
 
 function extractInteger(value: unknown): number | null {
@@ -247,6 +265,15 @@ export async function validateSql(
   for (const functionName of functions) {
     if (!allowedFunctions.has(functionName)) {
       violations.add(`Função SQL não autorizada: ${functionName}.`);
+    }
+  }
+
+  const allowedSqlValueFunctions = new Set<string>(
+    AI_ALLOWED_SQL_VALUE_FUNCTIONS,
+  );
+  for (const operation of collectSqlValueFunctions(ast)) {
+    if (!allowedSqlValueFunctions.has(operation)) {
+      violations.add(`Valor SQL de sistema não autorizado: ${operation}.`);
     }
   }
 

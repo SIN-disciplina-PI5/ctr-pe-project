@@ -11,6 +11,23 @@ const IDLE_TRANSACTION_TIMEOUT = "5s";
 
 export type QueryRow = Record<string, unknown>;
 
+const EXCESSIVE_DECIMAL_SCALE = /^-?\d+\.\d*0{6,}$/;
+
+export function normalizeQueryValue(value: unknown): unknown {
+  if (typeof value !== "string" || !EXCESSIVE_DECIMAL_SCALE.test(value)) {
+    return value;
+  }
+
+  const normalized = Number(value);
+  return Number.isFinite(normalized) ? normalized : value;
+}
+
+function normalizeQueryRow(row: QueryRow): QueryRow {
+  return Object.fromEntries(
+    Object.entries(row).map(([key, value]) => [key, normalizeQueryValue(value)]),
+  );
+}
+
 export interface QueryExecutionResult {
   readonly rows: readonly QueryRow[];
   readonly rowCount: number;
@@ -196,7 +213,7 @@ export class PgReadOnlyQueryExecutor implements QueryExecutor {
           errorCode: ErrorCode.VALIDATION_ERROR,
         });
       }
-      rows = result.rows;
+      rows = result.rows.map(normalizeQueryRow);
     } catch (error) {
       failure = error;
     } finally {
