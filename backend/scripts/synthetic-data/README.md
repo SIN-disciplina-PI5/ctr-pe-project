@@ -1,6 +1,6 @@
 # Dados sintéticos
 
-Script que **apaga todo o banco** e o preenche com dados sintéticos reproduzíveis: 2 empresas, usuários, ativos, materiais e cerca de 380 ordens de serviço simuladas de abril a outubro de 2026. Serve para testar a camada de IA, o dashboard e os testes.
+Script que **apaga todo o banco** e o preenche com dados sintéticos reproduzíveis: 2 empresas, usuários, ativos, materiais e cerca de 5.000 ordens de serviço simuladas de agosto de 2025 a outubro de 2026. Serve para testar a camada de IA, o dashboard e os testes.
 
 > Use somente na branch de dev do Neon (`dev-synthetic`). O script apaga todas as tabelas de negócio e **todos os usuários**.
 
@@ -66,7 +66,7 @@ Leia nesta ordem. Cada passo só depende dos anteriores.
 | 3 | `types.ts` | O contexto compartilhado e o que cada seeder devolve para o próximo. |
 | 4 | `guards.ts`, `database.ts`, `reset.ts` | Trava de segurança, cliente do Prisma com o adapter, e o `TRUNCATE` de todas as tabelas. |
 | 5 | `utils/` | `aleatorio.ts` (faker com semente), `gerador-id.ts` (ids previsíveis), `senha.ts` (bcrypt), `tempo.ts` e `moeda.ts`. |
-| 6 | `data/catalogo-ativos.ts`, `data/catalogo-materiais.ts` | Os 4 modelos de ativo e os 22 materiais. |
+| 6 | `data/catalogo-ativos.ts`, `data/catalogo-materiais.ts` | Os 8 modelos de ativo e os 30 materiais. |
 | 7 | `seeders/empresas.ts`, `usuarios.ts`, `localizacoes.ts`, `ativos.ts`, `materiais.ts` | Um seeder por entidade. O de materiais também cria os alertas de estoque baixo. |
 | 8 | `data/catalogo-falhas.ts` | Textos de `descricao`, `diagnostico` e `solucao` por tipo de ativo, com 3 variações de redação cada. |
 | 9 | `data/padroes-plantados.ts` | Os padrões que a IA deve descobrir (ver abaixo). |
@@ -76,7 +76,7 @@ Leia nesta ordem. Cada passo só depende dos anteriores.
 
 ## Como a simulação funciona
 
-Para cada ativo, o script percorre os 6 meses gerando uma OS depois da outra, com intervalos que dependem da criticidade (de 6 a 35 dias). As OS de um mesmo ativo nunca se sobrepõem.
+Para cada ativo, o script percorre os 14 meses gerando uma OS depois da outra, com intervalos que dependem da criticidade (de 6 a 35 dias). As OS de um mesmo ativo nunca se sobrepõem.
 
 Cada OS passa por: abertura, início, espera de peça (se houver), encerramento. O estado no dia 27/10/2026 vem de onde essa linha do tempo "cai":
 
@@ -102,20 +102,6 @@ Cerca de 30% dos ativos (e sempre o `CT-07`) recebem uma OS em andamento hoje, p
 | Número da OS: `OS-ANO-0001`, sequencial por empresa | `service.generateNumero` | Igual. |
 | Alertas de parada, aguardando peça, OS atrasada e estoque baixo | `alertas.repository` | Mesmos títulos, mensagens e severidades. Estoque baixo dispara com `<=`. |
 | Auditoria: entidade `ordens-servico`, ações de criação, encerramento e cancelamento | `audit.middleware` | Igual. |
-
-## Pontos do código que valem revisão
-
-Achados ao comparar o script com o código. O script reproduz o que o app faz hoje, salvo onde indicado.
-
-| Ponto | Efeito | No seed |
-| --- | --- | --- |
-| `recalcularCustoOS` grava `custoTotal: custoMateriais`, sem somar a mão de obra (o recálculo dos apontamentos soma certo) | Depois de consumir ou devolver material, o custo total da OS perde a mão de obra | **Não reproduz.** O seed grava `custoTotal` = materiais + mão de obra. |
-| A duração da parada (`duracaoMinutos`) conta a partir do início da execução, não da abertura | O "tempo médio de parada" do dashboard subestima a parada real | Reproduz. |
-| `tempoExecucaoMinutos` inclui o tempo de espera de peça | "Execução" fica inflada nas OS que esperaram | Reproduz. |
-| `tempoParadoMinutos` existe no schema, mas nenhum código o preenche | Coluna sempre nula | Deixa nula. |
-| `iniciar` põe o ativo em `EM_MANUTENCAO` mesmo se a OS não for impactante (sem parada) | Ativo "em manutenção" sem parada aberta | Evita: OS não impactantes nunca ficam em execução. |
-| `retomar` sobrescreve `tempoAguardandoPecaMinutos` em vez de somar | Só vale para uma espera por OS | Gera uma espera por OS. |
-| O tipo de alerta `CUSTO_ALTO` existe no enum, mas nada o cria | Tipo morto | Não cria. |
 
 ## Padrões plantados
 
@@ -147,3 +133,4 @@ Rodam ao final (`verificacoes.ts`). Se uma falhar, o script termina com erro:
 2. Chame o seeder no `reset-and-seed.ts`, depois dos que ele usa.
 3. Se criar uma tabela nova no `schema.prisma`, acrescente o nome dela em `TABELAS`, no `config.ts`. Sem isso o reset não a apaga.
 4. Para mudar volumes, chances, empresas ou a data de referência, edite só o `config.ts`.
+

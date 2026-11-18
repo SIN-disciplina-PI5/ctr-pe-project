@@ -624,10 +624,10 @@ export class PdfReportRenderer implements ReportRenderer {
     const companyName = input.companyName.trim() || "Empresa não informada";
 
     document.setTitle(title);
-    document.setAuthor("CTR-PE");
+    document.setAuthor("MaqControl");
     document.setSubject("Relatório de manutenção e gestão de ativos");
-    document.setCreator("CTR-PE");
-    document.setProducer("CTR-PE");
+    document.setCreator("MaqControl");
+    document.setProducer("MaqControl");
     if (!Number.isNaN(input.generatedAt.getTime())) {
       document.setCreationDate(input.generatedAt);
       document.setModificationDate(input.generatedAt);
@@ -642,7 +642,7 @@ export class PdfReportRenderer implements ReportRenderer {
       y: PAGE_HEIGHT - PAGE_MARGIN,
     };
 
-    drawWrappedText(context, "CTR-PE", {
+    drawWrappedText(context, "MaqControl", {
       font: boldFont,
       size: 12,
       lineHeight: 16,

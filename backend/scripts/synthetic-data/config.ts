@@ -18,7 +18,7 @@ export const SEMENTE = 42;
 export const TAMANHO_LOTE = 400;
 
 export const DATA_REFERENCIA = new Date("2026-10-27T12:00:00.000Z");
-export const MESES_SIMULACAO = 6;
+export const MESES_SIMULACAO = 14;
 
 const inicioSimulacao = new Date(DATA_REFERENCIA);
 inicioSimulacao.setUTCMonth(inicioSimulacao.getUTCMonth() - MESES_SIMULACAO);
