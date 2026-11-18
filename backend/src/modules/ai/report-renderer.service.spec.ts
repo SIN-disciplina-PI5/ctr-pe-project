@@ -80,7 +80,7 @@ describe("PdfReportRenderer", () => {
     expect(Buffer.from(file.bytes.subarray(0, 5)).toString("latin1")).toBe("%PDF-");
     expect(file.filename).toBe("relatorio-mensal-de-manutencao-2026-11-15.pdf");
     expect(document.getTitle()).toBe("Relatório mensal de manutenção");
-    expect(document.getAuthor()).toBe("CTR-PE");
+    expect(document.getAuthor()).toBe("MaqControl");
     expect(document.getCreationDate()?.toISOString()).toBe(generatedAt.toISOString());
     expect(document.getPageCount()).toBe(1);
     for (const page of document.getPages()) {

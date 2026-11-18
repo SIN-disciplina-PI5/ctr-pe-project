@@ -29,11 +29,11 @@ export default function SobreScreen() {
 
         <Card>
           <CardHeader>
-            <CardTitle>CTR-PE</CardTitle>
+            <CardTitle>MaqControl</CardTitle>
           </CardHeader>
           <CardContent className="gap-3">
             <Text className="text-sm leading-6 text-muted-foreground">
-              O CTR-PE é uma plataforma de controle de manutenção desenvolvida
+              O MaqControl é uma plataforma de controle de manutenção desenvolvida
               para gerenciar ativos, empresas, localizações, ordens de serviço,
               paradas, materiais, estoque, alertas e indicadores operacionais.
               O sistema integra um backend em Express com PostgreSQL e um
