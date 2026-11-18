@@ -34,4 +34,12 @@ export const MODELOS_MATERIAIS: readonly ModeloMaterial[] = [
   { codigo: "MAT-020", nome: "Dente de caçamba", descricao: "Dente de escavadeira com pino de fixação.", unidade: "UN", custoMedio: 260, estoqueMinimo: 8, estoqueAtual: 16, quantidade: [2, 4] },
   { codigo: "MAT-021", nome: "Radiador", descricao: "Radiador do sistema de arrefecimento do motor.", unidade: "UN", custoMedio: 2100, estoqueMinimo: 1, estoqueAtual: 1, quantidade: [1, 1] },
   { codigo: "MAT-022", nome: "Kit de reparo da caixa de transmissão", descricao: "Kit com engrenagens, sincronizadores e rolamentos.", unidade: "UN", custoMedio: 8900, estoqueMinimo: 1, estoqueAtual: 0, quantidade: [1, 1] },
+  { codigo: "MAT-023", nome: "Filtro separador de ar/óleo", descricao: "Elemento separador do sistema de ar comprimido.", unidade: "UN", custoMedio: 160, estoqueMinimo: 5, estoqueAtual: 8, quantidade: [1, 1] },
+  { codigo: "MAT-024", nome: "Líquido de arrefecimento", descricao: "Aditivo concentrado para o sistema de arrefecimento.", unidade: "L", custoMedio: 22, estoqueMinimo: 40, estoqueAtual: 90, quantidade: [5, 20] },
+  { codigo: "MAT-025", nome: "Terminal de bateria", descricao: "Terminal de reposição para o sistema elétrico.", unidade: "UN", custoMedio: 18, estoqueMinimo: 12, estoqueAtual: 30, quantidade: [1, 2] },
+  { codigo: "MAT-026", nome: "Coxim do motor", descricao: "Coxim de fixação do motor ao chassi.", unidade: "UN", custoMedio: 240, estoqueMinimo: 4, estoqueAtual: 6, quantidade: [1, 2] },
+  { codigo: "MAT-027", nome: "Cruzeta do cardã", descricao: "Cruzeta de reposição do eixo cardã.", unidade: "UN", custoMedio: 190, estoqueMinimo: 4, estoqueAtual: 3, quantidade: [1, 2] },
+  { codigo: "MAT-028", nome: "Disco de embreagem", descricao: "Disco de embreagem para caminhão.", unidade: "UN", custoMedio: 1350, estoqueMinimo: 1, estoqueAtual: 1, quantidade: [1, 1] },
+  { codigo: "MAT-029", nome: "Sensor de rotação", descricao: "Sensor de rotação do virabrequim.", unidade: "UN", custoMedio: 115, estoqueMinimo: 4, estoqueAtual: 7, quantidade: [1, 1] },
+  { codigo: "MAT-030", nome: "Kit de mangueiras de arrefecimento", descricao: "Jogo de mangueiras do sistema de arrefecimento.", unidade: "UN", custoMedio: 230, estoqueMinimo: 3, estoqueAtual: 2, quantidade: [1, 1] },
 ];
