@@ -1,14 +1,64 @@
 import { RecaptchaEnterpriseServiceClient } from "@google-cloud/recaptcha-enterprise";
+import { GoogleAuth, JWT, type JWTInput } from "google-auth-library";
 
 type RecaptchaClient = Pick<
   RecaptchaEnterpriseServiceClient,
   "projectPath" | "createAssessment"
 >;
 
+type ServiceAccountCredentials = {
+  type: "service_account";
+  client_email: string;
+  private_key: string;
+};
+
+function createRecaptchaClient(): RecaptchaClient {
+  const credentialsJson = process.env.GOOGLE_CLOUD_CREDENTIALS_JSON;
+
+  if (!credentialsJson) {
+    return new RecaptchaEnterpriseServiceClient();
+  }
+
+  let parsedCredentials: unknown;
+
+  try {
+    parsedCredentials = JSON.parse(credentialsJson) as unknown;
+  } catch {
+    throw new Error("GOOGLE_CLOUD_CREDENTIALS_JSON contém JSON inválido.");
+  }
+
+  if (
+    typeof parsedCredentials !== "object" ||
+    parsedCredentials === null ||
+    !("type" in parsedCredentials) ||
+    parsedCredentials.type !== "service_account" ||
+    !("client_email" in parsedCredentials) ||
+    typeof parsedCredentials.client_email !== "string" ||
+    !("private_key" in parsedCredentials) ||
+    typeof parsedCredentials.private_key !== "string"
+  ) {
+    throw new Error(
+      "GOOGLE_CLOUD_CREDENTIALS_JSON não contém as credenciais obrigatórias.",
+    );
+  }
+
+  const credentials: ServiceAccountCredentials = {
+    type: parsedCredentials.type,
+    client_email: parsedCredentials.client_email,
+    private_key: parsedCredentials.private_key,
+  };
+
+  const authClient = new JWT();
+  authClient.fromJSON(credentials as JWTInput);
+
+  return new RecaptchaEnterpriseServiceClient({
+    auth: new GoogleAuth({ authClient }),
+  });
+}
+
 export class RecaptchaService {
   constructor(
-    private readonly client: RecaptchaClient =
-      new RecaptchaEnterpriseServiceClient(),
+    private readonly client: RecaptchaClient = createRecaptchaClient(),
   ) {}
 
   async validateToken(
