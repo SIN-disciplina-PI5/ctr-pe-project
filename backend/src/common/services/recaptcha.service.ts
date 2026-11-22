@@ -1,4 +1,5 @@
 import { RecaptchaEnterpriseServiceClient } from "@google-cloud/recaptcha-enterprise";
+import { GoogleAuth, JWT, type JWTInput } from "google-auth-library";
 
 type RecaptchaClient = Pick<
   RecaptchaEnterpriseServiceClient,
@@ -6,6 +7,7 @@ type RecaptchaClient = Pick<
 >;
 
 type ServiceAccountCredentials = {
+  type: "service_account";
   client_email: string;
   private_key: string;
 };
@@ -28,6 +30,8 @@ function createRecaptchaClient(): RecaptchaClient {
   if (
     typeof parsedCredentials !== "object" ||
     parsedCredentials === null ||
+    !("type" in parsedCredentials) ||
+    parsedCredentials.type !== "service_account" ||
     !("client_email" in parsedCredentials) ||
     typeof parsedCredentials.client_email !== "string" ||
     !("private_key" in parsedCredentials) ||
@@ -39,11 +43,17 @@ function createRecaptchaClient(): RecaptchaClient {
   }
 
   const credentials: ServiceAccountCredentials = {
+    type: parsedCredentials.type,
     client_email: parsedCredentials.client_email,
     private_key: parsedCredentials.private_key,
   };
 
-  return new RecaptchaEnterpriseServiceClient({ credentials });
+  const authClient = new JWT();
+  authClient.fromJSON(credentials as JWTInput);
+
+  return new RecaptchaEnterpriseServiceClient({
+    auth: new GoogleAuth({ authClient }),
+  });
 }
 
 export class RecaptchaService {
