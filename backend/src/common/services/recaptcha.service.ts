@@ -12,6 +12,22 @@ type ServiceAccountCredentials = {
   private_key: string;
 };
 
+function logValidationFailure(
+  reason: string,
+  details: Record<string, unknown> = {},
+) {
+  if (process.env.NODE_ENV === "test") return;
+
+  console.warn(
+    JSON.stringify({
+      component: "recaptcha",
+      event: "validation_failed",
+      reason,
+      ...details,
+    }),
+  );
+}
+
 function createRecaptchaClient(): RecaptchaClient {
   const credentialsJson = process.env.GOOGLE_CLOUD_CREDENTIALS_JSON;
 
@@ -79,6 +95,12 @@ export class RecaptchaService {
       minScore < 0 ||
       minScore > 1
     ) {
+      logValidationFailure("invalid_configuration", {
+        hasToken: Boolean(token),
+        hasSiteKey: Boolean(siteKey),
+        hasProjectId: Boolean(projectId),
+        minScore,
+      });
       return false;
     }
 
@@ -101,16 +123,36 @@ export class RecaptchaService {
       const [response] = await this.client.createAssessment(assessmentRequest);
 
       if (!response.tokenProperties?.valid) {
+        logValidationFailure("invalid_token", {
+          invalidReason: response.tokenProperties?.invalidReason ?? "unspecified",
+        });
         return false;
       }
 
       if (response.tokenProperties.action !== expectedAction) {
+        logValidationFailure("action_mismatch", {
+          expectedAction,
+          receivedAction: response.tokenProperties.action ?? null,
+        });
         return false;
       }
 
       const score = response.riskAnalysis?.score ?? 0;
+      if (score < minScore) {
+        logValidationFailure("score_below_threshold", { score, minScore });
+      }
+
       return score >= minScore;
-    } catch {
+    } catch (error) {
+      const providerError = error as { code?: unknown; message?: unknown };
+
+      logValidationFailure("provider_error", {
+        code: providerError.code ?? null,
+        message:
+          typeof providerError.message === "string"
+            ? providerError.message
+            : "Erro desconhecido do provedor.",
+      });
       return false;
     }
   }
